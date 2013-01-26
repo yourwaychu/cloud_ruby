@@ -1,0 +1,3 @@
+module AccountModelHelper
+
+end
