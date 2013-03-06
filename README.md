@@ -1,6 +1,7 @@
 ## Prerequisites :
  - Ruby 1.9
  - CloudStack API commands
+ - gem install cloudstack_helper ; To this step, please refer to [cloudstack_helper](https://github.com/darrendao/cloudstack_helper)
 
 ## Usage:
 - Example-1 : Require zones in a cloudstack
