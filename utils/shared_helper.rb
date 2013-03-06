@@ -5,70 +5,115 @@ require 'digest/md5'
 class SharedFunction
 
   def SharedFunction.make_request(cs_helper,
-                                 params,
-                                 responseObjName,
-                                 requestObjName)
+                                  params,
+                                  response_name,
+                                  rObj_name)
+    @command = params[:command]
+
+    logger = Logger.new 'cloudstack.api.log'
+    logger.level = Logger::DEBUG
+  
+
+    if cs_helper.nil?
+      raise "This user is not register api keys yet."
+    end
+
+    jObj_name = rObj_name.downcase
+
+    if /vlan/i =~ response_name
+      jObj_name = 'vlan'
+      rObj_name = 'Vlan'
+    end
+
+    params[:response]="json"
+
+
+    ###############
+    # p response_name
+    # p jObj_name
+    # p rObj_name
+    ##############
+
+    begin
+      response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
+
+      if /(list|addcluster|addhost)/i.match @command
+        @result = [] 
+        if response["#{jObj_name}"]
+          response["#{jObj_name}"].each do |obj|
+            @result << CloudStack::Model.const_get(rObj_name).new(obj)
+          end
+        end
+      else
+        if response["#{jObj_name}"]
+          @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
+        end
+      end
+      logger.warn response
+      return @result
+    rescue => e
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"])) : (puts e)
+    end
+  end
+
+  def SharedFunction.make_async_request(cs_helper,
+                                        params,
+                                        responseObjName)
+    @command = params[:command]
+
     logger = Logger.new 'cloudstack.api.log'
     logger.level = Logger::DEBUG
     if cs_helper.nil?
       raise "This user is not register api keys yet."
     end
 
-    result = nil
     params[:response]="json"
+
     begin
-      result = JSON.parse(cs_helper.get(params).body)["#{responseObjName}"]
-      logger.warn result
-      return result
+      response = JSON.parse(cs_helper.get(params).body)["#{responseObjName}"]
+      logger.warn response
+      return response
     rescue => e
-      (e && e.response) ? (return JSON.parse(e.response)) : (puts e)
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"])) : (puts e)
     end
   end
+ 
+ # def SharedFunction.update_object(targetObj, newObj)
+ #   targetObj.class.attr_list.each do |attr|
+ #      tmp_m1 = targetObj.method "#{attr}="    
+ #      tmp_m2 = newObj.method "#{attr}"
+ #      tmp_m1.call tmp_m2.call
+ #   end
 
-  def SharedFunction.pack_params(targetObj, jsonObj)
-    targetObj.class.attr_list.each do |attr|
-      tmp_m = targetObj.method "#{attr}="
-      tmp_m.call jsonObj[attr]
-    end 
-    targetObj
- end
+ # end
 
- def SharedFunction.update_object(targetObj, newObj)
-   targetObj.class.attr_list.each do |attr|
-      tmp_m1 = targetObj.method "#{attr}="    
-      tmp_m2 = newObj.method "#{attr}"
-      tmp_m1.call tmp_m2.call
-   end
-
- end
-
- def SharedFunction.query_Async_job(cs_helper,
-                                    params)
+ def SharedFunction.query_async_job(cs_helper,
+                                    params,
+                                    requestObjName)
    if cs_helper.nil?
      raise "This user is not register api keys yet."
    end
 
    params[:response]="json"
    params[:command]="queryAsyncJobResult"
-   jobresult=0
+   jobstatus = 0
+
    begin
-     while jobresult == 0
-       @job = JSON.parse(cs_helper.get(params).body)\
-                          ["queryasyncjobresultresponse"]
-       jobresult = @job["jobstatus"]
+     while jobstatus == 0
+       asyncjobresponse = JSON.parse(cs_helper.get(params).body)["queryasyncjobresultresponse"]
+       jobstatus = asyncjobresponse["jobstatus"].to_i
        sleep 1
      end 
 
-     (puts "Async job failed for[#{@job['cmd']}]") unless jobresult == 1
+     @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
 
-     return @job
+     @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"])
+
+     return @result
    rescue => e
-     e.response ? (puts e.response) : (puts e)
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"])) : (puts e)
    end
  end
-
- 
-
 end
 
 class Module
@@ -78,21 +123,28 @@ class Module
       arga = arg.to_s.split('_')
 
       meta_method = %Q{
-        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}(args={});
-          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}";
+        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}(args={});
+          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}";
           params = {:command => command};
           params.merge! args unless args.empty?;
-          result = SharedFunction.make_request(
-                              @cs_helper,
-                              params,
-                              command.downcase+'response',
-                              APICOMMAND);
+          _responseObj = '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}'
+          if /list/i.match command
+            _responseObj.chomp! 's'
+          end
+          response = SharedFunction.make_request(
+                                    @cs_helper,
+                                    params,
+                                    command.downcase+'response',
+                                    _responseObj);
+          
+          if response && 
+             !response.instance_of?(CloudStack::Model::Error) &&
+             (/(create|update|delete|register)/i.match command);
 
-          if result && (/(create|update|delete|register)/i.match command);
             changed;
-            notify_observers('#{arg}', params, result);
+            notify_observers('#{arg}', params, response);
           end;
-          return result;
+          return response;
         end;
       }
       
@@ -105,26 +157,26 @@ class Module
       arga = arg.to_s.split('_')
 
       meta_method = %Q{
-        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}(args={});
-          command = "#{arga[0]}#{arga[1].capitalize}#{(arga[2].capitalize) unless arga[2].nil?}";
+        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}(args={});
+          command = "#{arga[0]}#{arga[1].capitalize}#{(arga[2].capitalize) unless arga[2].nil?}#{(arga[3].capitalize) unless arga[3].nil?}";
           params = {:command => command};
           params.merge! args unless args.empty?;
-          job = SharedFunction.make_request(
-                              @cs_helper,
-                              params,
-                              command.downcase+'response',
-                              'jobid');
-          jobresponse = SharedFunction.query_Async_job(
-                                       @cs_helper,
-                                       {:jobid => job['jobid']});
+          jJob = SharedFunction.make_async_request(@cs_helper,
+                                                   params,
+                                                   command.downcase+'response');
+          
 
-          if (jobresponse['jobstatus'] == 1) &&
-                (/(create|update|delete)/i.match command);
+          responseObj = SharedFunction.query_async_job(
+                                       @cs_helper,
+                                       {:jobid => jJob['jobid']},
+                                       '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
+
+          if (/(create|update|delete)/i.match command);
             changed;
-            notify_observers('#{arg}', params, jobresponse);
+            notify_observers('#{arg}', params, responseObj);
           end;
 
-          return jobresponse;
+          return responseObj;
         end;
       }
       

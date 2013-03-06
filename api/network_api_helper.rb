@@ -1,11 +1,21 @@
 module CloudStackNetworkApiHelper
 
-  APICOMMAND = "network"
-
-  sync_cmd_processor :list_network_offerings, :create_network_offering,
-                     :delete_network_offering, :update_network_offering,
-                     :list_physical_networks
-                     
-  async_cmd_processor :create_physical_network, :delete_physical_network
-
+  sync_cmd_processor :list_network_offerings,
+                     :create_network_offering,
+                     :delete_network_offering,
+                     :update_network_offering,
+                     :list_physical_networks,
+                     :list_network_service_providers,
+                     :list_virtual_router_elements,
+                     :create_network,
+                     :create_vlan_ip_range,
+                     :add_secondary_storage
+      
+  async_cmd_processor :create_physical_network,
+                      :delete_physical_network,
+                      :add_traffic_type,
+                      :update_physical_network,
+                      :configure_virtual_router_element,
+                      :update_network_service_provider
+                      
 end

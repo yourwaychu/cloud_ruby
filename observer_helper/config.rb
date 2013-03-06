@@ -1,7 +1,5 @@
-require_relative 'account_obsvr_helper'
+require_relative 'accounts_obsvr_helper'
 require_relative 'disk_offering_obsvr_helper'
-require_relative 'domain_obsvr_helper'
 require_relative 'infra_obsvr_helper'
 require_relative 'network_obsvr_helper'
 require_relative 'service_offering_obsvr_helper'
-require_relative 'user_obsvr_helper'

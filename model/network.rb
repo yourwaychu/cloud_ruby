@@ -1,40 +1,160 @@
-require 'active_support/all'
-
 module CloudStack
   module Model
+
+    class Network < Raw
+
+      cattr_accessor :attr_list
+
+      attr_accessor :id,
+                    :name,
+                    :displaytext,
+                    :broadcastdomaintype,
+                    :traffictype,
+                    :zoneid,
+                    :zonename,
+                    :networkofferingid,
+                    :networkofferingname,
+                    :networkofferingdisplaytext,
+                    :networkofferingavailability,
+                    :issystem,
+                    :state,
+                    :related,
+                    :dns1,
+                    :type,
+                    :acltype,
+                    :subdomainaccess,
+                    :domainid,
+                    :domain,
+                    :service,
+                    :networkdomain,
+                    :physicalnetworkid,
+                    :restartrequired,
+                    :specifyipranges,
+                    :canusefordeploy,
+                    :ispersistent,
+                    :tags
+                    
+      @@attr_list = [:id,
+                     :name,
+                     :displaytext,
+                     :broadcastdomaintype,
+                     :traffictype,
+                     :zoneid,
+                     :zonename,
+                     :networkofferingid,
+                     :networkofferingname,
+                     :networkofferingdisplaytext,
+                     :networkofferingavailability,
+                     :issystem,
+                     :state,
+                     :related,
+                     :dns1,
+                     :type,
+                     :acltype,
+                     :subdomainaccess,
+                     :domainid,
+                     :domain,
+                     :service,
+                     :networkdomain,
+                     :physicalnetworkid,
+                     :restartrequired,
+                     :specifyipranges,
+                     :canusefordeploy,
+                     :ispersistent,
+                     :tags]
+
+    end
+
+    class PhysicalNetwork < Raw
+
+      cattr_accessor :attr_list
+
+      attr_accessor :id, :broadcastdomainrange, :domainid, :isolationmethods,
+                    :name, :networkspeed, :state, :tags, :vlan, :zoneid
+
+      @@attr_list=[:id, :broadcastdomainrange, :domainid, :isolationmethods,
+                    :name, :networkspeed, :state, :tags, :vlan, :zoneid]
+
+    end
     
-    class NetworkOffering
+    class TrafficType < Raw
+
+      cattr_accessor :attr_list
+
+      attr_accessor :id, :traffictype, :physicalnetworkid
+
+      @@attr_list = [:id, :traffictype, :physicalnetworkid]
+
+    end
+
+    class NetworkServiceProvider < Raw
+      cattr_accessor :attr_list
+      attr_accessor :id, :name, :physicalnetworkid, :state, :servicelist
+      @@attr_list = [:id, :name, :physicalnetworkid, :state, :servicelist] 
+
+    end
+
+
+    class VirtualRouterElement < Raw
+      cattr_accessor :attr_list
+      attr_accessor :id, :nspid, :enabled
+      @@attr_list = [:id, :nspid, :enabled]
+
+    end
+
+
+
+    class NetworkOffering < Raw
       cattr_accessor :attr_list
 
       attr_accessor :id, :name, :displaytext, :traffictype, :isdefault,
                     :specifyvlan, :conservemode, :specifyipranges,
                     :availability, :networkrate, :state, :guestiptype,
-                    :serviceofferingid, :services
+                    :serviceofferingid
 
-      @@attr_list=["id", "name", "displaytext", "traffictype",
-                   "isdefault", "specifyvlan", "conservemode",
-                   "specifyipranges", "availability", "networkrate",
-                   "state", "guestiptype", "serviceofferingid"]
-      def initialize
-        @services={}
-      end
+      @@attr_list=[:id, :name, :displaytext, :traffictype, :isdefault,
+                   :specifyvlan, :conservemode, :specifyipranges,
+                   :availability, :networkrate, :state, :guestiptype,
+                   :serviceofferingid]
+
     end
 
-    class NetworkOfferingService
+    class Vlan < Raw
       cattr_accessor :attr_list
-      attr_accessor :name, :providers
-      @@attr_list=["name"]
-      def initialize
-        @providers={}
-      end
-    end
+      attr_accessor :id,
+                    :forvirtualnetwork,
+                    :zoneid,
+                    :vlan,
+                    :account,
+                    :domainid,
+                    :domain,
+                    :podid,
+                    :podname,
+                    :gateway,
+                    :netmask,
+                    :startip,
+                    :endip,
+                    :networkid,
+                    :physicalnetworkid
+                    
+      @@attr_list = [:id,
+                    :forvirtualnetwork,
+                    :zoneid,
+                    :vlan,
+                    :account,
+                    :domainid,
+                    :domain,
+                    :podid,
+                    :podname,
+                    :gateway,
+                    :netmask,
+                    :startip,
+                    :endip,
+                    :networkid,
+                    :physicalnetworkid]
 
-    class NetworkOfferingServiceProvider
-      cattr_accessor :attr_list
-      attr_accessor :name
-      @@attr_list=["name"]
     end
-    
+   
   end # End of module module
 end # End of cloudstack module
 

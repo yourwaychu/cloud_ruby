@@ -4,8 +4,8 @@ module CloudStackObserver
         @cs_instance = cs_instance 
       end
 
-      def update(invoking, h_para, j_data) 
-        @cs_instance.method("#{invoking}").call(h_para, j_data)
+      def update(invoking, h_para, obj) 
+        return @cs_instance.method("#{invoking}").call(h_para, obj)
       end
   end
 end

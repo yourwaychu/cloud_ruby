@@ -1,21 +1,29 @@
-
-module UserObsvrHelper
+module AccountsObsvrHelper
 
 private
-  def create_user(h_para, resp)
-    userJObj = resp['user']
-    userObj = SharedFunction.pack_params CloudStack::Model::User.new, userJObj
-    @domains["#{userObj.domainid}"].accounts.each do |k, v|
-      if v.name.eql? "#{userObj.account}"
-        v.users["#{userObj.id}"] = userObj
-      end
+  def create_account(h_para, accObj)
+    @accounts["#{accObj.id}"] = accObj
+  end
+  
+  def create_domain(h_para, domainObj)
+    @domains["#{domainObj.id}"]=domainObj
+  end
+
+  def update_domain(h_para, domainObj)
+    SharedFunction.update_object @domains["#{domainObj.id}"], domainObj
+  end
+
+  def delete_domain(h_para, resp) # aynchronous
+    if resp == 1
+      @domains.delete h_para[:id]
     end
+  end
+  
+  def create_user(h_para, userObj)
     @users["#{userObj.id}"] = userObj
   end
 
-  def update_user(h_para, resp)
-    userJObj = resp['user']
-    userObj = SharedFunction.pack_params CloudStack::Model::User.new, userJObj
+  def update_user(h_para, userObj)
     SharedFunction.update_object @users["#{userObj.id}"], userObj
   end
 
@@ -42,5 +50,4 @@ private
     end
   end
 end
-
 

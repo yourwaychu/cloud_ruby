@@ -14,9 +14,7 @@ module CloudStack
 
     include CloudStackObserver
     include CloudStackMainHelper
-    include DomainObsvrHelper
-    include AccountObsvrHelper
-    include UserObsvrHelper
+    include AccountsObsvrHelper
     include NetworkObsvrHelper
     include DiskOfferingObsvrHelper
     include ServiceOfferingObsvrHelper
@@ -30,41 +28,23 @@ module CloudStack
     def initialize(ip, port, i_port)
       logger = Logger.new('cloudstack.sdk.log')
       logger.level = Logger::WARN
+      @observer = CloudStackEnvObserver.new(self)
       @request_url = "http://#{ip}:#{port}/client/api"
       @admin_request_url = "http://#{ip}:#{i_port}/client/api"
-      @domains = {}
-      @accounts = {}
-      @users = {}
-      @networkofferings = {}
-      @diskofferings = {}
-      @serviceofferings = {}
-      @zones = {}
-      @pods = {}
-      @clusters = {}
-      @hosts = {}
+      @domains      = {}
+      @accounts     = {}
+      @users        = {}
+      @zones        = {}
+      @pods         = {}
+      @clusters     = {}
+      @hosts        = {}
       @physical_networks = {}
-      @templates = {}
-      @observer = CloudStackEnvObserver.new(self)
+      @networkofferings = {}
+      # @diskofferings = {}
+      # @serviceofferings = {}
+      # @templates = {}
       register_root_admin
-      update_env_domains
-      update_env_accounts
-      update_env_users
-      update_env_network_offerings
-      update_env_disk_offerings
-      update_env_service_offerings
-      update_env_zones
-      update_env_pods
-      update_env_clusters
-      update_env_hosts
-      update_env_uservms
-      update_env_ssvms
-      update_env_pristorages
-      update_env_secstorages
-      update_env_vrouters
-      update_env_templates
+      update_env
     end
   end
 end
-
-
-

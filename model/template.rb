@@ -9,14 +9,11 @@ module CloudStack
                     :account, :zoneid, :zonename, :status, :templatetype,
                     :hypervisor, :domain, :domainid, :isextractable, :checksum
 
-      @@attr_list=["id", "name", "ispublic" ,"isready", "passwordenabled",
-                   "format", "isfeatured", "crosszones", "ostypeid", 
-                   "ostypename", "account", "zoneid", "zonename", "status",
-                   "templatetype","hypervisor", "domain", "domainid",
-                   "isextractable", "checksum"]
+      @@attr_list=[:id, :name, :ispublic, :isready, :passwordenabled,
+                   :format, :isfeatured, :crosszones, :ostypeid, :ostypename,
+                   :account, :zoneid, :zonename, :status, :templatetype,
+                   :hypervisor, :domain, :domainid, :isextractable, :checksum]
                    
-      def initialize
-      end
     end
   end
 end
