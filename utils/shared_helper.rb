@@ -27,13 +27,6 @@ class SharedFunction
 
     params[:response]="json"
 
-
-    ###############
-    # p response_name
-    # p jObj_name
-    # p rObj_name
-    ##############
-
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
 
@@ -44,6 +37,8 @@ class SharedFunction
             @result << CloudStack::Model.const_get(rObj_name).new(obj)
           end
         end
+      elsif /(deletUser)/i.match @command    # for success response object
+          @result = CloudStack::Model.const_get("Success").new response
       else
         if response["#{jObj_name}"]
           @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
@@ -89,6 +84,7 @@ class SharedFunction
 
  def SharedFunction.query_async_job(cs_helper,
                                     params,
+                                    requestCommand,
                                     requestObjName)
    if cs_helper.nil?
      raise "This user is not register api keys yet."
@@ -107,7 +103,11 @@ class SharedFunction
 
      @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
 
-     @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"])
+     if /(deleteAccount|deleteDomain)/i.match requestCommand
+       @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult)
+     else
+       @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"])
+     end
 
      return @result
    rescue => e
@@ -169,6 +169,7 @@ class Module
           responseObj = SharedFunction.query_async_job(
                                        @cs_helper,
                                        {:jobid => jJob['jobid']},
+                                       command,
                                        '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
 
           if (/(create|update|delete)/i.match command);
