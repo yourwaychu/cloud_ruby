@@ -1,6 +1,7 @@
 ## Prerequisites :
  - Ruby 1.9
  - CloudStack API commands
+
 ## Usage:
 - Example-1 : Require zones in a cloudstack
 
