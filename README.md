@@ -20,7 +20,7 @@
 
         require 'cloudstack'
         cs = CloudStack::CloudStack.new  "192.168.56.10", "8080", "8096"
-        user1 = cs.users.first
+        user1 = cs.users["put the user id here"]
         user1.list_zones :listall=>true
 
   - note : The response will reflect if a api caller has corresponding priviledge
