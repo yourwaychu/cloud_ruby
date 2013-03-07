@@ -37,7 +37,7 @@ class SharedFunction
             @result << CloudStack::Model.const_get(rObj_name).new(obj)
           end
         end
-      elsif /(deletUser)/i.match @command    # for success response object
+      elsif /(deleteUser)/i.match @command    # for success response object
           @result = CloudStack::Model.const_get("Success").new response
       else
         if response["#{jObj_name}"]
@@ -172,7 +172,7 @@ class Module
                                        command,
                                        '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
 
-          if (/(create|update|delete)/i.match command);
+          if (/(create|update|delete|diable|enable)/i.match command);
             changed;
             notify_observers('#{arg}', params, responseObj);
           end;

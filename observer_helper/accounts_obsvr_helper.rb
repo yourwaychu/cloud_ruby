@@ -24,7 +24,7 @@ private
   end
 
   def delete_account(h_para, respObj)
-    if respObj.success == true
+    if respObj.success.to_s.eql? "true"
       @accounts.delete "#{h_para[:id]}"
     end
   end
@@ -48,8 +48,8 @@ private
   end
 
 
-  def delete_user(h_para, resp)
-    if respObj.success == true
+  def delete_user(h_para, respObj)
+    if respObj.success.to_s.eql? "true"
       @users.delete "#{h_para[:id]}"
     end
   end

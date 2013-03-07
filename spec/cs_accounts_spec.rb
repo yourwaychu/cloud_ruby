@@ -89,5 +89,48 @@ module CloudStack_Domain
       @cs.accounts["#{@accObj.id}"].should be_nil
     end
 
+    it "create user" do
+      @domain  = @cs.domains.choose("ROOT").first
+      @userObj = @cs.root_admin.create_user :username  => "testuser",
+                                            :password  => "novirus",
+                                            :email     => "testuesr@trend.com.tw",
+                                            :firstname => "testuser",
+                                            :lastname  => "testuser",
+                                            :domainid  => "#{@domain.id}",
+                                            :account   => "admin"
+
+      @cs.users["#{@userObj.id}"].username.should.eql? "testuser"
+    end
+
+    it "update user" do
+      @userObj = @cs.users.choose("testuser").first
+      @userObj = @cs.root_admin.update_user :id       => "#{@userObj.id}",
+                                            :username => "updatedtestuser"
+
+      @cs.users["#{@userObj.id}"].username.should.eql? "updatedtestuser"
+    end
+
+    it "diable user" do
+      @userObj = @cs.users.choose("updatedtestuser").first
+      @userObj = @cs.root_admin.disable_user :id => "#{@userObj.id}"
+      @cs.users["#{@userObj.id}"].state.should.eql? "diabled"
+    end
+
+    it "enable user" do
+      @userObj = @cs.users.choose("updatedtestuser").first
+      @userObj = @cs.root_admin.enable_user :id => "#{@userObj.id}"
+      @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
+    end
+
+    it "delete user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "updatedtestuser"
+          @userObj = v
+        end
+      end
+      @resultObj = @cs.root_admin.delete_user :id => "#{@userObj.id}"
+      @cs.users["#{@userObj.id}"].should be_nil
+    end
+
   end 
 end
