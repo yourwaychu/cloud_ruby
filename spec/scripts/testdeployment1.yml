@@ -1,5 +1,5 @@
 cloudstack:
-  host: localhost
+  host: 10.1.228.173
   port: 8080
   apiport: 8096
 
