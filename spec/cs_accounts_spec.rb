@@ -121,6 +121,13 @@ module CloudStack_Domain
       @userObj = @cs.root_admin.enable_user :id => "#{@userObj.id}"
       @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
     end
+    
+    it "register user keys" do
+      @userObj = @cs.users.choose("updatedtestuser").first
+      @userkeys = @cs.root_admin.register_user_keys :id => "#{@userObj.id}"
+      @cs.users["#{@userObj.id}"].apikey.should_not be_nil
+      @cs.users["#{@userObj.id}"].secretkey.should_not be_nil
+    end
 
     it "delete user" do
       @cs.users.each do |k, v|

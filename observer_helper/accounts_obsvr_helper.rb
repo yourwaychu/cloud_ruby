@@ -37,14 +37,11 @@ private
     @users["#{userObj.id}"] = userObj
   end
 
-  def register_user_keys(h_para, resp)
-    if resp
-      @keyJObj = resp['userkeys']
+  def register_user_keys(h_para, keyObj)
       @userObj = @users["#{h_para[:id]}"]
-      @userObj.apikey = "#{@keyJObj['apikey']}"
-      @userObj.secretkey = "#{@keyJObj['secretkey']}"
-      @userObj.registerCSHelper(request_url, self)
-    end
+      @userObj.apikey = "#{keyObj.apikey}"
+      @userObj.secretkey = "#{keyObj.secretkey}"
+      @userObj.registerCSHelper request_url, self
   end
 
 

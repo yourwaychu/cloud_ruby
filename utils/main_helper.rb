@@ -103,4 +103,42 @@ private
       @hosts["#{obj.id}"] = obj
     end
   end
+
+  def format_logger(params) 
+    # action, action target, in what step
+    if params[0] && params[1] && params[2]
+      puts "%-40s: %-30s -- %-10s" % params
+    elsif params[0] && params[1]
+      puts "%-40s: %-30s" % params
+    elsif params[0]
+      puts "%-40s" % params
+    end
+  end
+  
+  # def deploy(*args)
+  #    _deploy_config = YAML.load_file "#{args[0]}"
+  #    _deploy_config.each do |config|
+  #      case config[0]
+  #      when /cloudstack/i
+  #        params={}
+  #        params[:host]    = "#{config[1]["host"]}"
+  #        params[:port]    = "#{config[1]["port"]}"
+  #        params[:apiport] = "#{config[1]["apiport"]}"
+  # 
+  #        @cs = create_cloudstack params
+  #      when /accounts/i
+  #        format_logger ["Parsing Accounts..."]
+  #        config[1]["domains"].each do |domain|
+  #          create_domain @cs, domain 
+  #        end
+  #      when /infrastructure/i
+  #        format_logger ["Parsing Infrastructure..."]
+  #        config[1]["zones"].each do |zone|
+  #          create_zone @cs, zone
+  #        end
+  #      else
+  #        puts "Error!"
+  #      end
+  #    end
+  # end
 end

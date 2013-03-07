@@ -48,10 +48,10 @@ module CloudStack
 
       include Observable
       include UserModelHelper
-      include CloudStackDomainApiHelper
-      include CloudStackAccountApiHelper
-      include CloudStackUserApiHelper
-      include CloudStackUserkeysApiHelper
+      # include CloudStackDomainApiHelper
+      include CloudStackAccountsApiHelper
+      # include CloudStackUserApiHelper
+      # include CloudStackUserkeysApiHelper
       include CloudStackNetworkApiHelper
       include CloudStackDiskOfferingApiHelper
       include CloudStackServiceOfferingApiHelper
@@ -100,9 +100,11 @@ module CloudStack
 
     end
     
-    class Userkeys < Raw
-
-      cattr_accessor :apikey, :secretkey
+    class UserKeys < Raw
+      
+      cattr_accessor :attr_list
+      
+      attr_accessor :apikey, :secretkey
 
       @@attr_list = [:apikey, :secretkey]
 
