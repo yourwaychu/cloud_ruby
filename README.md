@@ -31,3 +31,7 @@
         $./cloudstack_deployer.rb spec/scripts/testdeployement1.yml
 
   - note : The deployer supports only DevCloud2 by now
+
+## Currently Supported API commands
+- Accounts :
+    list_domians, create_domain, udpate_domain, delete_domain, list_accounts, create_account, update_account, delete_account, list_users,  create_users, update_users, disable_user, enable_user, delete_user
