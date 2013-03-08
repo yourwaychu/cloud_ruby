@@ -48,18 +48,12 @@ module CloudStack
 
       include Observable
       include UserModelHelper
-      # include CloudStackDomainApiHelper
       include CloudStackAccountsApiHelper
-      # include CloudStackUserApiHelper
-      # include CloudStackUserkeysApiHelper
       include CloudStackNetworkApiHelper
       include CloudStackDiskOfferingApiHelper
       include CloudStackServiceOfferingApiHelper
-      include CloudStackZoneApiHelper
+      include CloudStackInfraApiHelper
       include CloudStackTemplateApiHelper
-      include CloudStackPodApiHelper
-      include CloudStackClusterApiHelper
-      include CloudStackHostApiHelper
       include CloudStackVMApiHelper
 
       cattr_accessor :attr_list

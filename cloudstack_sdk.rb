@@ -29,7 +29,7 @@ module CloudStack
       logger = Logger.new('cloudstack.sdk.log')
       logger.level = Logger::WARN
       @observer = CloudStackEnvObserver.new(self)
-      @modelobserver = CloudStackModelObserver.new(self)
+      #@modelobserver = CloudStackModelObserver.new(self)
       @request_url = "http://#{ip}:#{port}/client/api"
       @admin_request_url = "http://#{ip}:#{i_port}/client/api"
       @domains      = {}

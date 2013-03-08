@@ -203,5 +203,53 @@ module CloudStack
 
     end
 
+    class SystemVm < Raw
+      cattr_accessor :attr_list
+      attr_accessor :id,
+                    :systemvmtype,
+                    :zoneid,
+                    :zonename,
+                    :dns1,
+                    :gateway,
+                    :name,
+                    :podid,
+                    :hostid,
+                    :hostname,
+                    :privateip,
+                    :privatemacaddress,
+                    :privatenetmask,
+                    :linklocalip,
+                    :linklocalmacaddress,
+                    :linklocalnetmask,
+                    :publicip,
+                    :publicmacaddress,
+                    :publicnetmask,
+                    :templateid,
+                    :state
+
+      @@attr_list = [:id,
+                     :systemvmtype,
+                     :zoneid,
+                     :zonename,
+                     :dns1,
+                     :gateway,
+                     :name,
+                     :podid,
+                     :hostid,
+                     :hostname,
+                     :privateip,
+                     :privatemacaddress,
+                     :privatenetmask,
+                     :linklocalip,
+                     :linklocalmacaddress,
+                     :linklocalnetmask,
+                     :publicip,
+                     :publicmacaddress,
+                     :publicnetmask,
+                     :templateid,
+                     :state]
+
+    end
+
   end # End of module module
 end # End of cloudstack module
