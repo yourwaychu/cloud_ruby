@@ -1,8 +1,8 @@
-#cs_domain_spec
+#cs_accounts_spec
 require 'yaml'
 require_relative '../cloudstack'
 
-module CloudStack_Domain
+module CloudStack_Testing
   describe CloudStack, "Account" do
     before(:all) do
       config = YAML.load_file("spec/config.yml")

@@ -1,5 +1,5 @@
 development:
     # host: 10.1.228.173
-    host: 192.168.0.198
+    host: localhost
     port: 8080
     apiport: 8096

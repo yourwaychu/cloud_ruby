@@ -1,22 +1,40 @@
 module ServiceOfferingObsvrHelper
 
 private
-  def create_service_offering(h_para, resp)
-    serviceOfferJObj = resp['serviceoffering']
-    serviceOfferObj = SharedFunction.pack_params CloudStack::Model::ServiceOffering.new, serviceOfferJObj
-    @serviceofferings["#{serviceOfferObj.id}"] = serviceOfferObj
+  def create_service_offering(h_para, respObj)
+    if respObj
+      @service_offerings["#{respObj.id}"] = respObj
+    end
   end
 
-  def update_service_offering(h_para, resp)
-    serviceOfferJObj = resp['serviceoffering']
-    serviceOfferObj = SharedFunction.pack_params CloudStack::Model::ServiceOffering.new, serviceOfferJObj
-
-    SharedFunction.update_object @serviceofferings["#{serviceOfferObj.id}"], serviceOfferObj
+  def update_service_offering(h_para, respObj)
+    if respObj
+      @service_offerings["#{respObj.id}"] = respObj
+    end
   end
 
-  def delete_service_offering(h_para, resp)
-    if resp['success'].eql? "true"
-      @serviceofferings.delete h_para[:id]
+  def delete_service_offering(h_para, respObj)
+    if respObj.success.eql? "true"
+      @service_offerings.delete h_para[:id]
+    end
+  end
+
+  def create_disk_offering(h_para, respObj) 
+    if respObj
+      @disk_offerings["#{respObj.id}"] = respObj
+    end
+  end
+
+
+  def update_disk_offering(h_para, respObj) 
+    if respObj
+      @disk_offerings["#{respObj.id}"] = respObj
+    end
+  end
+
+  def delete_disk_offering(h_para, respObj) 
+    if respObj.success.eql? "true"
+      @disk_offerings.delete h_para[:id]
     end
   end
 end

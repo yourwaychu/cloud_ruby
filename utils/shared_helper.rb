@@ -37,7 +37,8 @@ class SharedFunction
             @result << CloudStack::Model.const_get(rObj_name).new(obj)
           end
         end
-      elsif /(deleteUser|deleteCluster|deletePod)/i.match @command    # for success response object
+      # FIXME : Ugly code here, need refactor
+      elsif /(deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering)/i.match @command    # for success response object
           @result = CloudStack::Model.const_get("Success").new response
       else
         if response["#{jObj_name}"]

@@ -16,7 +16,6 @@ module CloudStack
     include CloudStackMainHelper
     include AccountsObsvrHelper
     include NetworkObsvrHelper
-    include DiskOfferingObsvrHelper
     include ServiceOfferingObsvrHelper
     include InfraObsvrHelper
 

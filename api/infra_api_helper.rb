@@ -20,7 +20,7 @@ module CloudStackInfraApiHelper
   async_cmd_processor :reboot_system_vm,
                       :start_system_vm,
                       :stop_system_vm,
-                      :deytroy_system_vm
+                      :destroy_system_vm
 
 
                   

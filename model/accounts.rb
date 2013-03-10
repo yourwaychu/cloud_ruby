@@ -50,7 +50,6 @@ module CloudStack
       include UserModelHelper
       include CloudStackAccountsApiHelper
       include CloudStackNetworkApiHelper
-      include CloudStackDiskOfferingApiHelper
       include CloudStackServiceOfferingApiHelper
       include CloudStackInfraApiHelper
       include CloudStackTemplateApiHelper

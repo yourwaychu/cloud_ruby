@@ -18,12 +18,34 @@ module CloudStack
     
     class ServiceOffering < Raw
       cattr_accessor :attr_list
-      attr_accessor :id, :name, :displaytext, :cpunumber, :cpuspeed, :memory,
-                    :storagetype, :offerha, :limitcpuuse, :tags, :issystem,
-                    :defaultuse, :networkrate
-      @@attr_list=[:id, :name, :displaytext, :cpunumber, :cpuspeed, :memory,
-                   :storagetype, :offerha, :limitcpuuse, :tags, :issystem,
-                   :defaultuse, :networkrate]
+      attr_accessor :id,
+                    :name,
+                    :displaytext,
+                    :cpunumber,
+                    :cpuspeed,
+                    :memory,
+                    :storagetype,
+                    :offerha,
+                    :limitcpuuse,
+                    :issystem,
+                    :defaultuse,
+                    :networkrate,
+                    :tags,
+                    :hosttags
+      @@attr_list=[:id,
+                   :name,
+                   :displaytext,
+                   :cpunumber,
+                   :cpuspeed,
+                   :memory,
+                   :storagetype,
+                   :offerha,
+                   :limitcpuuse,
+                   :issystem,
+                   :defaultuse,
+                   :networkrate,
+                   :tags,
+                   :hosttags]
 
     end
     

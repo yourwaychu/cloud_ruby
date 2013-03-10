@@ -2,33 +2,25 @@ module CloudStackMainHelper
 
 private
   def register_root_admin
-    listuserresponse = RestClient.send(
-                                    :get,
-                                    "#{@admin_request_url}?" +
-                                    "command=listUsers&" +
-                                    "username=admin&response=json")
+    listuserresponse = RestClient.send(:get,
+                                       "#{@admin_request_url}?" +
+                                       "command=listUsers&" +
+                                       "username=admin&response=json")
 
-    adminObj = JSON.parse(listuserresponse)['listusersresponse']['user'][0]
+    @root_admin = CloudStack::Model::Admin.new JSON.parse(listuserresponse)['listusersresponse']['user'][0]
 
 
-    registeruserkeyresponse = RestClient.send(
-                                           :get,
-                                           "#{@admin_request_url}?" +
-                                           "command=registerUserKeys&"+
-                                           "id=#{adminObj['id']}&"+
-                                           "response=json")
-    adminkeyObj = JSON.parse(
-           registeruserkeyresponse)['registeruserkeysresponse']['userkeys']
-    
-    listuserresponse = RestClient.send(
-                                    :get,
-                                    "#{@admin_request_url}?" +
-                                    "command=listUsers&" +
-                                    "username=admin&response=json")
+    registeruserkeyresponse = RestClient.send(:get,
+                                              "#{@admin_request_url}?" +
+                                              "command=registerUserKeys&"+
+                                              "id=#{@root_admin.id}&"+
+                                              "response=json")
 
-    adminJObj = JSON.parse(listuserresponse)['listusersresponse']['user'][0]
 
-    @root_admin = CloudStack::Model::Admin.new adminJObj
+    adminkeyObj = CloudStack::Model::UserKeys.new JSON.parse(registeruserkeyresponse)['registeruserkeysresponse']['userkeys']
+
+    @root_admin.apikey      = adminkeyObj.apikey
+    @root_admin.secretkey   = adminkeyObj.secretkey
     @root_admin.add_observer @observer
     @root_admin.registerCSHelper(request_url, self)
   end
@@ -43,6 +35,14 @@ private
     update_env_hosts
     update_env_network_offerings
     update_env_service_offerings
+    update_env_disk_offerings
+  end
+
+  def update_env_disk_offerings
+    resultObjs = @root_admin.list_disk_offerings
+    resultObjs.each do |obj|
+      @disk_offerings["#{obj.id}"] = obj
+    end
   end
 
   def update_env_service_offerings
