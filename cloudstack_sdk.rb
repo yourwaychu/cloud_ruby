@@ -21,8 +21,8 @@ module CloudStack
     include InfraObsvrHelper
 
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
-                :users, :domains, :networkofferings, :diskofferings,
-                :serviceofferings, :zones, :physical_networks, :templates,
+                :users, :domains, :network_offerings, :disk_offerings,
+                :service_offerings, :zones, :physical_networks, :templates,
                 :pods, :clusters, :hosts
   
     def initialize(ip, port, i_port)
@@ -40,10 +40,9 @@ module CloudStack
       @clusters     = {}
       @hosts        = {}
       @physical_networks = {}
-      @networkofferings = {}
-      # @diskofferings = {}
-      # @serviceofferings = {}
-      # @templates = {}
+      @network_offerings = {}
+      @service_offerings = {}
+      @disk_offerings = {}
       register_root_admin
       update_env
     end

@@ -37,3 +37,5 @@
     list_domians, create_domain, udpate_domain, delete_domain, list_accounts, create_account, update_account, delete_account, list_users,  create_user, update_user, disable_user, enable_user, delete_user, register_user_keys
 - Infrastructure :
     create_zone, create_physical_network, add_traffic_type, update_physical_network, list_network_service_providers, list_virtual_router_elements, configure_virtual_router_element, update_network_service_provider, update_network_service_provider, create_network, create_pod, create_vlan_ip_range, add_cluster, add_host, add_secondary_storage, update_zone
+- VirtualMachine :
+    deploy_virtual_machine, destroy_virtual_machine, reboot_virtual_machine, start_virtual_machine, stop_virtual_machine

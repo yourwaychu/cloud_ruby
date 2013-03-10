@@ -41,13 +41,22 @@ private
     update_env_pods
     update_env_clusters
     update_env_hosts
-    update_env_networkofferings
+    update_env_network_offerings
+    update_env_service_offerings
   end
+
+  def update_env_service_offerings
+    resultObjs = @root_admin.list_service_offerings
+    resultObjs.each do |obj|
+      @service_offerings["#{obj.id}"] = obj
+    end
+  end
+
   
-  def update_env_networkofferings
+  def update_env_network_offerings
     resultObjs = @root_admin.list_network_offerings :listall => true
     resultObjs.each do |obj|
-      @networkofferings["#{obj.id}"] = obj
+      @network_offerings["#{obj.id}"] = obj
     end
   end
   

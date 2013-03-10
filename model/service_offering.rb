@@ -4,7 +4,7 @@ require 'active_support/all'
 module CloudStack
   module Model
     
-    class DiskOffering
+    class DiskOffering < Raw
       
       cattr_accessor :attr_list
       
@@ -16,7 +16,7 @@ module CloudStack
 
     end
     
-    class ServiceOffering
+    class ServiceOffering < Raw
       cattr_accessor :attr_list
       attr_accessor :id, :name, :displaytext, :cpunumber, :cpuspeed, :memory,
                     :storagetype, :offerha, :limitcpuuse, :tags, :issystem,
