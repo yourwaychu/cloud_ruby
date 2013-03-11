@@ -36,8 +36,15 @@ private
     update_env_network_offerings
     update_env_service_offerings
     update_env_disk_offerings
+    update_env_system_vms
   end
 
+  def update_env_system_vms
+    resultObjs = @root_admin.list_system_vms
+    resultObjs.each do |obj|
+      @systemvms["#{obj.id}"] = obj
+    end
+  end
   def update_env_disk_offerings
     resultObjs = @root_admin.list_disk_offerings
     resultObjs.each do |obj|

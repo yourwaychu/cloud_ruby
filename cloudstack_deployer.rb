@@ -165,7 +165,7 @@ def create_zone(cs, params)
                                                 
   format_logger ["Setting up network offering","","Done"]
   
-  @networkoffering = cs.networkofferings.choose("DefaultSharedNetworkOfferingWithSGService").first
+  @networkoffering = cs.network_offerings.choose("DefaultSharedNetworkOfferingWithSGService").first
 
   @network = cs.root_admin.create_network :displaytext  => "defaultGuestNetwork",
                                           :name         => "defaultGuestNetwork",

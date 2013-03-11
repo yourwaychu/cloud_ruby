@@ -22,13 +22,12 @@ module CloudStack
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
                 :users, :domains, :network_offerings, :disk_offerings,
                 :service_offerings, :zones, :physical_networks, :templates,
-                :pods, :clusters, :hosts
+                :pods, :clusters, :hosts, :systemvms
   
     def initialize(ip, port, i_port)
-      logger = Logger.new('cloudstack.sdk.log')
-      logger.level = Logger::WARN
+      @logger = Logger.new('cloudstack.sdk.log')
+      @logger.level = Logger::WARN
       @observer = CloudStackEnvObserver.new(self)
-      #@modelobserver = CloudStackModelObserver.new(self)
       @request_url = "http://#{ip}:#{port}/client/api"
       @admin_request_url = "http://#{ip}:#{i_port}/client/api"
       @domains      = {}
@@ -38,6 +37,7 @@ module CloudStack
       @pods         = {}
       @clusters     = {}
       @hosts        = {}
+      @systemvms    = {}
       @physical_networks = {}
       @network_offerings = {}
       @service_offerings = {}
