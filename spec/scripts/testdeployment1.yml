@@ -7,7 +7,7 @@ cloudstack:
 infrastructure:
   zones:
     - name:          testzone
-      networktype:   basic
+      networktype:   Basic
       public_dns1:   8.8.8.8
       public_dns2:
       internal_dns1:

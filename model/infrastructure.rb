@@ -41,6 +41,11 @@ module CloudStack
                      :guestcidraddress,
                      :securitygroupenabled,
                      :physical_networks]
+
+      def create_physical_network(*args)
+
+      end
+
     end
     
     class Pod < Raw

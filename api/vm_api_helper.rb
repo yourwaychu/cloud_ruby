@@ -1,4 +1,4 @@
-module CloudStackVMApiHelper
+module VMApiHelper
 
   async_cmd_processor :deploy_virtual_machine,
                       :destroy_virtual_machine,

@@ -1,10 +1,6 @@
-module CloudStackNetworkApiHelper
+module NetworkApiHelper
 
-  sync_cmd_processor :list_network_offerings,
-                     :create_network_offering,
-                     :delete_network_offering,
-                     :update_network_offering,
-                     :list_physical_networks,
+  sync_cmd_processor :list_physical_networks,
                      :list_network_service_providers,
                      :list_virtual_router_elements,
                      :create_network,

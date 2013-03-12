@@ -1,27 +1,39 @@
-module CloudStackInfraApiHelper
+module InfraApiHelper
 
-  sync_cmd_processor :list_zones,
-                     :create_zone,
-                     :update_zone,
-                     :delete_zone,
-                     :list_clusters,
-                     :add_cluster,
-                     :delete_cluster,
-                     :update_cluster,
-                     :list_pods,
-                     :create_pod,
-                     :update_pod,
-                     :delete_pod,
-                     :list_system_vms,
-                     :list_hosts,
-                     :add_host,
-                     :delete_host
-                     
-  async_cmd_processor :reboot_system_vm,
-                      :start_system_vm,
-                      :stop_system_vm,
-                      :destroy_system_vm
+  module Zone
+    sync_cmd_processor :list_zones,
+                       :create_zone,
+                       :update_zone,
+                       :delete_zone
+  end
 
+  module Pod
+    sync_cmd_processor :list_pods,
+                       :create_pod,
+                       :update_pod,
+                       :delete_pod
+  end
 
-                  
+  module Cluster
+    sync_cmd_processor :list_clusters,
+                       :add_cluster,
+                       :update_cluster,
+                       :delete_cluster
+  end
+
+  
+
+  module Host
+    sync_cmd_processor :list_hosts,
+                       :add_host,
+                       :delete_host
+  end
+
+  module SystemVm
+    sync_cmd_processor :list_system_vms
+    async_cmd_processor :start_system_vm,
+                        :stop_system_vm,
+                        :reboot_system_vm,
+                        :destroy_system_vm
+  end
 end

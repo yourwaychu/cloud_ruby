@@ -1,5 +1,42 @@
 module CloudStackMainHelper
 
+  def deploy(*args)
+    _deploy_config = YAML.load_file "#{args[0]}"
+    _deploy_config.each do |config|
+      case config[0]
+      when /accounts/i
+        format_logger ["Parsing Accounts..."]
+        config[1]["domains"].each do |domain|
+        end
+      when /infrastructure/i
+        format_logger ["Parsing Infrastructure..."]
+        config[1]["zones"].each do |zone|
+          networktype   = zone["networktype"] 
+          dns1          = zone["public_dns1"]
+          dns2          = zone["public_dns2"]
+          internal_dns1 = zone["internal_dns1"]
+          internal_dns2 = zone["internal_dns2"]
+          hypervisor    = zone["hypervisor"]
+          zonename      = zone["name"]
+          local_storage = zone["local_storage"]
+
+          # create domain
+          zone = @root_admin.create_zone :name => "#{zonename}",
+                                         :dns1 => "#{dns1}",
+                                         :dns2 => "#{dns2}",
+                                         :internaldns1 => "#{internal_dns1}",
+                                         :internaldns1 => "#{internal_dns2}",
+                                         :networktype => "#{networktype}",
+                                         :localstorageenabled => "#{local_storage}"
+          # create physical network
+          zone.create_physical_network :name => "Physical Network 1"
+
+        end
+      else
+        puts "Error!"
+      end
+    end
+  end
 private
   def register_root_admin
     listuserresponse = RestClient.send(:get,
@@ -10,21 +47,24 @@ private
     @root_admin = CloudStack::Model::Admin.new JSON.parse(listuserresponse)['listusersresponse']['user'][0]
 
 
-    registeruserkeyresponse = RestClient.send(:get,
-                                              "#{@admin_request_url}?" +
-                                              "command=registerUserKeys&"+
-                                              "id=#{@root_admin.id}&"+
-                                              "response=json")
+    if !@root_admin.apikey
+      registeruserkeyresponse = RestClient.send(:get,
+                                                "#{@admin_request_url}?" +
+                                                "command=registerUserKeys&"+
+                                                "id=#{@root_admin.id}&"+
+                                                "response=json")
 
 
-    adminkeyObj = CloudStack::Model::UserKeys.new JSON.parse(registeruserkeyresponse)['registeruserkeysresponse']['userkeys']
+      adminkeyObj = CloudStack::Model::UserKeys.new JSON.parse(registeruserkeyresponse)['registeruserkeysresponse']['userkeys']
 
-    @root_admin.apikey      = adminkeyObj.apikey
-    @root_admin.secretkey   = adminkeyObj.secretkey
+      @root_admin.apikey      = adminkeyObj.apikey
+      @root_admin.secretkey   = adminkeyObj.secretkey
+    end
+
     @root_admin.add_observer @observer
     @root_admin.registerCSHelper(request_url, self)
   end
-  
+
   def update_env
     update_env_domains
     update_env_accounts
@@ -131,30 +171,5 @@ private
     end
   end
   
-  # def deploy(*args)
-  #    _deploy_config = YAML.load_file "#{args[0]}"
-  #    _deploy_config.each do |config|
-  #      case config[0]
-  #      when /cloudstack/i
-  #        params={}
-  #        params[:host]    = "#{config[1]["host"]}"
-  #        params[:port]    = "#{config[1]["port"]}"
-  #        params[:apiport] = "#{config[1]["apiport"]}"
-  # 
-  #        @cs = create_cloudstack params
-  #      when /accounts/i
-  #        format_logger ["Parsing Accounts..."]
-  #        config[1]["domains"].each do |domain|
-  #          create_domain @cs, domain 
-  #        end
-  #      when /infrastructure/i
-  #        format_logger ["Parsing Infrastructure..."]
-  #        config[1]["zones"].each do |zone|
-  #          create_zone @cs, zone
-  #        end
-  #      else
-  #        puts "Error!"
-  #      end
-  #    end
-  # end
+  
 end
