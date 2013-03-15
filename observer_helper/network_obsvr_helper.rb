@@ -1,12 +1,12 @@
 module NetworkObsvrHelper
 
 private
-  def create_physical_network(h_para, obj)
+  def obsvr_create_physical_network(h_para, obj)
   end
 
-  def create_network(h_para, obj)
+  def obsvr_create_network(h_para, obj)
   end
 
-  def update_network_service_provider(params, obj)
+  def obsvr_update_network_service_provider(params, obj)
   end
 end

@@ -11,26 +11,15 @@ module CloudStackMainHelper
       when /infrastructure/i
         format_logger ["Parsing Infrastructure..."]
         config[1]["zones"].each do |zone|
-          networktype   = zone["networktype"] 
-          dns1          = zone["public_dns1"]
-          dns2          = zone["public_dns2"]
-          internal_dns1 = zone["internal_dns1"]
-          internal_dns2 = zone["internal_dns2"]
-          hypervisor    = zone["hypervisor"]
-          zonename      = zone["name"]
-          local_storage = zone["local_storage"]
-
-          # create domain
-          zone = @root_admin.create_zone :name => "#{zonename}",
-                                         :dns1 => "#{dns1}",
-                                         :dns2 => "#{dns2}",
-                                         :internaldns1 => "#{internal_dns1}",
-                                         :internaldns1 => "#{internal_dns2}",
-                                         :networktype => "#{networktype}",
-                                         :localstorageenabled => "#{local_storage}"
-          # create physical network
-          zone.create_physical_network :name => "Physical Network 1"
-
+          # networktype   = zone["networktype"] 
+          # dns1          = zone["public_dns1"]
+          # dns2          = zone["public_dns2"]
+          # internal_dns1 = zone["internal_dns1"]
+          # internal_dns2 = zone["internal_dns2"]
+          # hypervisor    = zone["hypervisor"]
+          # zonename      = zone["name"]
+          # local_storage = zone["local_storage"]
+          self.create_zone zone
         end
       else
         puts "Error!"
@@ -63,6 +52,7 @@ private
 
     @root_admin.add_observer @observer
     @root_admin.registerCSHelper(request_url, self)
+    @cs_helper = @root_admin.cs_helper
   end
 
   def update_env

@@ -1,6 +1,7 @@
 module CloudStack
   module Model
     class Raw
+      #include Observable
       def initialize(*args)
         if args && args[0]
           self.pack args[0]
