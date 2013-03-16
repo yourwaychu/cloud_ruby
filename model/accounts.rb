@@ -46,7 +46,6 @@ module CloudStack
     
     class User < Raw
 
-      include Observable
       include UserModelHelper
       include AccountsApiHelper::Domain
       include AccountsApiHelper::Account

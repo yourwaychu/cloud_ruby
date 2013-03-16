@@ -3,7 +3,7 @@ module AccountsObsvrHelper
   module Domain
   private
     def obsvr_create_domain(h_para, domainObj)
-      #domainObj.add_observer @observer
+      domainObj.add_observer @observer
       @domains["#{domainObj.id}"]=domainObj
     end
 
@@ -11,7 +11,7 @@ module AccountsObsvrHelper
       @domains["#{domainObj.id}"] = domainObj
     end
 
-    def obsvr_delete_domain(h_para, respObj) # aynchronous
+    def obsvr_delete_domain(h_para, respObj)
       if respObj.success == true
         @domains.delete h_para[:id]
       end
