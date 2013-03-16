@@ -41,6 +41,7 @@ module CloudStack
                      :domains,
                      :haschild]
 
+      include AccountsApiHelper::Account
 
     end
     

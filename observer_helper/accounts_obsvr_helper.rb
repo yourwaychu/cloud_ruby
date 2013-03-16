@@ -4,6 +4,7 @@ module AccountsObsvrHelper
   private
     def obsvr_create_domain(h_para, domainObj)
       domainObj.add_observer @observer
+      domainObj.cs_helper = @cs_helper
       @domains["#{domainObj.id}"]=domainObj
     end
 
@@ -21,7 +22,10 @@ module AccountsObsvrHelper
   module Account
   private
     def obsvr_create_account(h_para, accObj)
+      accObj.add_observer @observer
+      accObj.cs_helper = @cs_helper
       @accounts["#{accObj.id}"] = accObj
+      update_env_users
     end
 
     def obsvr_update_account(h_para, accObj)

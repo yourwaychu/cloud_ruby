@@ -102,6 +102,8 @@ private
     resultObjs = @root_admin.list_domains :listall=>true
 
     resultObjs.each do |obj|
+      obj.add_observer @observer
+      obj.cs_helper = @cs_helper
       @domains["#{obj.id}"] = obj
     end
   end
@@ -110,13 +112,14 @@ private
     resultObjs = @root_admin.list_accounts :listall=>true
 
     resultObjs.each do |obj|
+      obj.add_observer @observer
+      obj.cs_helper = @cs_helper
       @accounts["#{obj.id}"] = obj
     end
   end
   
   def update_env_users
     resultObjs = @root_admin.list_users :listall=>true
-
     resultObjs.each do |obj|
       @users["#{obj.id}"] = obj
     end
@@ -160,6 +163,4 @@ private
       puts "%-40s" % params
     end
   end
-  
-  
 end

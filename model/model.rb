@@ -2,10 +2,12 @@ module CloudStack
   module Model
     class Raw
       include Observable
+      attr_accessor :cs_helper
       def initialize(*args)
         if args && args[0]
           self.pack args[0]
         end
+        @cs_helper
       end
       
       def pack(j_obj)
@@ -15,13 +17,16 @@ module CloudStack
         self
       end
 
-      #def to_s
-      #  result = "["
-      #  self.class.attr_list.each do |attr|
-      #    result = result + "#{attr} : #{attr.to_s.call}" 
-      #  end
-      #  result = result + "]"
-      #end
+      def to_s
+        resultarray = []
+        if self.class.attr_list
+          self.class.attr_list.each do |attr|
+            v = self.method(attr).call
+            resultarray << "#{attr} : #{ v && (!v.eql?("")) ? v : "N/A"}"
+          end
+        end
+        "<[ "+resultarray.join(" , ")+" ]>"
+      end
     end
   end
 end

@@ -139,5 +139,51 @@ module CloudStack_Testing
       @cs.users["#{@userObj.id}"].should be_nil
     end
 
+    it "create domain(OO)" do
+      resultObj = @cs.create_domain :name => "oo test domain"
+      @cs.domains["#{resultObj.id}"].name.should.eql? "testdomain"
+    end
+
+    it "create_account(OO)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "oo test domain"
+          @domainObj = v
+        end
+      end
+
+      resultObj = @cs.domains["#{@domainObj.id}"].create_account :accounttype => 0,
+                                                                 :email       => "ootester@trend.com",
+                                                                 :firstname   => "ootester",
+                                                                 :lastname    => "ootester",
+                                                                 :password    => "novirus",
+                                                                 :username    => "tester",
+                                                                 :domainid    => "#{@domainObj.id}"
+
+      @cs.accounts["#{resultObj.id}"].name.should.eql? "ootester"
+    end
+
+    it "update domain(OO)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "oo test domain"
+          @domainObj = v
+        end
+      end
+      resultObj = @cs.root_admin.update_domain :id      => "#{@domainObj.id}",
+                                               :name    => "updated oo test domain"
+
+      @cs.domains["#{resultObj.id}"].name.should.eql? "updated oo test domain"
+     
+    end
+
+    it "delete domain(oo)" do
+      @cs.domains.each do |k,v|
+        if v.name.eql? "updated oo test domain"
+          @domainObj = v
+        end
+      end
+
+      @cs.delete_domain :id => "#{@domainObj.id}", :cleanup => true
+      @cs.domains["#{@domainObj.id}"].should be_nil
+    end
   end 
 end
