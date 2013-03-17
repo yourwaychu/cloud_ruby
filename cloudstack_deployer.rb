@@ -234,6 +234,7 @@ def format_logger(params)
   # action, action target, in what step
   if params[0] && params[1] && params[2]
     puts "%-40s: %-30s -- %-10s" % params
+    puts "%-40s: %-30s" % params
   elsif params[0] && params[1]
     puts "%-40s: %-30s" % params
   elsif params[0]

@@ -22,6 +22,7 @@ module CloudStack
     include InfraObsvrHelper
     include MainModelHelper
     include AccountsApiHelper::Domain
+    include InfraApiHelper::Zone
 
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
                 :users, :domains, :network_offerings, :disk_offerings,

@@ -38,12 +38,10 @@ class SharedFunction
           end
         end
       # FIXME : Ugly code here, need refactor
-      elsif /(deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering)/i.match @command    # for success response object
+      elsif /(deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering)/i.match @command    # for success response object
           @result = CloudStack::Model.const_get("Success").new response
       else
-        if response["#{jObj_name}"]
-          @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
-        end
+        @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
       end
       logger.warn response
       return @result
@@ -74,14 +72,13 @@ class SharedFunction
     end
   end
  
- # def SharedFunction.update_object(targetObj, newObj)
- #   targetObj.class.attr_list.each do |attr|
- #      tmp_m1 = targetObj.method "#{attr}="    
- #      tmp_m2 = newObj.method "#{attr}"
- #      tmp_m1.call tmp_m2.call
- #   end
-
- # end
+ def SharedFunction.update_object(targetObj, newObj)
+   targetObj.class.attr_list.each do |attr|
+      tmp_m1 = targetObj.method "#{attr}="    
+      tmp_m2 = newObj.method "#{attr}"
+      tmp_m1.call tmp_m2.call
+   end
+ end
 
  def SharedFunction.query_async_job(cs_helper,
                                     params,
@@ -173,7 +170,7 @@ class Module
                                        command,
                                        '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
 
-          if (/(create|update|delete|diable|enable)/i.match command);
+          if (/(create|update|delete|disable|enable)/i.match command);
             changed;
             notify_observers('#{arg}', params, responseObj);
           end;

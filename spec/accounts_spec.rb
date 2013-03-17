@@ -110,10 +110,10 @@ module CloudStack_Testing
       @cs.users["#{@userObj.id}"].username.should.eql? "updatedtestuser"
     end
 
-    it "diable user" do
+    it "disable user" do
       @userObj = @cs.users.choose("updatedtestuser").first
       @userObj = @cs.root_admin.disable_user :id => "#{@userObj.id}"
-      @cs.users["#{@userObj.id}"].state.should.eql? "diabled"
+      @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
     end
 
     it "enable user" do
@@ -139,12 +139,12 @@ module CloudStack_Testing
       @cs.users["#{@userObj.id}"].should be_nil
     end
 
-    it "create domain(OO)" do
+    it "create domain (OO)" do
       resultObj = @cs.create_domain :name => "oo test domain"
-      @cs.domains["#{resultObj.id}"].name.should.eql? "testdomain"
+      @cs.domains["#{resultObj.id}"].name.should eql("oo test domain")
     end
 
-    it "create_account(OO)" do
+    it "create account (OO)" do
       @cs.domains.each do |k, v|
         if v.name.eql? "oo test domain"
           @domainObj = v
@@ -156,34 +156,118 @@ module CloudStack_Testing
                                                                  :firstname   => "ootester",
                                                                  :lastname    => "ootester",
                                                                  :password    => "novirus",
-                                                                 :username    => "tester",
-                                                                 :domainid    => "#{@domainObj.id}"
-
-      @cs.accounts["#{resultObj.id}"].name.should.eql? "ootester"
+                                                                 :username    => "ootester"
+      @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
+      @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@domainObj.id}")
+      #@cs.domains["#{@domainObj.id}"].accounts["#{result.id}"].name.should eql("ootester")
     end
 
-    it "update domain(OO)" do
+    it "create user (OO)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "ootester"
+          @accObj = v
+        end
+      end
+
+      resultObj = @accObj.create_user :username  => "ootestuser",
+                                      :password  => "oonovirus",
+                                      :email     => "ootestuesr@trend.com.tw",
+                                      :firstname => "ootestuser",
+                                      :lastname  => "ootestuser"
+
+      @cs.users["#{resultObj.id}"].username.should eq("ootestuser")
+
+    end
+
+    it "disable user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "ootestuser"
+          @userObj = v
+        end
+      end
+      @userObj.disable 
+      
+      @userObj.state.should eql("disabled")
+      @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
+    end
+
+    it "enable user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "ootestuser"
+          @userObj = v
+        end
+      end
+      @userObj.enable 
+      @userObj.state.should eql("enabled")
+      @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
+    end
+
+    it "update user (OO)" do 
+      @cs.users.each do |k, v|
+        if v.username.eql? "ootestuser"
+          @userObj = v
+        end
+      end
+      @userObj.update :username => "ootestuser(updated)"
+      @userObj.username.should eql("ootestuser(updated)")
+      @cs.users["#{@userObj.id}"].username.should eq("ootestuser(updated)")
+    end
+
+    it "delete user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "ootestuser(updated)"
+          @userObj = v
+        end
+      end
+      
+      @userObj.delete
+      @cs.users["#{@userObj.id}"].should be_nil
+    end
+
+    it "update account (OO)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "ootester"
+          @accObj = v
+        end
+      end
+      
+      @accObj.update :newname => "ootester(updated)"
+      @accObj.name.should eq("ootester(updated)")
+      @cs.accounts["#{@accObj.id}"].name.should eql("ootester(updated)")
+    end
+
+    it "delete account (OO)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "ootester(updated)"
+          @accObj = v
+        end
+      end
+      resultObj = @accObj.delete
+      @cs.accounts["#{@accObj.id}"].should be_nil
+    end
+
+    it "update domain (OO)" do
       @cs.domains.each do |k, v|
         if v.name.eql? "oo test domain"
           @domainObj = v
         end
       end
-      resultObj = @cs.root_admin.update_domain :id      => "#{@domainObj.id}",
-                                               :name    => "updated oo test domain"
-
-      @cs.domains["#{resultObj.id}"].name.should.eql? "updated oo test domain"
+      @domainObj.update :name => "oo test domain(updated)"
+      @domainObj.name.should eql("oo test domain(updated)")
+      @cs.domains["#{@domainObj.id}"].name.should.eql? "oo test domain(updated)"
      
     end
 
     it "delete domain(oo)" do
-      @cs.domains.each do |k,v|
-        if v.name.eql? "updated oo test domain"
+      @cs.domains.each do |k, v|
+        if v.name.eql? "oo test domain(updated)"
           @domainObj = v
         end
       end
 
-      @cs.delete_domain :id => "#{@domainObj.id}", :cleanup => true
+      resultObj = @domainObj.delete
       @cs.domains["#{@domainObj.id}"].should be_nil
     end
-  end 
+
+  end
 end

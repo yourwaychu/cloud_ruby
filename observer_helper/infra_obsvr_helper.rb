@@ -10,7 +10,7 @@ private
   end
 
   def obsvr_delete_zone(h_para, resp)
-    if resp['success'].eql? "true"
+    if resp.success.eql? "true"
       @zones.delete h_para[:id]
     end 
   end
