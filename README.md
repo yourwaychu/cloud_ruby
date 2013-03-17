@@ -25,7 +25,16 @@
 
   - note : The response will reflect if a api caller has corresponding priviledge
 
-- Example-4 : Infratructure deployer (A sample deployment  yaml file is in  spec/scripts/ )
+- Example-4 : Different ways for operation
+
+        require 'cloudstack'
+        cs = CloudStack::CloudStack.new  "192.168.56.10", "8080", "8096"
+        cs.user["user id"].disable
+        puts cs.user["user id"].state    # Will show disabled
+        
+   - note : Not yet completely implemented
+
+- Example-5 : Infratructure deployer (A sample deployment  yaml file is in  spec/scripts/ )
 
         $cd to project path
         $./cloudstack_deployer.rb spec/scripts/testdeployement1.yml
