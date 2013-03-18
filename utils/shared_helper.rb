@@ -30,6 +30,13 @@ class SharedFunction
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
 
+      # TESTING
+      # if @command.eql? "createZone"
+      #   puts "====================="
+      #   p response
+      #   puts "---------------------"
+      # end
+
       if /(list|addcluster|addhost)/i.match @command
         @result = [] 
         if response["#{jObj_name}"]
@@ -43,7 +50,6 @@ class SharedFunction
       else
         @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
       end
-      logger.warn response
       return @result
     rescue => e
       (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"])) : (puts e)
@@ -65,6 +71,7 @@ class SharedFunction
 
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{responseObjName}"]
+
       logger.warn response
       return response
     rescue => e

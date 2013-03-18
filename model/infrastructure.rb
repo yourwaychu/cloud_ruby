@@ -42,9 +42,29 @@ module CloudStack
                      :securitygroupenabled,
                      :physical_networks]
 
-      def create_physical_network(*args)
-
+      def initialize(*args)
+        super(args[0])
+        @physical_networks = {}
       end
+
+      def create_physical_network(args={}) #Asychronous
+        params = {:command  => "createPhysicalNetwork", :zoneid => "#{self.id}"}
+        params.merge! args unless args.empty?
+        jJob = SharedFunction.make_async_request @cs_helper, params, "createphysicalnetworkresponse"
+
+        responseObj = SharedFunction.query_async_job @cs_helper,
+                                                     {:jobid => jJob['jobid']},
+                                                     "createPhysicalNetwork",
+                                                     "PhysicalNetwork"
+
+        # if (/(create|update|delete|register|add|disable|enable)/i.match("deleteAccount"))
+          changed
+          notify_observers("create_physical_network", params, responseObj)
+        # end
+
+        return responseObj
+      end
+
 
     end
     
