@@ -22,7 +22,8 @@ module CloudStack
                     :dhcpprovider,
                     :guestcidraddress,
                     :securitygroupenabled,
-                    :physical_networks
+                    :physical_networks,
+                    :networks
 
 
       @@attr_list = [:id,
@@ -45,7 +46,9 @@ module CloudStack
       def initialize(*args)
         super(args[0])
         @physical_networks = {}
+        @networks          = {}
       end
+
 
       def create_physical_network(args={}) #Asychronous
         params = {:command  => "createPhysicalNetwork", :zoneid => "#{self.id}"}
@@ -66,6 +69,34 @@ module CloudStack
       end
 
 
+      def create_network(args={})
+        params = {:command  => "createNetwork", :zoneid => "#{self.id}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "createnetworkresponse", "Network"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("create_network", params, response)
+        end
+        return response
+
+      end
+
+
+      def create_pod(args={})
+        params = {:command  => "createPod", :zoneid => "#{self.id}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "createpodresponse", "Pod"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("create_pod", params, response)
+        end
+        return response
+
+      end
     end
     
     class Pod < Raw

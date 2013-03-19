@@ -26,6 +26,7 @@ module CloudStackMainHelper
       end
     end
   end
+
 private
   def register_root_admin
     listuserresponse = RestClient.send(:get,

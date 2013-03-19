@@ -93,6 +93,35 @@ module CloudStack_Testing
       @pnObj.network_service_providers.choose("VirtualRouter")[0].state.should eql("Enabled")
     end
 
+    it "create network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+
+      @networkoffering = @cs.network_offerings.choose("DefaultSharedNetworkOfferingWithSGService").first
+
+      @zoneObj.create_network :name              => "DefaultGuestNetwork",
+                              :displaytext       => "DefaultGuestNetwork" ,
+                              :networkofferingid => "#{@networkoffering.id}"
+
+      @zoneObj.networks.choose("DefaultGuestNetwork").first.name.should eq("DefaultGuestNetwork")
+    end
+
+    it "delete network" do
+
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+
+      @zoneObj.networks.choose("DefaultGuestNetwork").first.delete 
+      
+      @zoneObj.networks.choose("DefaultGuestNetwork").first.should be_nil
+    end
+
     it "delete physical network" do
       @cs.zones.each do |k, v|
         if v.name.eql? "testzone"

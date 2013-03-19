@@ -63,6 +63,25 @@ module CloudStack
                      :ispersistent,
                      :tags]
 
+      def delete(args={})
+        params = {:command  => "deleteNetwork", :id => "#{self.id}"}
+        params.merge! args unless args.empty?
+        jJob = SharedFunction.make_async_request @cs_helper, params, "deletenetworkresponse"
+
+        responseObj = SharedFunction.query_async_job @cs_helper,
+                                                     {:jobid => jJob['jobid']},
+                                                     "deleteNetwork",
+                                                     "Network"
+
+        # if (/(create|update|delete|register|add|disable|enable)/i.match("deleteAccount"))
+          changed
+          notify_observers("delete_network", params, responseObj)
+        # end
+
+        return responseObj
+
+      end
+
     end
 
     class PhysicalNetwork < Raw
