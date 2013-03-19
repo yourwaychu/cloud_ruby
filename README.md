@@ -32,17 +32,19 @@
         cs.user["user id"].disable
         puts cs.user["user id"].state    # Will show disabled
         
-   - note : Not yet completely implemented
+   - note : To see more usage example, please refer to the spec files
 
 - Example-5 : Infratructure deployer (A sample deployment  yaml file is in  spec/scripts/ )
 
         $cd to project path
         $./cloudstack_deployer.rb spec/scripts/testdeployement1.yml
 
-  - note : The deployer supports only DevCloud2 by now
+  - note : The deployer supports only Basic Zone for now
 
 ## Currently Supported API commands
+
 - Accounts :
+
     - Domain :
        
         list_domains, create_domain, update_domain, delet_domain
@@ -54,6 +56,7 @@
         list_users,  create_user, update_user, disable_user, enable_user, delete_user, register_user_keys
 
 - Infrastructure :
+
     - Zone :
     
         list_zones, create_zone, update_zone, delete_zone
@@ -88,6 +91,7 @@
 
 
 - Instances
+
     - VirtualMachine :
     
         deploy_virtual_machine, destroy_virtual_machine, reboot_virtual_machine, start_virtual_machine, stop_virtual_machine
