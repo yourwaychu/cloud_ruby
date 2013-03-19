@@ -32,7 +32,7 @@
         cs.user["user id"].disable
         puts cs.user["user id"].state    # Will show disabled
         
-   - note : To see more usage example, please refer to the spec files
+   - note : To see more usage examples, please refer to the spec files
 
 - Example-5 : Infratructure deployer (A sample deployment  yaml file is in  spec/scripts/ )
 
