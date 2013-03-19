@@ -109,33 +109,108 @@ module CloudStack_Testing
       @zoneObj.networks.choose("DefaultGuestNetwork").first.name.should eq("DefaultGuestNetwork")
     end
 
-    it "delete network" do
-
+    it "create pod and corresponding vlan ip range" do
       @cs.zones.each do |k, v|
         if v.name.eql? "testzone"
           @zoneObj = v
         end
       end
+      networkObj = @zoneObj.networks.choose("DefaultGuestNetwork").first
 
-      @zoneObj.networks.choose("DefaultGuestNetwork").first.delete 
+      podObj = @zoneObj.create_pod :name    => "testpod",
+                                   :netmask => "255.255.255.0",
+                                   :gateway => "192.168.56.1",
+                                   :startip => "192.168.56.51",
+                                   :endip   => "192.168.56.70"
+
+      @zoneObj.pods.choose("testpod")[0].name.should eq("testpod")
+
+      vlanObj = podObj.create_vlan_ip_range :gateway           => "192.168.56.1",
+                                            :netmask           => "255.255.255.0",
+                                            :networkid         => "#{networkObj.id}",
+                                            :forvirtualnetwork => "false",
+                                            :startip           => "192.168.56.71",
+                                            :endip             => "192.168.56.100"
+
+      podObj.vlans["#{vlanObj.id}"].should_not be_nil
+    end
+
+
+    it "create cluster" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
       
-      @zoneObj.networks.choose("DefaultGuestNetwork").first.should be_nil
+      @podObj =  @zoneObj.pods.choose("testpod")[0]
+
+      clusterObjList = @podObj.add_cluster :clustername => "testcluster",
+                                           :clustertype => "CloudManaged",
+                                           :hypervisor  => "XenServer"
+
+      @zoneObj.pods["#{@podObj.id}"].clusters["#{clusterObjList[0].id}"].should_not be_nil
     end
 
-    it "delete physical network" do
+
+    it "add host" do
       @cs.zones.each do |k, v|
         if v.name.eql? "testzone"
           @zoneObj = v
         end
       end
-      @zoneObj.physical_networks.each do |k, v|
-        if v.name.eql? "test physical network"
-          @pnObj = v
+      
+      @podObj  = @zoneObj.pods.choose("testpod")[0]
+      @cluster = @podObj.clusters.choose("testcluster")[0]
+
+      # DevCloud2 testing 
+      hostObjList = @cluster.add_host :hypervisor  => "XenServer",
+                                      :clustertype => "CloudManaged",
+                                      :hosttags    => "xen1",
+                                      :username    => "root",
+                                      :password    => "password",
+                                      :url         => "http://192.168.56.10"
+
+      @zoneObj.pods["#{@podObj.id}"].clusters["#{@cluster.id}"].hosts["#{hostObjList[0].id}"].should_not be_nil
+      
+    end
+
+    it "add secondary storage" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
         end
       end
-      @zoneObj.physical_networks["#{@pnObj.id}"].delete
-      @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
+      scObj = @zoneObj.add_secondary_storage :url => "nfs://192.168.56.10/opt/storage/secondary" 
+      @zoneObj.secondary_storages["#{scObj.id}"].should_not be_nil
     end
+    # it "delete network" do
+
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone"
+    #       @zoneObj = v
+    #     end
+    #   end
+
+    #   @zoneObj.networks.choose("DefaultGuestNetwork").first.delete 
+    #   
+    #   @zoneObj.networks.choose("DefaultGuestNetwork").first.should be_nil
+    # end
+
+    # it "delete physical network" do
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone"
+    #       @zoneObj = v
+    #     end
+    #   end
+    #   @zoneObj.physical_networks.each do |k, v|
+    #     if v.name.eql? "test physical network"
+    #       @pnObj = v
+    #     end
+    #   end
+    #   @zoneObj.physical_networks["#{@pnObj.id}"].delete
+    #   @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
+    # end
 
     it "update zone (OO)" do
       @cs.zones.each do |k, v|
@@ -143,19 +218,18 @@ module CloudStack_Testing
           @zoneObj = v
         end
       end
-      resultObj = @cs.update_zone :id => "#{@zoneObj.id}", :name => "testzone(updated)"
-
+      @zoneObj.update :name => "testzone(updated)", :allocationstate => "Enabled"
     end
-    it "delete zone (OO)" do
-      @cs.zones.each do |k, v|
-        if v.name.eql? "testzone(updated)"
-          @zoneObj = v
-        end
-        resultObj = @cs.delete_zone :id => "#{@zoneObj.id}", :cleanup => true
-        if resultObj.success.eql? "true"
-          @cs.zones["#{@zoneObj.id}"].should be_nil
-        end
-      end
-    end
+    # it "delete zone (OO)" do
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone(updated)"
+    #       @zoneObj = v
+    #     end
+    #     resultObj = @cs.delete_zone :id => "#{@zoneObj.id}", :cleanup => true
+    #     if resultObj.success.eql? "true"
+    #       @cs.zones["#{@zoneObj.id}"].should be_nil
+    #     end
+    #   end
+    # end
   end 
 end

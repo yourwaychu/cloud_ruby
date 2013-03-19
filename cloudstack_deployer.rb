@@ -207,7 +207,7 @@ def create_zone(cs, params)
                                  :password    => "#{host_password}",
                                  :url         => "http://#{host_url}"
                                  
-  format_logger ["Adding pod", "#{host_url}", "Done"]
+  format_logger ["Adding host", "#{host_url}", "Done"]
 
   cs.root_admin.add_secondary_storage :zoneid => "#{@zone.id}",
                                       :url    => "nfs://#{secondary_storage_ip}#{secondary_storage_path}"

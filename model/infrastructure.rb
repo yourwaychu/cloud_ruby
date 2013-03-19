@@ -23,7 +23,9 @@ module CloudStack
                     :guestcidraddress,
                     :securitygroupenabled,
                     :physical_networks,
-                    :networks
+                    :networks,
+                    :pods,
+                    :secondary_storages
 
 
       @@attr_list = [:id,
@@ -40,15 +42,28 @@ module CloudStack
                      :domainid,
                      :dhcpprovider,
                      :guestcidraddress,
-                     :securitygroupenabled,
-                     :physical_networks]
+                     :securitygroupenabled]
 
       def initialize(*args)
         super(args[0])
-        @physical_networks = {}
-        @networks          = {}
+        @physical_networks  = {}
+        @networks           = {}
+        @pods               = {}
+        @secondary_storages = {}
       end
 
+      def update(args={})
+        params = {:command  => "updateZone", :id => "#{self.id}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "updatezoneresponse", "Zone"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("update_zone", params, response)
+        end
+        return response
+      end
 
       def create_physical_network(args={}) #Asychronous
         params = {:command  => "createPhysicalNetwork", :zoneid => "#{self.id}"}
@@ -97,6 +112,21 @@ module CloudStack
         return response
 
       end
+
+
+      def add_secondary_storage(args={})
+        params = {:command  => "addSecondaryStorage", :zoneid => "#{self.id}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "addsecondarystorageresponse", "SecondaryStorage"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("add_secondary_storage", params, response)
+        end
+        return response
+
+      end
     end
     
     class Pod < Raw
@@ -110,7 +140,9 @@ module CloudStack
                     :netmask,
                     :startip,
                     :endip,
-                    :allocationstate
+                    :allocationstate,
+                    :vlans,
+                    :clusters
 
       @@attr_list = [:id,                  
                      :name,
@@ -121,6 +153,39 @@ module CloudStack
                      :startip,
                      :endip,
                      :allocationstate]
+
+      def initialize(*args)
+        super(args[0])
+        @vlans = {}
+        @clusters = {}
+      end 
+
+
+      def create_vlan_ip_range(args={})
+        params = {:command  => "createVlanIpRange", :podid => "#{self.id}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "createvlaniprangeresponse", "Vlan"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("create_vlan_ip_range", params, response)
+        end
+        return response
+      end
+      
+      def add_cluster(args={}) 
+        params = {:command  => "addCluster", :podid => "#{self.id}", :zoneid => "#{self.zoneid}"}
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "addclusterresponse", "Cluster"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("add_cluster", params, response)
+        end
+        return response
+      end
     end
     
     class Cluster < Raw
@@ -138,7 +203,8 @@ module CloudStack
                     :allocationstate,
                     :managedstate,
                     :cpuovercommitratio,
-                    :memoryovercommitratio
+                    :memoryovercommitratio,
+                    :hosts
                     
       @@attr_list = [:id,
                      :name,
@@ -152,6 +218,28 @@ module CloudStack
                      :managedstate,
                      :cpuovercommitratio,
                      :memoryovercommitratio]
+
+      def initialize(*args)
+        super(args[0])
+        @hosts = {}
+      end
+
+      def add_host(args={})
+        params = {:command   => "addHost",
+                  :clusterid => "#{self.id}",
+                  :podid     => "#{self.podid}",
+                  :zoneid    => "#{self.zoneid}"}
+
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_helper, params, "addhostresponse", "Host"
+        if response &&
+           !response.instance_of?(Error) #&&
+           #(/(create|update|delete|register|add)/i.match("updateAccount"))
+          changed
+          notify_observers("add_host", params, response)
+        end
+        return response
+      end
 
     end
     

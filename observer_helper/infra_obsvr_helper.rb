@@ -19,10 +19,16 @@ private
   end
 
   def obsvr_create_pod(params, podObj)
-    @pods["#{podObj.id}"] = podObj
+    podObj.add_observer @observer
+    podObj.cs_helper = @cs_helper
+    #@pods["#{podObj.id}"] = podObj
+    @zones["#{podObj.zoneid}"].pods["#{podObj.id}"] = podObj
   end
 
   def obsvr_create_vlan_ip_range(params, vlanObj)
+    vlanObj.add_observer @observer
+    vlanObj.cs_helper = @cs_helper
+    @zones["#{vlanObj.zoneid}"].pods["#{vlanObj.podid}"].vlans["#{vlanObj.id}"] = vlanObj
   end
 
   def obsvr_create_physical_network(h_para, pnObj)
@@ -85,13 +91,29 @@ private
     SharedFunction.update_object oldObj, respObj
   end
 
-  def obsvr_add_cluster(params, response)
+  def obsvr_add_cluster(params, clusterList)
+    clusterList.each do |clusterObj|
+      clusterObj.add_observer @observer
+      clusterObj.cs_helper = @cs_helper
+      @zones["#{clusterObj.zoneid}"].pods["#{clusterObj.podid}"].clusters["#{clusterObj.id}"] = clusterObj
+    end
   end
 
-  def obsvr_add_host(params, response)
+  def obsvr_add_host(params, hostObjList)
+    hostObjList.each do |hostObj|
+      hostObj.add_observer @observer
+      hostObj.cs_helper = @cs_helper
+      @zones["#{hostObj.zoneid}"].pods["#{hostObj.podid}"].clusters["#{hostObj.clusterid}"].hosts["#{hostObj.id}"] = hostObj
+    end
   end
 
   def obsvr_add_traffic_type(params, response)
     
+  end
+
+  def obsvr_add_secondary_storage(h_params, stObj)
+    stObj.add_observer @observer
+    stObj.cs_helper = @cs_helper
+    @zones["#{stObj.zoneid}"].secondary_storages["#{stObj.id}"] = stObj
   end
 end
