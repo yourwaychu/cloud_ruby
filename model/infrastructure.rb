@@ -52,6 +52,14 @@ module CloudStack
         @secondary_storages = {}
       end
 
+
+      def sync
+        # sync_phsical_networks
+        # sync_networks
+        # sync_pods
+        # sync_secondary_storage
+      end
+
       def update(args={})
         params = {:command  => "updateZone", :id => "#{self.id}"}
         params.merge! args unless args.empty?

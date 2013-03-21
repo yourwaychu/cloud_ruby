@@ -3,9 +3,7 @@ module AccountsObsvrHelper
   module Domain
   private
     def obsvr_create_domain(h_para, domainObj)
-      domainObj.add_observer @observer
-      domainObj.cs_helper = @cs_helper
-      @domains["#{domainObj.id}"]=domainObj
+      @domains["#{domainObj.id}"] = domainObj
     end
 
     def obsvr_update_domain(h_para, domainObj)
@@ -23,10 +21,8 @@ module AccountsObsvrHelper
   module Account
   private
     def obsvr_create_account(h_para, accObj)
-      accObj.add_observer @observer
-      accObj.cs_helper = @cs_helper
+      puts "OBSVR: creating account"
       @accounts["#{accObj.id}"] = accObj
-      update_env_users
     end
 
     def obsvr_update_account(h_para, accObj)
@@ -44,8 +40,6 @@ module AccountsObsvrHelper
   module User
   private
     def obsvr_create_user(h_para, userObj)
-      userObj.add_observer @observer
-      userObj.cs_helper = @cs_helper
       @users["#{userObj.id}"] = userObj
     end
 

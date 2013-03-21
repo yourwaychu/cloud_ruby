@@ -34,7 +34,7 @@ private
                                        "command=listUsers&" +
                                        "username=admin&response=json")
 
-    @root_admin = CloudStack::Model::Admin.new JSON.parse(listuserresponse)['listusersresponse']['user'][0]
+    @root_admin = CloudStack::Model::Admin.new(JSON.parse(listuserresponse)['listusersresponse']['user'][0], @cs_helper, @model_observer)
 
 
     if !@root_admin.apikey
@@ -51,7 +51,8 @@ private
       @root_admin.secretkey   = adminkeyObj.secretkey
     end
 
-    @root_admin.add_observer @observer
+    # @root_admin.add_observer @model_observer
+    # @root_admin.model_observer = @model_observer
     @root_admin.registerCSHelper(request_url, self)
     @cs_helper = @root_admin.cs_helper
   end
@@ -61,13 +62,13 @@ private
     update_env_accounts
     update_env_users
     update_env_zones
-    update_env_pods
-    update_env_clusters
-    update_env_hosts
+    # update_env_pods
+    # update_env_clusters
+    # update_env_hosts
     update_env_network_offerings
     update_env_service_offerings
     update_env_disk_offerings
-    update_env_system_vms
+    # update_env_system_vms
   end
 
   def update_env_system_vms
@@ -101,20 +102,14 @@ private
 
   def update_env_domains
     resultObjs = @root_admin.list_domains :listall=>true
-
     resultObjs.each do |obj|
-      obj.add_observer @observer
-      obj.cs_helper = @cs_helper
       @domains["#{obj.id}"] = obj
     end
   end
      
   def update_env_accounts
     resultObjs = @root_admin.list_accounts :listall=>true
-
     resultObjs.each do |obj|
-      obj.add_observer @observer
-      obj.cs_helper = @cs_helper
       @accounts["#{obj.id}"] = obj
     end
   end

@@ -2,6 +2,7 @@ module CloudStack
   module Model
     
     class Account < Raw
+
       include AccountModelHelper
 
       cattr_accessor :attr_list
@@ -10,7 +11,8 @@ module CloudStack
                     :name, 
                     :accounttype, 
                     :state, 
-                    :domainid
+                    :domainid,
+                    :users
 
       @@attr_list = [:id, 
                      :name, 
@@ -18,10 +20,17 @@ module CloudStack
                      :state, 
                      :domainid]
 
+      def initialize(*args)
+
+        super(args[0], args[1], args[2])
+        @users = {}
+
+      end
+
       def update(args={})
         params = {:command  => "updateAccount", :id => "#{self.id}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "updateaccountresponse", "Account"
+        response = SharedFunction.make_request @cs_helper, @model_observer, params, "updateaccountresponse", "Account"
         if response &&
            !response.instance_of?(Error) #&&
            #(/(create|update|delete|register|add)/i.match("updateAccount"))
@@ -37,6 +46,7 @@ module CloudStack
         jJob = SharedFunction.make_async_request @cs_helper, params, "deleteaccountresponse"
 
         responseObj = SharedFunction.query_async_job @cs_helper,
+                                                     @model_observer,
                                                      {:jobid => jJob['jobid']},
                                                      "deleteAccount",
                                                      "Account"
@@ -54,7 +64,7 @@ module CloudStack
                   :account  => "#{self.name}",
                   :domainid => "#{self.domainid}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "createuserresponse", "User"
+        response = SharedFunction.make_request @cs_helper, @model_observer, params, "createuserresponse", "User"
         if response &&
            !response.instance_of?(Error) # &&
            #(/(create|update|delete|register|add)/i.match("createUser"))
@@ -87,14 +97,30 @@ module CloudStack
                      :domains,
                      :haschild]
 
+      def initialize(*args)
+        super(args[0], args[1], args[2])
+        @accounts = {}
+        @domains  = {}
+      end
+
+      def sync
+        resultObjs = list_accounts :listall => true, :domainid => "#{self.id}"
+        resultObjs.each do |acc|
+          @accounts["#{acc.id}"] = acc
+        end
+      end
+
       def create_account(args={})
         params = {:command  => "createAccount",
                   :domainid => "#{self.id}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "createaccountresponse", "Account"
-        if response &&
-           !response.instance_of?(Error) # &&
-           #(/(create|update|delete|register|add)/i.match("createAccount"))
+        response = SharedFunction.make_request @cs_helper,
+                                               @model_observer, 
+                                               params,
+                                               "createaccountresponse",
+                                               "Account"
+
+        if response && (!response.instance_of?(Error))
           changed
           notify_observers("create_account", params, response)
         end
@@ -102,9 +128,16 @@ module CloudStack
       end
 
       def update(args={})
+
         params = {:command  => "updateDomain", :id => "#{self.id}"}
+
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "updatedomainresponse", "Domain"
+
+        response = SharedFunction.make_request @cs_helper,
+                                               @model_observer, 
+                                               params, 
+                                               "updatedomainresponse",
+                                               "Domain"
         if response &&
            !response.instance_of?(Error) # &&
            # (/(create|update|delete|register|add)/i.match("updateDomain"))
@@ -121,6 +154,7 @@ module CloudStack
         jJob = SharedFunction.make_async_request @cs_helper, params, "deletedomainresponse"
 
         responseObj = SharedFunction.query_async_job @cs_helper,
+                                                     @model_observer,
                                                      {:jobid => jJob['jobid']},
                                                      "deleteDomain",
                                                      "Domain"
@@ -133,31 +167,8 @@ module CloudStack
         return responseObj
       end
 
-      # def update_account(args={})
-      #   params = {:command  => "updateAccount"}
-      #   params.merge! args unless args.empty?
-      #   response = SharedFunction.make_request @cs_helper, params, "updateaccountresponse", "Account"
-      #   if response &&
-      #      !response.instance_of?(Error) &&
-      #      (/(create|update|delete|register|add)/i.match("updateAccount"))
-      #     changed
-      #     notify_observers("update_account", params, response)
-      #   end
-      #   return response
-      # end
-
-      # def delete_account(args={})
-      #   params = {:command  => "deleteAccount"}
-      #   params.merge! args unless args.empty?
-      #   response = SharedFunction.make_request @cs_helper, params, "deleteaccountresponse", "Account"
-      #   if response &&
-      #      !response.instance_of?(Error) &&
-      #      (/(create|update|delete|register|add)/i.match("deleteAccount"))
-      #     changed
-      #     notify_observers("delete_account", params, response)
-      #   end
-      #   return response
-      # end
+      private
+      include AccountsApiHelper::Account
     end
     
     class User < Raw
@@ -212,7 +223,7 @@ module CloudStack
       def delete(args={})
         params = {:command  => "deleteUser", :id => "#{self.id}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "deleteuserresponse", "User"
+        response = SharedFunction.make_request @cs_helper, @model_observer, params, "deleteuserresponse", "User"
         if response &&
            !response.instance_of?(Error) # &&
            # (/(create|update|delete|register|add)/i.match("deleteUser"))
@@ -225,7 +236,7 @@ module CloudStack
       def update(args={})
         params = {:command  => "updateUser", :id => "#{self.id}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "updateuserresponse", "User"
+        response = SharedFunction.make_request @cs_helper, @model_observer, params, "updateuserresponse", "User"
         if response &&
            !response.instance_of?(Error) # &&
            # (/(create|update|delete|register|add)/i.match("updateUser"))
@@ -238,7 +249,7 @@ module CloudStack
       def enable(args={})
         params = {:command  => "enableUser", :id => "#{self.id}"}
         params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "enableuserresponse", "User"
+        response = SharedFunction.make_request @cs_helper, @model_observer, params, "enableuserresponse", "User"
         if response &&
            !response.instance_of?(Error) #&&
            #(/(create|update|delete|register|add|enable)/i.match("enableUser"))
@@ -254,6 +265,7 @@ module CloudStack
         jJob = SharedFunction.make_async_request @cs_helper, params, "disableuserresponse"
 
         responseObj = SharedFunction.query_async_job @cs_helper,
+                                                     @model_observer,
                                                      {:jobid => jJob['jobid']},
                                                      "disableUser",
                                                      "User"

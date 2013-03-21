@@ -5,6 +5,7 @@ require 'digest/md5'
 class SharedFunction
 
   def SharedFunction.make_request(cs_helper,
+                                  model_observer,
                                   params,
                                   response_name,
                                   rObj_name)
@@ -30,29 +31,22 @@ class SharedFunction
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
 
-      # TESTING
-      # if @command.eql? "createZone"
-      #   puts "====================="
-      #   p response
-      #   puts "---------------------"
-      # end
-
       if /(list|addcluster|addhost)/i.match @command
         @result = [] 
         if response["#{jObj_name}"]
           response["#{jObj_name}"].each do |obj|
-            @result << CloudStack::Model.const_get(rObj_name).new(obj)
+            @result << CloudStack::Model.const_get(rObj_name).new(obj, cs_helper, model_observer)
           end
         end
-      # FIXME : Ugly code here, need refactor
+      # FIXME : For success responese (Ugly code here, need refactor)
       elsif /(deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
-          @result = CloudStack::Model.const_get("Success").new response
+          @result = CloudStack::Model.const_get("Success").new(response, cs_helper, model_observer)
       else
-        @result = CloudStack::Model.const_get(rObj_name).new response["#{jObj_name}"]
+        @result = CloudStack::Model.const_get(rObj_name).new(response["#{jObj_name}"], cs_helper, model_observer)
       end
       return @result
     rescue => e
-      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"])) : (puts e)
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"], cs_helper, model_observer)) : (puts e)
     end
   end
 
@@ -88,6 +82,7 @@ class SharedFunction
  end
 
  def SharedFunction.query_async_job(cs_helper,
+                                    model_observer,
                                     params,
                                     requestCommand,
                                     requestObjName)
@@ -106,17 +101,20 @@ class SharedFunction
        sleep 1
      end 
 
-     @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
+     @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse, cs_helper, model_observer)
 
+     # For success response
      if /(deleteAccount|deleteDomain)/i.match requestCommand
-       @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult)
+       @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult, cs_helper, model_observer)
      else
-       @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"])
+
+       @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"], cs_helper, model_observer)
+
      end
 
      return @result
    rescue => e
-      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"])) : (puts e)
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"], cs_helper, model_observer)) : (puts e)
    end
  end
 end
@@ -138,6 +136,7 @@ class Module
           end
           response = SharedFunction.make_request(
                                     @cs_helper,
+                                    @model_observer,
                                     params,
                                     command.downcase+'response',
                                     _responseObj);
@@ -173,6 +172,7 @@ class Module
 
           responseObj = SharedFunction.query_async_job(
                                        @cs_helper,
+                                       @model_observer,
                                        {:jobid => jJob['jobid']},
                                        command,
                                        '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
