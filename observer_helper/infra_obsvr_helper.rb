@@ -2,8 +2,6 @@ module InfraObsvrHelper
 
 private
   def obsvr_create_zone(h_para, zoneObj)
-    zoneObj.add_observer @observer
-    zoneObj.cs_helper = @cs_helper
     @zones["#{zoneObj.id}"] = zoneObj
   end
 
@@ -19,21 +17,15 @@ private
   end
 
   def obsvr_create_pod(params, podObj)
-    podObj.add_observer @observer
-    podObj.cs_helper = @cs_helper
     #@pods["#{podObj.id}"] = podObj
     @zones["#{podObj.zoneid}"].pods["#{podObj.id}"] = podObj
   end
 
   def obsvr_create_vlan_ip_range(params, vlanObj)
-    vlanObj.add_observer @observer
-    vlanObj.cs_helper = @cs_helper
     @zones["#{vlanObj.zoneid}"].pods["#{vlanObj.podid}"].vlans["#{vlanObj.id}"] = vlanObj
   end
 
   def obsvr_create_physical_network(h_para, pnObj)
-    pnObj.add_observer @observer
-    pnObj.cs_helper = @cs_helper
     zoneObj = @zones["#{pnObj.zoneid}"]
     zoneObj.physical_networks.merge!({"#{pnObj.id}" => pnObj})
     @vr_networkserviceproviders = @root_admin.list_network_service_providers :name => "VirtualRouter",
@@ -44,15 +36,11 @@ private
 
     @vr_networkserviceproviders.each do |vrsp|
 
-      vrsp.add_observer @observer
-      vrsp.cs_helper = @cs_helper
 
       @virtualrouterelements = @root_admin.list_virtual_router_elements :nspid => "#{vrsp.id}"
 
       @virtualrouterelements.each do |vre|
         vre.physicalnetworkid = pnObj.id
-        vre.add_observer @observer
-        vre.cs_helper = @cs_helper
         vrsp.virtual_router_elements["#{vre.id}"] = vre
       end
         
@@ -60,8 +48,6 @@ private
     end
 
     @sg_networkserviceproviders.each do |sgsp|
-      sgsp.add_observer @observer
-      sgsp.cs_helper = @cs_helper
       pnObj.network_service_providers["#{sgsp.id}"] = sgsp
     end
     @physical_networks["#{pnObj.id}"] = pnObj

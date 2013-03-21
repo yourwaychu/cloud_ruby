@@ -14,126 +14,138 @@ module CloudStack_Testing
                                              "#{@apiport}"
     end  
 
-    # it "create zone (OO)" do 
-    #   zoneObj = @cs.create_zone :name => "testzone",
-    #                             :dns1 => "8.8.8.8",
-    #                             :internaldns1 => "8.8.8.8",
-    #                             :networktype => "Basic",
-    #                             :localstorageenabled => true
+    it "create zone (OO)" do 
+      zoneObj = @cs.create_zone :name => "testzone",
+                                :dns1 => "8.8.8.8",
+                                :internaldns1 => "8.8.8.8",
+                                :networktype => "Basic",
+                                :localstorageenabled => true
 
-    #   @cs.zones["#{zoneObj.id}"].name.should eql("testzone")
-    # end
+      @cs.zones["#{zoneObj.id}"].name.should eql("testzone")
+    end
 
-    # it "create physical network" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   respObj = @zoneObj.create_physical_network :name => "test physical network" 
+    it "create physical network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      respObj = @zoneObj.create_physical_network :name => "test physical network" 
 
-    #   @zoneObj.physical_networks["#{respObj.id}"].name.should eq("test physical network")
-    # end
-
-
-    # it "add traffic type (guest)" do
-    #   @cs.physical_networks.each do |k, v|
-    #     if v.name.eql? "test physical network"
-    #       @pnObj = v
-    #     end
-    #   end
-    #   
-    #   @pnObj.add_traffic_type :traffictype => "Guest"
-
-    # end
-
-    # it "add traffic type (management)" do
-    #   @cs.physical_networks.each do |k, v|
-    #     if v.name.eql? "test physical network"
-    #       @pnObj = v
-    #     end
-    #   end
-    #   @pnObj.add_traffic_type :traffictype => "Management"
-
-    # end
-
-    # it "update physical_networks" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   @cs.physical_networks.each do |k, v|
-    #     if v.name.eql? "test physical network"
-    #       @pnObj = v
-    #     end
-    #   end
-    #   @pnObj.update :state => "Enabled"
-    #   @zoneObj.physical_networks["#{@pnObj.id}"].state.should eq("Enabled")
-    # end
+      @zoneObj.physical_networks["#{respObj.id}"].name.should eq("test physical network")
+    end
 
 
-    # it "setup network service provider" do
-    #   @cs.physical_networks.each do |k, v|
-    #     if v.name.eql? "test physical network"
-    #       @pnObj = v
-    #     end
-    #   end
+    it "add traffic type (guest)" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      
+      resultObj = @zoneObj.physical_networks.values[0].add_traffic_type :traffictype => "Guest"
 
-    #   @pnObj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values.to_a[0].enable
+    end
 
-    #   @pnObj.network_service_providers.choose("VirtualRouter")[0].enable
+    it "delete traffic type (guest)" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      @zoneObj.physical_networks.values[0].traffic_types.values[0].delete
+    end
 
-    #   @pnObj.network_service_providers.choose("SecurityGroupProvider")[0].enable
-    #   
+    it "add traffic type (management)" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      
+      resultObj = @zoneObj.physical_networks.values[0].add_traffic_type :traffictype => "Guest"
+      resultObj = @zoneObj.physical_networks.values[0].add_traffic_type :traffictype => "Management"
+      resultObj = @zoneObj.physical_networks.values[0].add_traffic_type :traffictype => "Storage"
+    end
 
-    #   @pnObj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values.to_a[0].enabled.should eql(true)
+    it "update physical_networks" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
 
-    #   @pnObj.network_service_providers.choose("SecurityGroupProvider")[0].state.should eql("Enabled")
-    #   @pnObj.network_service_providers.choose("VirtualRouter")[0].state.should eql("Enabled")
-    # end
+      @cs.physical_networks.each do |k, v|
+        if v.name.eql? "test physical network"
+          @pnObj = v
+        end
+      end
+      @pnObj.update :state => "Enabled"
+      @zoneObj.physical_networks["#{@pnObj.id}"].state.should eq("Enabled")
+    end
 
-    # it "create network" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
 
-    #   @networkoffering = @cs.network_offerings.choose("DefaultSharedNetworkOfferingWithSGService").first
+    it "setup network service provider" do
+      @cs.physical_networks.each do |k, v|
+        if v.name.eql? "test physical network"
+          @pnObj = v
+        end
+      end
 
-    #   @zoneObj.create_network :name              => "DefaultGuestNetwork",
-    #                           :displaytext       => "DefaultGuestNetwork" ,
-    #                           :networkofferingid => "#{@networkoffering.id}"
+      @pnObj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values.to_a[0].enable
 
-    #   @zoneObj.networks.choose("DefaultGuestNetwork").first.name.should eq("DefaultGuestNetwork")
-    # end
+      @pnObj.network_service_providers.choose("VirtualRouter")[0].enable
 
-    # it "create pod and corresponding vlan ip range" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   networkObj = @zoneObj.networks.choose("DefaultGuestNetwork").first
+      @pnObj.network_service_providers.choose("SecurityGroupProvider")[0].enable
+      
 
-    #   podObj = @zoneObj.create_pod :name    => "testpod",
-    #                                :netmask => "255.255.255.0",
-    #                                :gateway => "192.168.56.1",
-    #                                :startip => "192.168.56.51",
-    #                                :endip   => "192.168.56.70"
+      @pnObj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values.to_a[0].enabled.should eql(true)
 
-    #   @zoneObj.pods.choose("testpod")[0].name.should eq("testpod")
+      @pnObj.network_service_providers.choose("SecurityGroupProvider")[0].state.should eql("Enabled")
+      @pnObj.network_service_providers.choose("VirtualRouter")[0].state.should eql("Enabled")
+    end
 
-    #   vlanObj = podObj.create_vlan_ip_range :gateway           => "192.168.56.1",
-    #                                         :netmask           => "255.255.255.0",
-    #                                         :networkid         => "#{networkObj.id}",
-    #                                         :forvirtualnetwork => "false",
-    #                                         :startip           => "192.168.56.71",
-    #                                         :endip             => "192.168.56.100"
+    it "create network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
 
-    #   podObj.vlans["#{vlanObj.id}"].should_not be_nil
-    # end
+      @networkoffering = @cs.network_offerings.choose("DefaultSharedNetworkOfferingWithSGService").first
+
+      @zoneObj.create_network :name              => "DefaultGuestNetwork",
+                              :displaytext       => "DefaultGuestNetwork" ,
+                              :networkofferingid => "#{@networkoffering.id}"
+
+      @zoneObj.networks.choose("DefaultGuestNetwork").first.name.should eq("DefaultGuestNetwork")
+    end
+
+    it "create pod and corresponding vlan ip range" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      networkObj = @zoneObj.networks.choose("DefaultGuestNetwork").first
+
+      podObj = @zoneObj.create_pod :name    => "testpod",
+                                   :netmask => "255.255.255.0",
+                                   :gateway => "192.168.56.1",
+                                   :startip => "192.168.56.51",
+                                   :endip   => "192.168.56.70"
+
+      @zoneObj.pods.choose("testpod")[0].name.should eq("testpod")
+
+      vlanObj = podObj.create_vlan_ip_range :gateway           => "192.168.56.1",
+                                            :netmask           => "255.255.255.0",
+                                            :networkid         => "#{networkObj.id}",
+                                            :forvirtualnetwork => "false",
+                                            :startip           => "192.168.56.71",
+                                            :endip             => "192.168.56.100"
+
+      podObj.vlans["#{vlanObj.id}"].should_not be_nil
+    end
 
 
     # it "create cluster" do
@@ -184,33 +196,33 @@ module CloudStack_Testing
     #   scObj = @zoneObj.add_secondary_storage :url => "nfs://192.168.56.10/opt/storage/secondary" 
     #   @zoneObj.secondary_storages["#{scObj.id}"].should_not be_nil
     # end
-    # # it "delete network" do
+    # it "delete network" do
 
-    # #   @cs.zones.each do |k, v|
-    # #     if v.name.eql? "testzone"
-    # #       @zoneObj = v
-    # #     end
-    # #   end
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone"
+    #       @zoneObj = v
+    #     end
+    #   end
 
-    # #   @zoneObj.networks.choose("DefaultGuestNetwork").first.delete 
-    # #   
-    # #   @zoneObj.networks.choose("DefaultGuestNetwork").first.should be_nil
-    # # end
+    #   @zoneObj.networks.choose("DefaultGuestNetwork").first.delete 
+    #   
+    #   @zoneObj.networks.choose("DefaultGuestNetwork").first.should be_nil
+    # end
 
-    # # it "delete physical network" do
-    # #   @cs.zones.each do |k, v|
-    # #     if v.name.eql? "testzone"
-    # #       @zoneObj = v
-    # #     end
-    # #   end
-    # #   @zoneObj.physical_networks.each do |k, v|
-    # #     if v.name.eql? "test physical network"
-    # #       @pnObj = v
-    # #     end
-    # #   end
-    # #   @zoneObj.physical_networks["#{@pnObj.id}"].delete
-    # #   @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
-    # # end
+    # it "delete physical network" do
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone"
+    #       @zoneObj = v
+    #     end
+    #   end
+    #   @zoneObj.physical_networks.each do |k, v|
+    #     if v.name.eql? "test physical network"
+    #       @pnObj = v
+    #     end
+    #   end
+    #   @zoneObj.physical_networks["#{@pnObj.id}"].delete
+    #   @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
+    # end
 
     # it "update zone (OO)" do
     #   @cs.zones.each do |k, v|
@@ -218,18 +230,19 @@ module CloudStack_Testing
     #       @zoneObj = v
     #     end
     #   end
-    #   @zoneObj.update :name => "testzone(updated)", :allocationstate => "Enabled"
+    #   @zoneObj.update :name => "testzone(updated)"#, :allocationstate => "Enabled"
     # end
-    # # it "delete zone (OO)" do
-    # #   @cs.zones.each do |k, v|
-    # #     if v.name.eql? "testzone(updated)"
-    # #       @zoneObj = v
-    # #     end
-    # #     resultObj = @cs.delete_zone :id => "#{@zoneObj.id}", :cleanup => true
-    # #     if resultObj.success.eql? "true"
-    # #       @cs.zones["#{@zoneObj.id}"].should be_nil
-    # #     end
-    # #   end
-    # # end
+    #
+    # it "delete zone (OO)" do
+    #   @cs.zones.each do |k, v|
+    #     if v.name.eql? "testzone(updated)"
+    #       @zoneObj = v
+    #     end
+    #     resultObj = @zoneObj.delete
+    #     if resultObj.success.eql? "true"
+    #       @cs.zones["#{@zoneObj.id}"].should be_nil
+    #     end
+    #   end
+    # end
   end 
 end

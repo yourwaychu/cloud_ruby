@@ -21,13 +21,11 @@ module CloudStack
     include ServiceOfferingObsvrHelper
     include InfraObsvrHelper
     include MainModelHelper
-    include AccountsApiHelper::Domain
-    include InfraApiHelper::Zone
 
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
                 :users, :domains, :network_offerings, :disk_offerings,
                 :service_offerings, :zones, :physical_networks, :templates,
-                :pods, :clusters, :hosts, :systemvms
+                :pods, :clusters, :hosts, :systemvms, :cs_agent, :cs_helper
   
     def initialize(ip, port, i_port)
       @logger = Logger.new('cloudstack.sdk.log')

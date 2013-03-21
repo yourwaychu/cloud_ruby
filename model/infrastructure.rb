@@ -5,6 +5,8 @@ module CloudStack
 
     class Zone < Raw
 
+      include InfraModelHelper::Zone
+
       cattr_accessor :attr_list
 
       attr_accessor :id,
@@ -45,99 +47,19 @@ module CloudStack
                      :securitygroupenabled]
 
       def initialize(*args)
-        super(args[0])
+        super(args[0], args[1], args[2])
         @physical_networks  = {}
         @networks           = {}
         @pods               = {}
         @secondary_storages = {}
       end
 
-
-      def sync
-        # sync_phsical_networks
-        # sync_networks
-        # sync_pods
-        # sync_secondary_storage
-      end
-
-      def update(args={})
-        params = {:command  => "updateZone", :id => "#{self.id}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "updatezoneresponse", "Zone"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("update_zone", params, response)
-        end
-        return response
-      end
-
-      def create_physical_network(args={}) #Asychronous
-        params = {:command  => "createPhysicalNetwork", :zoneid => "#{self.id}"}
-        params.merge! args unless args.empty?
-        jJob = SharedFunction.make_async_request @cs_helper, params, "createphysicalnetworkresponse"
-
-        responseObj = SharedFunction.query_async_job @cs_helper,
-                                                     {:jobid => jJob['jobid']},
-                                                     "createPhysicalNetwork",
-                                                     "PhysicalNetwork"
-
-        # if (/(create|update|delete|register|add|disable|enable)/i.match("deleteAccount"))
-          changed
-          notify_observers("create_physical_network", params, responseObj)
-        # end
-
-        return responseObj
-      end
-
-
-      def create_network(args={})
-        params = {:command  => "createNetwork", :zoneid => "#{self.id}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "createnetworkresponse", "Network"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("create_network", params, response)
-        end
-        return response
-
-      end
-
-
-      def create_pod(args={})
-        params = {:command  => "createPod", :zoneid => "#{self.id}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "createpodresponse", "Pod"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("create_pod", params, response)
-        end
-        return response
-
-      end
-
-
-      def add_secondary_storage(args={})
-        params = {:command  => "addSecondaryStorage", :zoneid => "#{self.id}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "addsecondarystorageresponse", "SecondaryStorage"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("add_secondary_storage", params, response)
-        end
-        return response
-
-      end
     end
     
     class Pod < Raw
+
+      include InfraModelHelper::Pod
+
       cattr_accessor :attr_list
 
       attr_accessor :id, 
@@ -163,37 +85,12 @@ module CloudStack
                      :allocationstate]
 
       def initialize(*args)
-        super(args[0])
+        super(args[0], args[1], args[2])
         @vlans = {}
         @clusters = {}
       end 
 
 
-      def create_vlan_ip_range(args={})
-        params = {:command  => "createVlanIpRange", :podid => "#{self.id}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "createvlaniprangeresponse", "Vlan"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("create_vlan_ip_range", params, response)
-        end
-        return response
-      end
-      
-      def add_cluster(args={}) 
-        params = {:command  => "addCluster", :podid => "#{self.id}", :zoneid => "#{self.zoneid}"}
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "addclusterresponse", "Cluster"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("add_cluster", params, response)
-        end
-        return response
-      end
     end
     
     class Cluster < Raw

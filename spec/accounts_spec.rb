@@ -161,6 +161,7 @@ module CloudStack_Testing
       @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
       @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@domainObj.id}")
       @cs.domains["#{@domainObj.id}"].accounts["#{resultObj.id}"].name.should eql("ootester")
+      @cs.domains["#{@domainObj.id}"].accounts["#{resultObj.id}"].should equal(@cs.accounts["#{resultObj.id}"])
     end
 
     it "create user (OO)" do
@@ -170,14 +171,22 @@ module CloudStack_Testing
         end
       end
 
-      resultObj = @accObj.create_user :username  => "ootestuser",
-                                      :password  => "oonovirus",
-                                      :email     => "ootestuesr@trend.com.tw",
-                                      :firstname => "ootestuser",
-                                      :lastname  => "ootestuser"
+      userObj = @accObj.create_user :username  => "ootestuser",
+                                    :password  => "oonovirus",
+                                    :email     => "ootestuesr@trend.com.tw",
+                                    :firstname => "ootestuser",
+                                    :lastname  => "ootestuser"
 
-      @cs.users["#{resultObj.id}"].username.should eq("ootestuser")
-      @accObj.users["#{resultObj.id}"].username.should eq("ootestuser") 
+      @cs.users["#{userObj.id}"].username.should eq("ootestuser")
+      @accObj.users["#{userObj.id}"].username.should eq("ootestuser") 
+      @accObj.users["#{userObj.id}"].should equal(@cs.users["#{userObj.id}"])
+
+
+    end
+    
+    it "create domain without register keys" do
+      userObj = @cs.users.choose("ootestuser")[0]
+      expect {userObj.create_domain :name => "baddomain"}.to raise_error
     end
 
     it "disable user (OO)" do
@@ -223,6 +232,7 @@ module CloudStack_Testing
       
       @userObj.delete
       @cs.users["#{@userObj.id}"].should be_nil
+      @cs.accounts["#{@userObj.accountid}"].users["#{@userObj}"].should be_nil
     end
 
     it "update account (OO)" do

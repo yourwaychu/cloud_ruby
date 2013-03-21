@@ -104,6 +104,11 @@ module CloudStack
 
       include AccountsModelHelper::User
 
+      def initialize(*args)
+        super(args[0], args[1], args[2])
+        @cs_helper
+      end
+
     end
     
     class Admin < User

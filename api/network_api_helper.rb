@@ -3,6 +3,7 @@ module NetworkApiHelper
   sync_cmd_processor :list_physical_networks,
                      :list_network_service_providers,
                      :list_virtual_router_elements,
+                     :list_traffic_types,
                      :create_network,
                      :create_vlan_ip_range,
                      :add_secondary_storage

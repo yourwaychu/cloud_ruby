@@ -4,7 +4,7 @@ module AccountsModelHelper
       params = {:command  => "createAccount",
                 :domainid => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer, 
                                              params,
                                              "createaccountresponse",
@@ -24,7 +24,7 @@ module AccountsModelHelper
 
       params.merge! args unless args.empty?
 
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer, 
                                              params, 
                                              "updatedomainresponse",
@@ -42,11 +42,11 @@ module AccountsModelHelper
     def delete(args={}) # Asynchronus
       params = {:command  => "deleteDomain", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      jJob = SharedFunction.make_async_request @cs_helper,
+      jJob = SharedFunction.make_async_request @cs_agent,
                                                params,
                                                "deletedomainresponse"
 
-      responseObj = SharedFunction.query_async_job @cs_helper,
+      responseObj = SharedFunction.query_async_job @cs_agent,
                                                    @model_observer,
                                                    {:jobid => jJob['jobid']},
                                                    "deleteDomain",
@@ -57,6 +57,7 @@ module AccountsModelHelper
 
       return responseObj
     end
+
   end
 
   module Account
@@ -67,7 +68,7 @@ module AccountsModelHelper
       user_j_objs = j_obj['user']
 
       user_j_objs.each do |juser|
-        tmp = CloudStack::Model::User.new juser, @cs_helper, @model_observer
+        tmp = CloudStack::Model::User.new juser, nil, @model_observer
         @users["#{tmp.id}"] = tmp
       end
     end
@@ -75,7 +76,7 @@ module AccountsModelHelper
     def update(args={})
       params = {:command  => "updateAccount", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer, 
                                              params,
                                              "updateaccountresponse",
@@ -92,11 +93,11 @@ module AccountsModelHelper
     def delete(args={})  # Asynchronus
       params = {:command  => "deleteAccount", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      jJob = SharedFunction.make_async_request @cs_helper,
+      jJob = SharedFunction.make_async_request @cs_agent,
                                                params,
                                                "deleteaccountresponse"
 
-      responseObj = SharedFunction.query_async_job @cs_helper,
+      responseObj = SharedFunction.query_async_job @cs_agent,
                                                    @model_observer,
                                                    {:jobid => jJob['jobid']},
                                                    "deleteAccount",
@@ -113,7 +114,7 @@ module AccountsModelHelper
                 :account  => "#{self.name}",
                 :domainid => "#{self.domainid}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer, 
                                              params, 
                                              "createuserresponse",
@@ -134,17 +135,15 @@ module AccountsModelHelper
     def registerCSHelper(url, cs_instance)
       if self.apikey && self.secretkey  
         @cs_helper = CloudStackHelper.new :api_key => self.apikey, 
-                                          :secret_key => self.secretkey,
-                                          :api_url => "#{url}"
-
-        @cs_helper
+                                         :secret_key => self.secretkey,
+                                         :api_url => "#{url}"
       end
     end
 
     def delete(args={})
       params = {:command  => "deleteUser", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer,
                                              params, 
                                              "deleteuserresponse", 
@@ -160,7 +159,7 @@ module AccountsModelHelper
     def update(args={})
       params = {:command  => "updateUser", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer,
                                              params,
                                              "updateuserresponse",
@@ -177,7 +176,7 @@ module AccountsModelHelper
     def enable(args={})
       params = {:command  => "enableUser", :id => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_helper,
+      response = SharedFunction.make_request @cs_agent,
                                              @model_observer,
                                              params, 
                                              "enableuserresponse",
@@ -196,11 +195,11 @@ module AccountsModelHelper
 
       params.merge! args unless args.empty?
 
-      jJob = SharedFunction.make_async_request @cs_helper,
+      jJob = SharedFunction.make_async_request @cs_agent,
                                                params, 
                                                "disableuserresponse"
 
-      responseObj = SharedFunction.query_async_job @cs_helper,
+      responseObj = SharedFunction.query_async_job @cs_agent,
                                                    @model_observer,
                                                    {:jobid => jJob['jobid']},
                                                    "disableUser",

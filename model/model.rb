@@ -2,14 +2,17 @@ module CloudStack
   module Model
     class Raw
       include Observable
-      attr_accessor :cs_helper, :model_observer
+      attr_accessor :cs_agent, :model_observer, :p_node
       def initialize(*args)
+        @cs_agent
+        @model_observer
+
         if args && args[0]
           self.pack args[0]
         end
         
         if args[1]
-          @cs_helper = args[1]
+          @cs_agent = args[1]
         end
 
         if args[2]

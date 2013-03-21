@@ -51,20 +51,13 @@ private
       @root_admin.secretkey   = adminkeyObj.secretkey
     end
 
-    # @root_admin.add_observer @model_observer
-    # @root_admin.model_observer = @model_observer
     @root_admin.registerCSHelper(request_url, self)
-    @cs_helper = @root_admin.cs_helper
+    @cs_agent = @root_admin.cs_helper
   end
 
   def update_env
-    update_env_domains
     update_env_accounts
-    update_env_users
-    update_env_zones
-    # update_env_pods
-    # update_env_clusters
-    # update_env_hosts
+    update_env_infra
     update_env_network_offerings
     update_env_service_offerings
     update_env_disk_offerings
@@ -100,52 +93,36 @@ private
   end
   
 
-  def update_env_domains
-    resultObjs = @root_admin.list_domains :listall=>true
-    resultObjs.each do |obj|
-      @domains["#{obj.id}"] = obj
-    end
-  end
-     
   def update_env_accounts
-    resultObjs = @root_admin.list_accounts :listall=>true
-    resultObjs.each do |obj|
-      @accounts["#{obj.id}"] = obj
-    end
-  end
-  
-  def update_env_users
-    resultObjs = @root_admin.list_users :listall=>true
-    resultObjs.each do |obj|
-      @users["#{obj.id}"] = obj
-    end
-  end
-
-  def update_env_zones
-    resultObjs = @root_admin.list_zones :listall => true
-    resultObjs.each do |obj|
-      @zones["#{obj.id}"] = obj
+    _domains = @root_admin.list_domains :listall => true
+    _domains.each do |dobj|
+      _accounts = @root_admin.list_accounts :domainid => "#{dobj.id}"
+      _accounts.each do |aobj|
+        _users = @root_admin.list_users :accountid => "#{aobj.id}"
+        _users.each do |uobj|
+          aobj.users["#{uobj.id}"] = uobj
+          @users["#{uobj.id}"] = uobj
+        end
+        dobj.accounts["#{aobj.id}"] = aobj
+        @accounts["#{aobj.id}"] = aobj
+      end
+      @domains["#{dobj.id}"] = dobj
     end
   end
 
-  def update_env_pods
-    resultObjs = @root_admin.list_pods :listall => true
-    resultObjs.each do |obj|
-      @pods["#{obj.id}"] = obj
-    end
-  end 
-
-  def update_env_clusters
-    resultObjs = @root_admin.list_clusters :listall => true
-    resultObjs.each do |obj|
-      @clusters["#{obj.id}"] = obj
-    end
-  end
-
-  def update_env_hosts
-    resultObjs = @root_admin.list_hosts :listall => true
-    resultObjs.each do |obj|
-      @hosts["#{obj.id}"] = obj
+  def update_env_infra
+    _zones = @root_admin.list_zones :listall => true
+    _zones.each do |zoneobj|
+      @zones["#{zoneobj.id}"] = zoneobj
+      _pnets = @root_admin.list_physical_networks :zoneid => "#{zoneobj.id}"
+      _pnets.each do |pnetobj|
+        _traffic_types = @root_admin.list_traffic_types :physicalnetworkid => "#{pnetobj.id}"
+        _traffic_types.each do |trafobj|
+          pnetobj.traffic_types["#{trafobj.id}"] = trafobj
+        end
+        zoneobj.physical_networks["#{pnetobj.id}"] = pnetobj
+          
+      end
     end
   end
 
