@@ -87,9 +87,14 @@ module InfraModelHelper
     def add_secondary_storage(args={})
       params = {:command  => "addSecondaryStorage", :zoneid => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_agent, params, "addsecondarystorageresponse", "SecondaryStorage"
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "addsecondarystorageresponse",
+                                             "SecondaryStorage"
       if response &&
          !response.instance_of?(CloudStack::Model::Error)
+        response.p_node = self
         changed
         notify_observers("add_secondary_storage", params, response)
       end
@@ -118,14 +123,55 @@ module InfraModelHelper
     def add_cluster(args={}) 
       params = {:command  => "addCluster", :podid => "#{self.id}", :zoneid => "#{self.zoneid}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_agent, params, "addclusterresponse", "Cluster"
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer, 
+                                             params, 
+                                             "addclusterresponse",
+                                             "Cluster"
       if response &&
          !response.instance_of?(CloudStack::Model::Error)
+
+        response.each do |cr|
+          cr.p_node = self
+        end
+
         changed
         notify_observers("add_cluster", params, response)
       end
       return response
     end
 
+  end
+
+  module Cluster
+      def add_host(args={})
+        params = {:command   => "addHost",
+                  :clusterid => "#{self.id}",
+                  :podid     => "#{self.podid}",
+                  :zoneid    => "#{self.zoneid}"}
+
+        params.merge! args unless args.empty?
+        response = SharedFunction.make_request @cs_agent, 
+                                               @model_observer,
+                                               params, 
+                                               "addhostresponse",
+                                               "Host"
+        if response &&
+           !response.instance_of?(CloudStack::Model::Error)
+
+          response.each do |ht|
+            ht.p_node = self
+          end
+
+          changed
+          notify_observers("add_host", params, response)
+        end
+        return response
+      end
+
+  end
+
+
+  module Host
   end
 end

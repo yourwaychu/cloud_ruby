@@ -79,16 +79,12 @@ private
 
   def obsvr_add_cluster(params, clusterList)
     clusterList.each do |clusterObj|
-      clusterObj.add_observer @observer
-      clusterObj.cs_helper = @cs_helper
       @zones["#{clusterObj.zoneid}"].pods["#{clusterObj.podid}"].clusters["#{clusterObj.id}"] = clusterObj
     end
   end
 
   def obsvr_add_host(params, hostObjList)
     hostObjList.each do |hostObj|
-      hostObj.add_observer @observer
-      hostObj.cs_helper = @cs_helper
       @zones["#{hostObj.zoneid}"].pods["#{hostObj.podid}"].clusters["#{hostObj.clusterid}"].hosts["#{hostObj.id}"] = hostObj
     end
   end
@@ -98,8 +94,6 @@ private
   end
 
   def obsvr_add_secondary_storage(h_params, stObj)
-    stObj.add_observer @observer
-    stObj.cs_helper = @cs_helper
     @zones["#{stObj.zoneid}"].secondary_storages["#{stObj.id}"] = stObj
   end
 end

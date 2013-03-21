@@ -95,6 +95,8 @@ module CloudStack
     
     class Cluster < Raw
 
+      include InfraModelHelper::Cluster
+
       cattr_accessor :attr_list
 
       attr_accessor :id,
@@ -125,30 +127,14 @@ module CloudStack
                      :memoryovercommitratio]
 
       def initialize(*args)
-        super(args[0])
         @hosts = {}
+        super(args[0], args[1], args[2])
       end
-
-      def add_host(args={})
-        params = {:command   => "addHost",
-                  :clusterid => "#{self.id}",
-                  :podid     => "#{self.podid}",
-                  :zoneid    => "#{self.zoneid}"}
-
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_helper, params, "addhostresponse", "Host"
-        if response &&
-           !response.instance_of?(Error) #&&
-           #(/(create|update|delete|register|add)/i.match("updateAccount"))
-          changed
-          notify_observers("add_host", params, response)
-        end
-        return response
-      end
-
     end
     
     class Host < Raw
+
+      include InfraModelHelper::Host
 
       cattr_accessor :attr_list
 
@@ -220,6 +206,10 @@ module CloudStack
                      :hahost,
                      :jobstatus]
 
+      def initialize(*args)
+        super(args[0], args[1], args[2])
+      end
+
     end
 
     class SecondaryStorage < Raw
@@ -250,6 +240,9 @@ module CloudStack
                      :resourcestate,
                      :jobstatus]
 
+      def initialize(*args)
+        super(args[0], args[1], args[2])
+      end
     end
 
     class SystemVm < Raw
@@ -297,6 +290,10 @@ module CloudStack
                      :publicnetmask,
                      :templateid,
                      :state]
+
+      def initialize(*args)
+        super(args[0], args[1], args[2])
+      end
 
     end
 

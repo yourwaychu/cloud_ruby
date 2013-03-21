@@ -148,54 +148,55 @@ module CloudStack_Testing
     end
 
 
-    # it "create cluster" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   
-    #   @podObj =  @zoneObj.pods.choose("testpod")[0]
+    it "create cluster" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      
+      @podObj =  @zoneObj.pods.choose("testpod")[0]
 
-    #   clusterObjList = @podObj.add_cluster :clustername => "testcluster",
-    #                                        :clustertype => "CloudManaged",
-    #                                        :hypervisor  => "XenServer"
+      clusterObjList = @podObj.add_cluster :clustername => "testcluster",
+                                           :clustertype => "CloudManaged",
+                                           :hypervisor  => "XenServer"
 
-    #   @zoneObj.pods["#{@podObj.id}"].clusters["#{clusterObjList[0].id}"].should_not be_nil
-    # end
+      @zoneObj.pods["#{@podObj.id}"].clusters["#{clusterObjList[0].id}"].should_not be_nil
+    end
 
 
-    # it "add host" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   
-    #   @podObj  = @zoneObj.pods.choose("testpod")[0]
-    #   @cluster = @podObj.clusters.choose("testcluster")[0]
+    it "add host" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      
+      @podObj  = @zoneObj.pods.choose("testpod")[0]
+      @cluster = @podObj.clusters.choose("testcluster")[0]
 
-    #   # DevCloud2 testing 
-    #   hostObjList = @cluster.add_host :hypervisor  => "XenServer",
-    #                                   :clustertype => "CloudManaged",
-    #                                   :hosttags    => "xen1",
-    #                                   :username    => "root",
-    #                                   :password    => "password",
-    #                                   :url         => "http://192.168.56.10"
+      # DevCloud2 testing 
+      hostObjList = @cluster.add_host :hypervisor  => "XenServer",
+                                      :clustertype => "CloudManaged",
+                                      :hosttags    => "xen1",
+                                      :username    => "root",
+                                      :password    => "password",
+                                      :url         => "http://192.168.56.10"
 
-    #   @zoneObj.pods["#{@podObj.id}"].clusters["#{@cluster.id}"].hosts["#{hostObjList[0].id}"].should_not be_nil
-    #   
-    # end
+      @zoneObj.pods["#{@podObj.id}"].clusters["#{@cluster.id}"].hosts["#{hostObjList[0].id}"].should_not be_nil
+      
+    end
 
-    # it "add secondary storage" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   scObj = @zoneObj.add_secondary_storage :url => "nfs://192.168.56.10/opt/storage/secondary" 
-    #   @zoneObj.secondary_storages["#{scObj.id}"].should_not be_nil
-    # end
+    it "add secondary storage" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      scObj = @zoneObj.add_secondary_storage :url => "nfs://192.168.56.10/opt/storage/secondary" 
+      @zoneObj.secondary_storages["#{scObj.id}"].should_not be_nil
+    end
+    
     # it "delete network" do
 
     #   @cs.zones.each do |k, v|
@@ -224,14 +225,14 @@ module CloudStack_Testing
     #   @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
     # end
 
-    # it "update zone (OO)" do
-    #   @cs.zones.each do |k, v|
-    #     if v.name.eql? "testzone"
-    #       @zoneObj = v
-    #     end
-    #   end
-    #   @zoneObj.update :name => "testzone(updated)"#, :allocationstate => "Enabled"
-    # end
+    it "update zone (OO)" do
+      @cs.zones.each do |k, v|
+        if v.name.eql? "testzone"
+          @zoneObj = v
+        end
+      end
+      @zoneObj.update :name => "testzone(updated)", :allocationstate => "Enabled"
+    end
     #
     # it "delete zone (OO)" do
     #   @cs.zones.each do |k, v|
