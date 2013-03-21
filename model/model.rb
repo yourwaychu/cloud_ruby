@@ -22,7 +22,6 @@ module CloudStack
         self.class.attr_list.each do |attr|
           self.method(:"#{attr}".to_s.concat("=")).call j_obj[:"#{attr}".to_s]
         end 
-        self
       end
 
       def to_s

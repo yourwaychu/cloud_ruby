@@ -151,15 +151,16 @@ module CloudStack_Testing
         end
       end
 
-      resultObj = @cs.domains["#{@domainObj.id}"].create_account :accounttype => 0,
-                                                                 :email       => "ootester@trend.com",
-                                                                 :firstname   => "ootester",
-                                                                 :lastname    => "ootester",
-                                                                 :password    => "novirus",
-                                                                 :username    => "ootester"
+      resultObj = @domainObj.create_account :accounttype => 0,
+                                            :email       => "ootester@trend.com",
+                                            :firstname   => "ootester",
+                                            :lastname    => "ootester",
+                                            :password    => "novirus",
+                                            :username    => "ootester"
+
       @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
       @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@domainObj.id}")
-      #@cs.domains["#{@domainObj.id}"].accounts["#{result.id}"].name.should eql("ootester")
+      @cs.domains["#{@domainObj.id}"].accounts["#{resultObj.id}"].name.should eql("ootester")
     end
 
     it "create user (OO)" do
@@ -176,7 +177,7 @@ module CloudStack_Testing
                                       :lastname  => "ootestuser"
 
       @cs.users["#{resultObj.id}"].username.should eq("ootestuser")
-
+      @accObj.users["#{resultObj.id}"].username.should eq("ootestuser") 
     end
 
     it "disable user (OO)" do

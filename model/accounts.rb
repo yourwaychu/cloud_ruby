@@ -1,6 +1,33 @@
 module CloudStack
   module Model
-    
+    class Domain < Raw
+      cattr_accessor :attr_list
+
+      attr_accessor :id,
+                    :name,
+                    :level,
+                    :parentdomainid,
+                    :path,
+                    :accounts,
+                    :domains,
+                    :haschild
+
+      @@attr_list = [:id,
+                     :name,
+                     :level,
+                     :parentdomainid,
+                     :path,
+                     :haschild]
+
+      def initialize(*args)
+        @accounts = {}
+        @domains  = {}
+        super(args[0], args[1], args[2])
+      end
+
+      include AccountsModelHelper::Domain
+    end
+
     class Account < Raw
 
       cattr_accessor :attr_list
@@ -19,42 +46,13 @@ module CloudStack
                      :domainid]
 
       def initialize(*args)
-        super(args[0], args[1], args[2])
         @users = {}
+        super(args[0], args[1], args[2])
       end
 
       include AccountsModelHelper::Account
     end
     
-    class Domain < Raw
-      cattr_accessor :attr_list
-
-      attr_accessor :id,
-                    :name,
-                    :level,
-                    :parentdomainid,
-                    :path,
-                    :accounts,
-                    :domains,
-                    :haschild
-
-      @@attr_list = [:id,
-                     :name,
-                     :level,
-                     :parentdomainid,
-                     :path,
-                     :accounts,
-                     :domains,
-                     :haschild]
-
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-        @accounts = {}
-        @domains  = {}
-      end
-
-      include AccountsModelHelper::Domain
-    end
     
     class User < Raw
 
