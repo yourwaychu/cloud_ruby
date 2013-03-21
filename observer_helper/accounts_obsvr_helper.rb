@@ -21,7 +21,6 @@ module AccountsObsvrHelper
   module Account
   private
     def obsvr_create_account(h_para, accObj)
-      puts "OBSVR: creating account"
       @accounts["#{accObj.id}"] = accObj
     end
 

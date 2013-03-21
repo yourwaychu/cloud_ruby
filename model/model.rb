@@ -7,10 +7,15 @@ module CloudStack
         if args && args[0]
           self.pack args[0]
         end
-        @cs_helper      = args[1]
-        @model_observer = args[2]
+        
+        if args[1]
+          @cs_helper = args[1]
+        end
 
-        self.add_observer @model_observer
+        if args[2]
+          @model_observer = args[2]
+          self.add_observer @model_observer
+        end
       end
       
       def pack(j_obj)

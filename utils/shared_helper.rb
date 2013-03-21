@@ -40,13 +40,13 @@ class SharedFunction
         end
       # FIXME : For success responese (Ugly code here, need refactor)
       elsif /(deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
-          @result = CloudStack::Model.const_get("Success").new(response, cs_helper, model_observer)
+          @result = CloudStack::Model.const_get("Success").new(response)
       else
         @result = CloudStack::Model.const_get(rObj_name).new(response["#{jObj_name}"], cs_helper, model_observer)
       end
       return @result
     rescue => e
-      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"], cs_helper, model_observer)) : (puts e)
+      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{response_name}"])) : (puts e)
     end
   end
 
@@ -73,50 +73,48 @@ class SharedFunction
     end
   end
  
- def SharedFunction.update_object(targetObj, newObj)
-   targetObj.class.attr_list.each do |attr|
-      tmp_m1 = targetObj.method "#{attr}="    
-      tmp_m2 = newObj.method "#{attr}"
-      tmp_m1.call tmp_m2.call
-   end
- end
+  def SharedFunction.update_object(targetObj, newObj)
+    targetObj.class.attr_list.each do |attr|
+       tmp_m1 = targetObj.method "#{attr}="    
+       tmp_m2 = newObj.method "#{attr}"
+       tmp_m1.call tmp_m2.call
+    end
+  end
 
- def SharedFunction.query_async_job(cs_helper,
-                                    model_observer,
-                                    params,
-                                    requestCommand,
-                                    requestObjName)
-   if cs_helper.nil?
-     raise "This user is not register api keys yet."
-   end
+  def SharedFunction.query_async_job(cs_helper,
+                                     model_observer,
+                                     params,
+                                     requestCommand,
+                                     requestObjName)
+    if cs_helper.nil?
+      raise "This user is not register api keys yet."
+    end
 
-   params[:response]="json"
-   params[:command]="queryAsyncJobResult"
-   jobstatus = 0
+    params[:response]="json"
+    params[:command]="queryAsyncJobResult"
+    jobstatus = 0
 
-   begin
-     while jobstatus == 0
-       asyncjobresponse = JSON.parse(cs_helper.get(params).body)["queryasyncjobresultresponse"]
-       jobstatus = asyncjobresponse["jobstatus"].to_i
-       sleep 1
-     end 
+    begin
+      while jobstatus == 0
+        asyncjobresponse = JSON.parse(cs_helper.get(params).body)["queryasyncjobresultresponse"]
+        jobstatus = asyncjobresponse["jobstatus"].to_i
+        sleep 1
+      end 
 
-     @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse, cs_helper, model_observer)
+      @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
 
-     # For success response
-     if /(deleteAccount|deleteDomain)/i.match requestCommand
-       @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult, cs_helper, model_observer)
-     else
+      # For success response
+      if /(deleteAccount|deleteDomain)/i.match requestCommand
+        @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult)
+      else
+        @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"], cs_helper, model_observer)
+      end
 
-       @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"], cs_helper, model_observer)
-
-     end
-
-     return @result
-   rescue => e
-      (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"], cs_helper, model_observer)) : (puts e)
-   end
- end
+      return @result
+    rescue => e
+       (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"])) : (puts e)
+    end
+  end
 end
 
 class Module

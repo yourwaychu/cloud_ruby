@@ -15,14 +15,14 @@ module CloudStack
                     :jobid
 
       @@attr_list = [:accountid,
-                    :userid,
-                    :cmd,
-                    :jobstatus,
-                    :jobprocstatus,
-                    :jobresultcode,
-                    :jobresulttype,
-                    :jobresult,
-                    :jobid]
+                     :userid,
+                     :cmd,
+                     :jobstatus,
+                     :jobprocstatus,
+                     :jobresultcode,
+                     :jobresulttype,
+                     :jobresult,
+                     :jobid]
 
     end
   end
