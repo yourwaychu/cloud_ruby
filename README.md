@@ -97,4 +97,5 @@
         deploy_virtual_machine, destroy_virtual_machine, reboot_virtual_machine, start_virtual_machine, stop_virtual_machine
 
 ## History
-    -3-22-2013:Not done yet; don't expect it to work. It's really close though.
+
+- 3-22-2013 : Not done yet; don't expect it to work. It's really close though.
