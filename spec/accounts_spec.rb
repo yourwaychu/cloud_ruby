@@ -659,12 +659,127 @@ module CloudStack_Testing
                                          :account     => "admintester1-1",
                                          :password    => "novirus"
 
+      resultObj6 = @dObj3.create_account :accounttype => 0,
+                                         :email       => "usertester1-1_1@testdomain.tw",
+                                         :firstname   => "usertester1-1_1",
+                                         :lastname    => "usertester1-1_1",
+                                         :username    => "usertester1-1_1",
+                                         :account     => "usertester1-1",
+                                         :password    => "novirus"
+
+      resultObj7 = @dObj4.create_account :accounttype => 0,
+                                         :email       => "admintester2-1_1@testdomain.tw",
+                                         :firstname   => "admintester2-1_1",
+                                         :lastname    => "admintester2-1_1",
+                                         :username    => "admintester2-1_1",
+                                         :account     => "admintester2-1",
+                                         :password    => "novirus"
+
+      resultObj8 = @dObj4.create_account :accounttype => 0,
+                                         :email       => "usertester2-1_1@testdomain.tw",
+                                         :firstname   => "usertester2-1_1",
+                                         :lastname    => "usertester2-1_1",
+                                         :username    => "usertester2-1_1",
+                                         :account     => "usertester2-1",
+                                         :password    => "novirus"
+
+      resultObj9 = @dObj5.create_account :accounttype => 0,
+                                         :email       => "admintester1-1-1_1@testdomain.tw",
+                                         :firstname   => "admintester1-1-1_1",
+                                         :lastname    => "admintester1-1-1_1",
+                                         :username    => "admintester1-1-1_1",
+                                         :account     => "admintester1-1-1",
+                                         :password    => "novirus"
+
+      resultObj10 = @dObj5.create_account :accounttype => 0,
+                                          :email       => "usertester1-1-1_1@testdomain.tw",
+                                          :firstname   => "usertester1-1-1_1",
+                                          :lastname    => "usertester1-1-1_1",
+                                          :username    => "usertester1-1-1_1",
+                                          :account     => "usertester1-1-1",
+                                          :password    => "novirus"
+
+      # 1
       @cs.accounts["#{resultObj1.id}"].name.should eql("admintester1")
       @cs.accounts["#{resultObj1.id}"].domainid.should eql("#{@dObj1.id}")
       @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].name.should eql("admintester1")
       @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].should equal(@cs.accounts["#{resultObj1.id}"])
       @cs.users["#{resultObj1.users.values[0].id}"].should_not be_nil
       @cs.users["#{resultObj1.users.values[0].id}"].username.should eql("admintester1_1")
+
+      # 2
+      @cs.accounts["#{resultObj2.id}"].name.should eql("usertester1")
+      @cs.accounts["#{resultObj2.id}"].domainid.should eql("#{@dObj1.id}")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj2.id}"].name.should eql("usertester1")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj2.id}"].should equal(@cs.accounts["#{resultObj2.id}"])
+      @cs.users["#{resultObj2.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj2.users.values[0].id}"].username.should eql("usertester1_1")
+
+      # 3
+      @cs.accounts["#{resultObj3.id}"].name.should eql("admintester2")
+      @cs.accounts["#{resultObj3.id}"].domainid.should eql("#{@dObj2.id}")
+      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj3.id}"].name.should eql("admintester2")
+      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj3.id}"].should equal(@cs.accounts["#{resultObj3.id}"])
+      @cs.users["#{resultObj3.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj3.users.values[0].id}"].username.should eql("admintester2_1")
+
+      # 4
+      @cs.accounts["#{resultObj4.id}"].name.should eql("usertester2")
+      @cs.accounts["#{resultObj4.id}"].domainid.should eql("#{@dObj2.id}")
+      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj4.id}"].name.should eql("usertester2")
+      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj4.id}"].should equal(@cs.accounts["#{resultObj4.id}"])
+      @cs.users["#{resultObj4.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj4.users.values[0].id}"].username.should eql("usertester2_1")
+
+      # 5
+      @cs.accounts["#{resultObj5.id}"].name.should eql("admintester1-1")
+      @cs.accounts["#{resultObj5.id}"].domainid.should eql("#{@dObj3.id}")
+      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj5.id}"].name.should eql("admintester1-1")
+      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj5.id}"].should equal(@cs.accounts["#{resultObj5.id}"])
+      @cs.users["#{resultObj5.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj5.users.values[0].id}"].username.should eql("admintester1-1_1")
+
+      # 6
+      @cs.accounts["#{resultObj6.id}"].name.should eql("usertester1-1")
+      @cs.accounts["#{resultObj6.id}"].domainid.should eql("#{@dObj3.id}")
+      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj6.id}"].name.should eql("usertester1-1")
+      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj6.id}"].should equal(@cs.accounts["#{resultObj6.id}"])
+      @cs.users["#{resultObj6.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj6.users.values[0].id}"].username.should eql("usertester1-1_1")
+
+      # 7
+      @cs.accounts["#{resultObj7.id}"].name.should eql("admintester2-1")
+      @cs.accounts["#{resultObj7.id}"].domainid.should eql("#{@dObj4.id}")
+      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj7.id}"].name.should eql("admintester2-1")
+      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj7.id}"].should equal(@cs.accounts["#{resultObj7.id}"])
+      @cs.users["#{resultObj7.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj7.users.values[0].id}"].username.should eql("admintester2-1_1")
+
+      # 8
+      @cs.accounts["#{resultObj8.id}"].name.should eql("usertester2-1")
+      @cs.accounts["#{resultObj8.id}"].domainid.should eql("#{@dObj4.id}")
+      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj8.id}"].name.should eql("usertester2-1")
+      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj8.id}"].should equal(@cs.accounts["#{resultObj8.id}"])
+      @cs.users["#{resultObj8.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj8.users.values[0].id}"].username.should eql("usertester2-1_1")
+
+      # 9
+      @cs.accounts["#{resultObj9.id}"].name.should eql("admintester1-1-1")
+      @cs.accounts["#{resultObj9.id}"].domainid.should eql("#{@dObj5.id}")
+      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj9.id}"].name.should eql("admintester1-1-1")
+      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj9.id}"].should equal(@cs.accounts["#{resultObj9.id}"])
+      @cs.users["#{resultObj9.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj9.users.values[0].id}"].username.should eql("admintester1-1-1_1")
+
+      # 10
+      @cs.accounts["#{resultObj10.id}"].name.should eql("usertester1-1-1")
+      @cs.accounts["#{resultObj10.id}"].domainid.should eql("#{@dObj5.id}")
+      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj10.id}"].name.should eql("usertester1-1-1")
+      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj10.id}"].should equal(@cs.accounts["#{resultObj10.id}"])
+      @cs.users["#{resultObj10.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj10.users.values[0].id}"].username.should eql("usertester1-1-1_1")
+
+
     end
     # it "create user (OO)" do
     #   @cs.accounts.each do |k, v|
