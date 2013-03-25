@@ -7,6 +7,7 @@ module NetworkModelHelper
       jJob = SharedFunction.make_async_request @cs_agent, params, "deletenetworkresponse"
 
       responseObj = SharedFunction.query_async_job @cs_agent,
+                                                   @model_observer,
                                                    {:jobid => jJob['jobid']},
                                                    "deleteNetwork",
                                                    "Network"

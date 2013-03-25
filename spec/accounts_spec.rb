@@ -766,7 +766,9 @@ module CloudStack_Testing
     after(:all) do
       dobjs = @cs.root_admin.list_domains :listall => true
       dobjs.each do |dobj|
-        @cs.root_admin.delete_domain :id => "#{dobj.id}" 
+        if !dobj.name.eql? "ROOT"
+          @cs.root_admin.delete_domain :id => "#{dobj.id}" 
+        end
       end
     end
 
