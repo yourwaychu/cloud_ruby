@@ -10,8 +10,9 @@ module AccountsModelHelper
                                              "Domain"
 
       if response && (!response.instance_of?(CloudStack::Model::Error))
+        self.domains["#{response.id}"] = response
         changed
-        notify_observers("create_domain", self, response)
+        notify_observers("model_create_domain", self, response)
       end
       return response
     end
@@ -48,11 +49,8 @@ module AccountsModelHelper
       if response &&
          !response.instance_of?(CloudStack::Model::Error) # &&
         SharedFunction.update_object self, response
-        # changed
-        # notify_observers("update_domain", params, response)
       end
       return response
-
     end
 
     def delete(args={}) # Asynchronus
@@ -68,7 +66,6 @@ module AccountsModelHelper
                                                    "deleteDomain",
                                                    "Domain"
 
-
       if self.p_node
         self.p_node.domains.delete self.id
       end
@@ -81,8 +78,6 @@ module AccountsModelHelper
   end
 
   module Account
-
-    #override
     def pack(j_obj)
       super(j_obj)
       user_j_objs = j_obj['user']
@@ -104,8 +99,6 @@ module AccountsModelHelper
       if response &&
          !response.instance_of?(CloudStack::Model::Error) #&&
         SharedFunction.update_object self, response
-        # changed
-        # notify_observers("update_account", params, response)
       end
       return response
     end
@@ -125,7 +118,6 @@ module AccountsModelHelper
 
       changed
       notify_observers("delete_account", params, responseObj)
-
       return responseObj
     end
 
@@ -146,12 +138,10 @@ module AccountsModelHelper
         notify_observers("create_user", params, response)
       end
       return response
-
     end
   end
 
   module User
-
     def registerCSHelper(url, cs_instance)
       if self.apikey && self.secretkey  
         @cs_helper = CloudStackHelper.new :api_key => self.apikey, 
@@ -187,8 +177,6 @@ module AccountsModelHelper
       if response &&
          !response.instance_of?(CloudStack::Model::Error) # &&
         SharedFunction.update_object self, response
-        # changed
-        # notify_observers("update_user", params, response)
       end
       return response
     end
@@ -210,7 +198,6 @@ module AccountsModelHelper
     end
 
     def disable(args={}) # Asynchronus
-
       params = {:command  => "disableUser", :id => "#{self.id}"}
 
       params.merge! args unless args.empty?
@@ -226,7 +213,6 @@ module AccountsModelHelper
                                                    "User"
       changed
       notify_observers("disable_user", params, responseObj)
-
       return responseObj
     end
   end

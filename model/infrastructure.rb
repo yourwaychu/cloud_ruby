@@ -213,36 +213,77 @@ module CloudStack
     end
 
     class SecondaryStorage < Raw
+
+      include InfraModelHelper::SecondaryStorage
+
       cattr_accessor :attr_list
       attr_accessor :id,
                     :name,
                     :state,
-                    :type,
+                    :disconnected, 
+                    :type, 
                     :ipaddress,
-                    :zoneid,
+                    :zoneid, 
                     :zonename,
+                    :podid, 
+                    :podname,
+                    :version,
                     :hypervisor,
-                    :islocalstorageactive,
+                    :cpunumber,
+                    :cpuspeed,
+                    :cpuallocated,
+                    :cpuused,
+                    :cpuwithoverprovisioning, 
+                    :memorytotal, 
+                    :memoryallocated,
+                    :memoryused,
+                    :capabilities,
+                    :lastpinged,
+                    :managementserverid, 
+                    :clusterid, 
+                    :clustername,
+                    :clustertype,
+                    :islocalstorageactive, 
                     :events,
+                    :hosttags,
+                    :suitableformigration,
                     :resourcestate,
+                    :hahost,
                     :jobstatus
 
       @@attr_list = [:id,
                      :name,
                      :state,
-                     :type,
+                     :disconnected, 
+                     :type, 
                      :ipaddress,
-                     :zoneid,
+                     :zoneid, 
                      :zonename,
+                     :podid, 
+                     :podname,
+                     :version,
                      :hypervisor,
-                     :islocalstorageactive,
+                     :cpunumber,
+                     :cpuspeed,
+                     :cpuallocated,
+                     :cpuused,
+                     :cpuwithoverprovisioning, 
+                     :memorytotal, 
+                     :memoryallocated,
+                     :memoryused,
+                     :capabilities,
+                     :lastpinged,
+                     :managementserverid, 
+                     :clusterid, 
+                     :clustername,
+                     :clustertype,
+                     :islocalstorageactive, 
                      :events,
+                     :hosttags,
+                     :suitableformigration,
                      :resourcestate,
+                     :hahost,
                      :jobstatus]
-
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-      end
     end
 
     class SystemVm < Raw
@@ -290,11 +331,6 @@ module CloudStack
                      :publicnetmask,
                      :templateid,
                      :state]
-
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-      end
-
     end
 
   end # End of module module

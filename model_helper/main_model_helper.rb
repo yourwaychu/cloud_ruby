@@ -9,8 +9,9 @@ module MainModelHelper
                                            "Domain"
 
     if response && (!response.instance_of?(CloudStack::Model::Error))
+      self.domains["#{response.id}"] = response
       changed
-      notify_observers("create_domain", params, response)
+      notify_observers("model_create_domain", params, response)
     end
     return response
   end
@@ -26,7 +27,7 @@ module MainModelHelper
 
     if response && (!response.instance_of?(CloudStack::Model::Error))
       changed
-      notify_observers("create_zone", params, response)
+      notify_observers("model_create_zone", params, response)
     end
     return response
   end

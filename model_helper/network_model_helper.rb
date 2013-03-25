@@ -19,7 +19,6 @@ module NetworkModelHelper
       end
 
       return responseObj
-
     end
   end
 

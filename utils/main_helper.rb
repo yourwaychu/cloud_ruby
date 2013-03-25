@@ -120,8 +120,25 @@ private
         _traffic_types.each do |trafobj|
           pnetobj.traffic_types["#{trafobj.id}"] = trafobj
         end
+
+        _vr_nsps = @root_admin.list_network_service_providers :name => "VirtualRouter",
+                                                              :physicalnetworkid => "#{pnetobj.id}"
+
+        _sg_nsps = @root_admin.list_network_service_providers :name => "SecurityGroupProvider",
+                                                              :physicalnetworkid => "#{pnetobj.id}"
+
+        _vr_nsps.each do |vrsp|
+          _vres = @root_admin.list_virtual_router_elements :nspid => "#{vrsp.id}"
+          _vres.each do |vre|
+            vrsp.virtual_router_elements["#{vre.id}"] = vre
+          end
+          pnetobj.network_service_providers["#{vrsp.id}"] = vrsp
+        end
+
+        _sg_nsps.each do |sgsp|
+          pentobj.network_service_providers["#{sgsp.id}"] = sgsp
+        end
         zoneobj.physical_networks["#{pnetobj.id}"] = pnetobj
-          
       end
     end
   end

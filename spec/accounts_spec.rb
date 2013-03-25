@@ -580,8 +580,11 @@ module CloudStack_Testing
       @cs.domains["#{resultObj1.id}"].name.should eql("domain1")
       @cs.domains["#{resultObj2.id}"].name.should eql("domain2")
       @cs.domains["#{resultObj3.id}"].name.should eql("domain1-1")
+      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].name.should eql("domain1-1")
       @cs.domains["#{resultObj4.id}"].name.should eql("domain2-1")
+      @cs.domains["#{resultObj2.id}"].domains["#{resultObj4.id}"].name.should eql("domain2-1")
       @cs.domains["#{resultObj5.id}"].name.should eql("domain1-1-1")
+      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].domains["#{resultObj5.id}"].name.should eql("domain1-1-1")
     end
 
     it "create account (OO)" do
@@ -597,19 +600,72 @@ module CloudStack_Testing
         end
       end
 
-      resultObj = @dObj1.create_account :accounttype => 0,
-                                        :email       => "ootester@testdomain.tw",
-                                        :firstname   => "ootester",
-                                        :lastname    => "ootester",
-                                        :password    => "novirus",
-                                        :username    => "ootester"
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-1"
+          @dObj3 = v
+        end
+      end
 
-      @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
-      @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@dObj1.id}")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj.id}"].name.should eql("ootester")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj.id}"].should equal(@cs.accounts["#{resultObj.id}"])
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2-1"
+          @dObj4 = v
+        end
+      end
+
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-1-1"
+          @dObj5 = v
+        end
+      end
+
+      resultObj1 = @dObj1.create_account :accounttype => 2,
+                                         :email       => "admintester1_1@testdomain.tw",
+                                         :firstname   => "admintester1_1",
+                                         :lastname    => "admintester1_1",
+                                         :username    => "admintester1_1",
+                                         :account     => "admintester1",
+                                         :password    => "novirus"
+
+      resultObj2 = @dObj1.create_account :accounttype => 0,
+                                         :email       => "usertester1_1@testdomain.tw",
+                                         :firstname   => "usertester1_1",
+                                         :lastname    => "usertester1_1",
+                                         :username    => "usertester1_1",
+                                         :account     => "usertester1",
+                                         :password    => "novirus"
+
+      resultObj3 = @dObj2.create_account :accounttype => 0,
+                                         :email       => "admintester2_1@testdomain.tw",
+                                         :firstname   => "admintester2_1",
+                                         :lastname    => "admintester2_1",
+                                         :username    => "admintester2_1",
+                                         :account     => "admintester2",
+                                         :password    => "novirus"
+
+      resultObj4 = @dObj2.create_account :accounttype => 0,
+                                         :email       => "usertester2_1@testdomain.tw",
+                                         :firstname   => "usertester2_1",
+                                         :lastname    => "usertester2_1",
+                                         :username    => "usertester2_1",
+                                         :account     => "usertester2",
+                                         :password    => "novirus"
+
+
+      resultObj5 = @dObj3.create_account :accounttype => 0,
+                                         :email       => "admintester1-1_1@testdomain.tw",
+                                         :firstname   => "admintester1-1_1",
+                                         :lastname    => "admintester1-1_1",
+                                         :username    => "admintester1-1_1",
+                                         :account     => "admintester1-1",
+                                         :password    => "novirus"
+
+      @cs.accounts["#{resultObj1.id}"].name.should eql("admintester1")
+      @cs.accounts["#{resultObj1.id}"].domainid.should eql("#{@dObj1.id}")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].name.should eql("admintester1")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].should equal(@cs.accounts["#{resultObj1.id}"])
+      @cs.users["#{resultObj1.users.values[0].id}"].should_not be_nil
+      @cs.users["#{resultObj1.users.values[0].id}"].username.should eql("admintester1_1")
     end
-
     # it "create user (OO)" do
     #   @cs.accounts.each do |k, v|
     #     if v.name.eql? "ootester"

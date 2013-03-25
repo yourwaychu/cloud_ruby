@@ -9,6 +9,10 @@ module AccountsObsvrHelper
       end
     end
 
+    def obsvr_model_create_domain(params, domainObj)
+      @domains["#{domainObj.id}"] = domainObj
+    end
+
     def obsvr_update_domain(h_para, domainObj)
       oldObj = @domains["#{domainObj.id}"]
       SharedFunction.update_object(oldObj, domainObj)

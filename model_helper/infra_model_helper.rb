@@ -99,11 +99,27 @@ module InfraModelHelper
         notify_observers("add_secondary_storage", params, response)
       end
       return response
-
     end
   end
 
   module Pod
+    def delete(args={})
+      params = {:command  => "deletePod", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "deletepodresponse",
+                                             "Pod"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error)
+        self.p_node.pods.delete self.id
+        # changed
+        # notify_observers("model_delete_pod", params, response)
+      end
+      return response
+    end
+
     def create_vlan_ip_range(args={})
       params = {:command  => "createVlanIpRange", :podid => "#{self.id}"}
       params.merge! args unless args.empty?
@@ -144,34 +160,86 @@ module InfraModelHelper
   end
 
   module Cluster
-      def add_host(args={})
-        params = {:command   => "addHost",
-                  :clusterid => "#{self.id}",
-                  :podid     => "#{self.podid}",
-                  :zoneid    => "#{self.zoneid}"}
-
-        params.merge! args unless args.empty?
-        response = SharedFunction.make_request @cs_agent, 
-                                               @model_observer,
-                                               params, 
-                                               "addhostresponse",
-                                               "Host"
-        if response &&
-           !response.instance_of?(CloudStack::Model::Error)
-
-          response.each do |ht|
-            ht.p_node = self
-          end
-
-          changed
-          notify_observers("add_host", params, response)
-        end
-        return response
+    def delete(args={})
+      params = {:command  => "deleteCluster", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "deleteclusterresponse",
+                                             "Cluster"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error)
+        self.p_node.clusters.delete self.id
+        # changed
+        # notify_observers("model_delete_pod", params, response)
       end
+      return response
+    end
+
+    def add_host(args={})
+      params = {:command   => "addHost",
+                :clusterid => "#{self.id}",
+                :podid     => "#{self.podid}",
+                :zoneid    => "#{self.zoneid}"}
+
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent, 
+                                             @model_observer,
+                                             params, 
+                                             "addhostresponse",
+                                             "Host"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error)
+
+        response.each do |ht|
+          ht.p_node = self
+        end
+
+        changed
+        notify_observers("add_host", params, response)
+      end
+      return response
+    end
 
   end
 
 
   module Host
+    def delete(args={})
+      params = {:command  => "deleteHost", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "deletehostresponse",
+                                             "Host"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error)
+        self.p_node.hosts.delete self.id
+        # changed
+        # notify_observers("model_delete_pod", params, response)
+      end
+      return response
+    end
+  end
+
+  module SecondaryStorage
+    def delete(args={})
+      params = {:command  => "deleteHost", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "deletehostresponse",
+                                             "SecondaryStorage"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error)
+        self.p_node.secondary_storages.delete self.id
+        # changed
+        # notify_observers("model_delete_pod", params, response)
+      end
+      return response
+    end
   end
 end

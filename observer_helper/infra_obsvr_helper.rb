@@ -5,6 +5,10 @@ private
     @zones["#{zoneObj.id}"] = zoneObj
   end
 
+  def obsvr_model_create_zone(params, zoneObj)
+    @zones["#{zoneObj.id}"] = zoneObj
+  end
+
   def obsvr_update_zone(h_para, zoneObj)
     oldObj = @zones["#{zoneObj.id}"]
     SharedFunction.update_object(oldObj, zoneObj)
@@ -32,7 +36,7 @@ private
                                                                           :physicalnetworkid  => "#{pnObj.id}"
 
     @sg_networkserviceproviders = @root_admin.list_network_service_providers :name => "SecurityGroupProvider",
-                                                                          :physicalnetworkid  => "#{pnObj.id}"
+                                                                             :physicalnetworkid  => "#{pnObj.id}"
 
     @vr_networkserviceproviders.each do |vrsp|
 
