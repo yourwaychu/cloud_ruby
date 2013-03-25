@@ -1,5 +1,21 @@
 module AccountsModelHelper
   module Domain
+    def create_domain(args={})
+      params = {:command  => "createDomain", :parentdomainid => self.id}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer, 
+                                             params,
+                                             "createdomainresponse",
+                                             "Domain"
+
+      if response && (!response.instance_of?(CloudStack::Model::Error))
+        changed
+        notify_observers("create_domain", self, response)
+      end
+      return response
+    end
+
     def create_account(args={})
       params = {:command  => "createAccount",
                 :domainid => "#{self.id}"}
@@ -40,7 +56,7 @@ module AccountsModelHelper
     end
 
     def delete(args={}) # Asynchronus
-      params = {:command  => "deleteDomain", :id => "#{self.id}"}
+      params = {:command  => "deleteDomain", :id => "#{self.id}", :cleanup => true}
       params.merge! args unless args.empty?
       jJob = SharedFunction.make_async_request @cs_agent,
                                                params,
@@ -52,9 +68,13 @@ module AccountsModelHelper
                                                    "deleteDomain",
                                                    "Domain"
 
+
+      if self.p_node
+        self.p_node.domains.delete self.id
+      end
+
       changed
       notify_observers("delete_domain", params, responseObj)
-
       return responseObj
     end
 

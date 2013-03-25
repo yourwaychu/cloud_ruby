@@ -503,6 +503,11 @@ module CloudStack_Testing
 
       @rs5.should be_nil
 
+      if @domainObj5.parentdomainid
+        @cs.domains["#{@domainObj5.parentdomainid}"].domains["#{@domainObj5.id}"].should be_nil
+      end
+
+
       resultObj4 = @cs.root_admin.delete_domain :id      => "#{@domainObj4.id}",
                                                 :cleanup => true
 
@@ -514,6 +519,9 @@ module CloudStack_Testing
 
       @rs4.should be_nil
 
+      if @domainObj4.parentdomainid
+        @cs.domains["#{@domainObj4.parentdomainid}"].domains["#{@domainObj4.id}"].should be_nil
+      end
 
       resultObj3 = @cs.root_admin.delete_domain :id      => "#{@domainObj3.id}",
                                                 :cleanup => true
@@ -526,6 +534,10 @@ module CloudStack_Testing
 
       @rs3.should be_nil
 
+      if @domainObj3.parentdomainid
+        @cs.domains["#{@domainObj3.parentdomainid}"].domains["#{@domainObj3.id}"].should be_nil
+      end
+
       resultObj2 = @cs.root_admin.delete_domain :id      => "#{@domainObj2.id}",
                                                 :cleanup => true
 
@@ -537,6 +549,10 @@ module CloudStack_Testing
 
       @rs2.should be_nil
 
+      if @domainObj2.parentdomainid
+        @cs.domains["#{@domainObj2.parentdomainid}"].domains["#{@domainObj2.id}"].should be_nil
+      end
+
       resultObj1 = @cs.root_admin.delete_domain :id      => "#{@domainObj1.id}",
                                                 :cleanup => true
       @cs.accounts.each do |k, v|
@@ -547,14 +563,19 @@ module CloudStack_Testing
 
       @rs1.should be_nil
 
+      if @domainObj1.parentdomainid
+        @cs.domains["#{@domainObj1.parentdomainid}"].domains["#{@domainObj1.id}"].should be_nil
+      end
+
     end
 
     it "create domain (OO)" do
       resultObj1 = @cs.create_domain :name => "domain1"
       resultObj2 = @cs.create_domain :name => "domain2"
-      resultObj3 = @cs.create_domain :name => "domain1-1"
-      resultObj4 = @cs.create_domain :name => "domain2-1"
-      resultObj5 = @cs.create_domain :name => "domain1-1-1"
+      resultObj3 = @cs.domains["#{resultObj1.id}"].create_domain :name => "domain1-1"
+
+      resultObj4 = @cs.domains["#{resultObj2.id}"].create_domain :name => "domain2-1"
+      resultObj5 = @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].create_domain :name => "domain1-1-1"
 
       @cs.domains["#{resultObj1.id}"].name.should eql("domain1")
       @cs.domains["#{resultObj2.id}"].name.should eql("domain2")
@@ -726,17 +747,27 @@ module CloudStack_Testing
       end
 
 
-      resultObj1 = @dObj1.delete
-      resultObj2 = @dObj2.delete
-      resultObj3 = @dObj3.delete
-      resultObj4 = @dObj4.delete
       resultObj5 = @dObj5.delete
+      @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].domains["#{@dObj5.id}"].should be_nil
+      resultObj4 = @dObj4.delete
+      @cs.domains["#{@dObj2.id}"].domains["#{@dObj4.id}"].should be_nil
+      resultObj3 = @dObj3.delete
+      @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].should be_nil
+      resultObj2 = @dObj2.delete
+      resultObj1 = @dObj1.delete
 
       @cs.domains["#{@dObj1.id}"].should be_nil
       @cs.domains["#{@dObj2.id}"].should be_nil
       @cs.domains["#{@dObj3.id}"].should be_nil
       @cs.domains["#{@dObj4.id}"].should be_nil
       @cs.domains["#{@dObj5.id}"].should be_nil
+    end
+
+    after(:all) do
+      dobjs = @cs.root_admin.list_domains :listall => true
+      dobjs.each do |dobj|
+        @cs.root_admin.delete_domain :id => "#{dobj.id}" 
+      end
     end
 
   end

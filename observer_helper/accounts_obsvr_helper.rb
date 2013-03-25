@@ -4,7 +4,6 @@ module AccountsObsvrHelper
   private
     def obsvr_create_domain(h_para, domainObj)
       @domains["#{domainObj.id}"] = domainObj
-
       if domainObj.parentdomainid
         @domains["#{domainObj.parentdomainid}"].domains["#{domainObj.id}"] = domainObj
       end
@@ -16,10 +15,18 @@ module AccountsObsvrHelper
     end
 
     def obsvr_delete_domain(h_para, respObj)
+
+      _tmpobj = @domains["#{h_para[:id]}"]
+
       if respObj.success == true
-        @domains.delete h_para[:id]
+        @domains.delete _tmpobj.id
+
+        if _tmpobj.parentdomainid
+          @domains["#{_tmpobj.parentdomainid}"].domains.delete _tmpobj.id
+        end
+
         @accounts.values.each do |acc|
-          if acc.domainid.eql? h_para[:id]
+          if acc.domainid.eql? _tmpobj.id
             acc.users.values.each do |usr|
               @users.delete usr.id
             end
