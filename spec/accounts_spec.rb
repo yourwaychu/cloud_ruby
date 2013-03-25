@@ -76,7 +76,7 @@ module CloudStack_Testing
       end
 
       resultObj1 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1@trend.com",
+                                                 :email       => "admintester1_1@testdomain.tw",
                                                  :firstname   => "admintester1_1",
                                                  :lastname    => "admintester1_1",
                                                  :username    => "admintester1_1",
@@ -85,7 +85,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj1.id}"
 
       resultObj2 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester1@trend.com",
+                                                 :email       => "usertester1_1@testdomain.tw",
                                                  :firstname   => "usertester1_1",
                                                  :lastname    => "usertester1_1",
                                                  :username    => "usertester1_1",
@@ -94,7 +94,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj1.id}"
 
       resultObj3 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester2@trend.com",
+                                                 :email       => "admintester2_1@testdomain.tw",
                                                  :firstname   => "admintester2_1",
                                                  :lastname    => "admintester2_1",
                                                  :username    => "admintester2_1",
@@ -103,7 +103,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj2.id}"
                                                                                            
       resultObj4 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester2@trend.com",
+                                                 :email       => "usertester2_1@testdomain.tw",
                                                  :firstname   => "usertester2_1",
                                                  :lastname    => "usertester2_1",
                                                  :username    => "usertester2_1",
@@ -112,7 +112,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj2.id}"
 
       resultObj5 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1-1_1@trend.com",
+                                                 :email       => "admintester1-1_1@testdomain.tw",
                                                  :firstname   => "admintester1-1_1",
                                                  :lastname    => "admintester1-1_1",
                                                  :username    => "admintester1-1_1",
@@ -121,7 +121,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj3.id}"
                                                                                            
       resultObj6 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester1-1_1@trend.com",
+                                                 :email       => "usertester1-1_1@testdomain.tw",
                                                  :firstname   => "usertester1-1_1",
                                                  :lastname    => "usertester1-1_1",
                                                  :username    => "usertester1-1_1",
@@ -130,7 +130,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj3.id}"
 
       resultObj7 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester2-1_1@trend.com",
+                                                 :email       => "admintester2-1_1@testdomain.tw",
                                                  :firstname   => "admintester2-1_1",
                                                  :lastname    => "admintester2-1_1",
                                                  :username    => "admintester2-1_1",
@@ -139,7 +139,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj4.id}"
                                                                                            
       resultObj8 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester2-1_1@trend.com",
+                                                 :email       => "usertester2-1_1@testdomain.tw",
                                                  :firstname   => "usertester2-1_1",
                                                  :lastname    => "usertester2-1_1",
                                                  :username    => "usertester2-1_1",
@@ -148,7 +148,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj4.id}"
 
       resultObj9 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1-1-1_1@trend.com",
+                                                 :email       => "admintester1-1-1_1@testdomain.tw",
                                                  :firstname   => "admintester1-1-1_1",
                                                  :lastname    => "admintester1-1-1_1",
                                                  :username    => "admintester1-1-1_1",
@@ -157,7 +157,7 @@ module CloudStack_Testing
                                                  :domainid    => "#{@domainObj5.id}"
                                                                                            
       resultObj10 = @cs.root_admin.create_account :accounttype => 0,
-                                                  :email       => "usertester1-1-1_1@trend.com",
+                                                  :email       => "usertester1-1-1_1@testdomain.tw",
                                                   :firstname   => "usertester1-1-1_1",
                                                   :lastname    => "usertester1-1-1_1",
                                                   :username    => "usertester1-1-1_1",
@@ -319,7 +319,7 @@ module CloudStack_Testing
       end
 
       resultObj1 = @cs.root_admin.create_user :username  => "admintester1_2",
-                                              :email     => "admintester1_2@trend.com.tw",
+                                              :email     => "admintester1_2@testdomain.tw",
                                               :firstname => "admintester1_2",
                                               :lastname  => "admintester1_2",
                                               :password  => "novirus",
@@ -327,7 +327,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc1.name}"
 
       resultObj2 = @cs.root_admin.create_user :username  => "usertester1_2",
-                                              :email     => "usertester1_2@trend.com.tw",
+                                              :email     => "usertester1_2@testdomain.tw",
                                               :firstname => "usertester1_2",
                                               :lastname  => "usertester1_2",
                                               :password  => "novirus",
@@ -335,7 +335,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc2.name}"
 
       resultObj3 = @cs.root_admin.create_user :username  => "admintester2_2",
-                                              :email     => "admintester2_2@trend.com.tw",
+                                              :email     => "admintester2_2@testdomain.tw",
                                               :firstname => "admintester2_2",
                                               :lastname  => "admintester2_2",
                                               :password  => "novirus",
@@ -343,7 +343,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc3.name}"
 
       resultObj4 = @cs.root_admin.create_user :username  => "usertester2_2",
-                                              :email     => "usertester2_2@trend.com.tw",
+                                              :email     => "usertester2_2@testdomain.tw",
                                               :firstname => "usertester2_2",
                                               :lastname  => "usertester2_2",
                                               :password  => "novirus",
@@ -351,7 +351,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc4.name}"
 
       resultObj5 = @cs.root_admin.create_user :username  => "admintester1-1_2",
-                                              :email     => "admintester1-1_2@trend.com.tw",
+                                              :email     => "admintester1-1_2@testdomain.tw",
                                               :firstname => "admintester1-1_2",
                                               :lastname  => "admintester1-1_2",
                                               :password  => "novirus",
@@ -359,7 +359,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc5.name}"
 
       resultObj6 = @cs.root_admin.create_user :username  => "usertester1-1_2",
-                                              :email     => "usertester1-1_2@trend.com.tw",
+                                              :email     => "usertester1-1_2@testdomain.tw",
                                               :firstname => "usertester1-1_2",
                                               :lastname  => "usertester1-1_2",
                                               :password  => "novirus",
@@ -367,7 +367,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc6.name}"
 
       resultObj7 = @cs.root_admin.create_user :username  => "admintester2-1_2",
-                                              :email     => "admintester2-1_2@trend.com.tw",
+                                              :email     => "admintester2-1_2@testdomain.tw",
                                               :firstname => "admintester2-1_2",
                                               :lastname  => "admintester2-1_2",
                                               :password  => "novirus",
@@ -375,7 +375,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc7.name}"
 
       resultObj8 = @cs.root_admin.create_user :username  => "usertester2-1_2",
-                                              :email     => "usertester2-1_2@trend.com.tw",
+                                              :email     => "usertester2-1_2@testdomain.tw",
                                               :firstname => "usertester2-1_2",
                                               :lastname  => "usertester2-1_2",
                                               :password  => "novirus",
@@ -383,7 +383,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc8.name}"
 
       resultObj9 = @cs.root_admin.create_user :username  => "admintester1-1-1_2",
-                                              :email     => "admintester1-1-1_2@trend.com.tw",
+                                              :email     => "admintester1-1-1_2@testdomain.tw",
                                               :firstname => "admintester1-1-1_2",
                                               :lastname  => "admintester1-1-1_2",
                                               :password  => "novirus",
@@ -391,7 +391,7 @@ module CloudStack_Testing
                                               :account   => "#{@acc9.name}"
 
       resultObj10 = @cs.root_admin.create_user :username  => "usertester1-1-1_2",
-                                               :email     => "usertester1-1-1_2@trend.com.tw",
+                                               :email     => "usertester1-1-1_2@testdomain.tw",
                                                :firstname => "usertester1-1-1_2",
                                                :lastname  => "usertester1-1-1_2",
                                                :password  => "novirus",
@@ -447,8 +447,22 @@ module CloudStack_Testing
       @cs.users["#{resultObj10.id}"].username.should eq("usertester1-1-1_2")
       @cs.accounts["#{resultObj10.accountid}"].users["#{resultObj10.id}"].should_not be_nil
       @cs.accounts["#{resultObj10.accountid}"].users["#{resultObj10.id}"].username.should eq("usertester1-1-1_2")
+  
+    end
 
+    it "update user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "admintester1_1"
+          @user1 = v
+        end
+      end
 
+      user_obj1 = @cs.root_admin.update_user :id    => "#{@user1.id}",
+                                             :email => "update.#{@user1.email}"
+
+      @user1.email.should eq("update.admintester1_1@testdomain.tw")
+      @cs.users["#{@user1.id}"].email.should eq("update.admintester1_1@testdomain.tw")
+      @cs.accounts["#{@user1.accountid}"].users["#{@user1.id}"].email.should eq("update.admintester1_1@testdomain.tw")
     end
 
     it "delete domain" do
@@ -481,153 +495,99 @@ module CloudStack_Testing
       resultObj5 = @cs.root_admin.delete_domain :id      => "#{@domainObj5.id}",
                                                 :cleanup => true
 
+      @cs.accounts.each do |k, v|
+        if v.domainid.eql? "#{@domainObj5.id}"
+          @rs5 << v
+        end
+      end
+
+      @rs5.should be_nil
+
       resultObj4 = @cs.root_admin.delete_domain :id      => "#{@domainObj4.id}",
                                                 :cleanup => true
+
+      @cs.accounts.each do |k, v|
+        if v.domainid.eql? "#{@domainObj4.id}"
+          @rs4 << v
+        end
+      end
+
+      @rs4.should be_nil
+
 
       resultObj3 = @cs.root_admin.delete_domain :id      => "#{@domainObj3.id}",
                                                 :cleanup => true
 
+      @cs.accounts.each do |k, v|
+        if v.domainid.eql? "#{@domainObj3.id}"
+          @rs3 << v
+        end
+      end
+
+      @rs3.should be_nil
+
       resultObj2 = @cs.root_admin.delete_domain :id      => "#{@domainObj2.id}",
                                                 :cleanup => true
 
+      @cs.accounts.each do |k, v|
+        if v.domainid.eql? "#{@domainObj2.id}"
+          @rs2 << v
+        end
+      end
+
+      @rs2.should be_nil
+
       resultObj1 = @cs.root_admin.delete_domain :id      => "#{@domainObj1.id}",
                                                 :cleanup => true
+      @cs.accounts.each do |k, v|
+        if v.domainid.eql? "#{@domainObj1.id}"
+          @rs1 << v
+        end
+      end
+
+      @rs1.should be_nil
 
     end
-    # it "update domain" do
-    #   @cs.domains.each do |k, v|
-    #     if v.name.eql? "testdomain"
-    #       @domainObj = v
-    #     end
-    #   end
-    #   resultObj = @cs.root_admin.update_domain :id      => "#{@domainObj.id}",
-    #                                            :name    => "updatedtestdomain"
 
-    #   @cs.domains["#{resultObj.id}"].name.should.eql? "updatedtestdomain"
-    # end
+    it "create domain (OO)" do
+      resultObj1 = @cs.create_domain :name => "domain1"
+      resultObj2 = @cs.create_domain :name => "domain2"
+      resultObj3 = @cs.create_domain :name => "domain1-1"
+      resultObj4 = @cs.create_domain :name => "domain2-1"
+      resultObj5 = @cs.create_domain :name => "domain1-1-1"
 
-    # it "delete domain" do
-    #   @cs.domains.each do |k, v|
-    #     if v.name.eql? "updatedtestdomain"
-    #       @domainObj = v
-    #     end
-    #   end
-    #   @cs.root_admin.delete_domain :id      => "#{@domainObj.id}",
-    #                                :cleanup => true
+      @cs.domains["#{resultObj1.id}"].name.should eql("domain1")
+      @cs.domains["#{resultObj2.id}"].name.should eql("domain2")
+      @cs.domains["#{resultObj3.id}"].name.should eql("domain1-1")
+      @cs.domains["#{resultObj4.id}"].name.should eql("domain2-1")
+      @cs.domains["#{resultObj5.id}"].name.should eql("domain1-1-1")
+    end
 
-    #   @cs.domains["#{@domainObj.id}"].should be_nil
-    # end
+    it "create account (OO)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1"
+          @dObj1 = v
+        end
+      end
 
-    # 
-    # it "create account" do
-    #   resultObj = @cs.root_admin.create_account :accounttype=>0,
-    #                                             :email=>"tester@trend.com",
-    #                                             :firstname=>"tester",
-    #                                             :lastname=>"tester",
-    #                                             :password=>"novirus",
-    #                                             :username=>"tester"
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2"
+          @dObj2 = v
+        end
+      end
 
-    #   @cs.accounts["#{resultObj.id}"].name.should.eql? "tester"
-    # end
+      resultObj = @dObj1.create_account :accounttype => 0,
+                                        :email       => "ootester@testdomain.tw",
+                                        :firstname   => "ootester",
+                                        :lastname    => "ootester",
+                                        :password    => "novirus",
+                                        :username    => "ootester"
 
-    # it "update account" do
-    #   @cs.accounts.each do |k, v|
-    #     if v.name.eql? "tester"
-    #       @accObj = v
-    #     end
-    #   end
-    #   resultObj = @cs.root_admin.update_account :newname=> "tester_updated",
-    #                                             :account=> "tester",
-    #                                             :domainid=> "#{@accObj.domainid}"
-
-    #   @cs.accounts["#{@accObj.id}"].name.should.eql? "tester_updated"
-    # end
-
-    # it "delete account" do
-    #   @cs.accounts.each do |k, v|
-    #     if v.name.eql? "tester_updated"
-    #       @accObj = v
-    #     end
-    #   end
-    #   @resultObj = @cs.root_admin.delete_account :id=>@accObj.id
-
-    #   @cs.accounts["#{@accObj.id}"].should be_nil
-    # end
-
-    # it "create user" do
-    #   @domain  = @cs.domains.choose("ROOT").first
-    #   @userObj = @cs.root_admin.create_user :username  => "testuser",
-    #                                         :password  => "novirus",
-    #                                         :email     => "testuesr@trend.com.tw",
-    #                                         :firstname => "testuser",
-    #                                         :lastname  => "testuser",
-    #                                         :domainid  => "#{@domain.id}",
-    #                                         :account   => "admin"
-
-    #   @cs.users["#{@userObj.id}"].username.should.eql? "testuser"
-    # end
-
-    # it "update user" do
-    #   @userObj = @cs.users.choose("testuser").first
-    #   @userObj = @cs.root_admin.update_user :id       => "#{@userObj.id}",
-    #                                         :username => "updatedtestuser"
-
-    #   @cs.users["#{@userObj.id}"].username.should.eql? "updatedtestuser"
-    # end
-
-    # it "disable user" do
-    #   @userObj = @cs.users.choose("updatedtestuser").first
-    #   @userObj = @cs.root_admin.disable_user :id => "#{@userObj.id}"
-    #   @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
-    # end
-
-    # it "enable user" do
-    #   @userObj = @cs.users.choose("updatedtestuser").first
-    #   @userObj = @cs.root_admin.enable_user :id => "#{@userObj.id}"
-    #   @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
-    # end
-    # 
-    # it "register user keys" do
-    #   @userObj = @cs.users.choose("updatedtestuser").first
-    #   @userkeys = @cs.root_admin.register_user_keys :id => "#{@userObj.id}"
-    #   @cs.users["#{@userObj.id}"].apikey.should_not be_nil
-    #   @cs.users["#{@userObj.id}"].secretkey.should_not be_nil
-    # end
-
-    # it "delete user" do
-    #   @cs.users.each do |k, v|
-    #     if v.username.eql? "updatedtestuser"
-    #       @userObj = v
-    #     end
-    #   end
-    #   @resultObj = @cs.root_admin.delete_user :id => "#{@userObj.id}"
-    #   @cs.users["#{@userObj.id}"].should be_nil
-    # end
-
-    # it "create domain (OO)" do
-    #   resultObj = @cs.create_domain :name => "oo test domain"
-    #   @cs.domains["#{resultObj.id}"].name.should eql("oo test domain")
-    # end
-
-    # it "create account (OO)" do
-    #   @cs.domains.each do |k, v|
-    #     if v.name.eql? "oo test domain"
-    #       @domainObj = v
-    #     end
-    #   end
-
-    #   resultObj = @domainObj.create_account :accounttype => 0,
-    #                                         :email       => "ootester@trend.com",
-    #                                         :firstname   => "ootester",
-    #                                         :lastname    => "ootester",
-    #                                         :password    => "novirus",
-    #                                         :username    => "ootester"
-
-    #   @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
-    #   @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@domainObj.id}")
-    #   @cs.domains["#{@domainObj.id}"].accounts["#{resultObj.id}"].name.should eql("ootester")
-    #   @cs.domains["#{@domainObj.id}"].accounts["#{resultObj.id}"].should equal(@cs.accounts["#{resultObj.id}"])
-    # end
+      @cs.accounts["#{resultObj.id}"].name.should eql("ootester")
+      @cs.accounts["#{resultObj.id}"].domainid.should eql("#{@dObj1.id}")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj.id}"].name.should eql("ootester")
+      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj.id}"].should equal(@cs.accounts["#{resultObj.id}"])
+    end
 
     # it "create user (OO)" do
     #   @cs.accounts.each do |k, v|
@@ -638,7 +598,7 @@ module CloudStack_Testing
 
     #   userObj = @accObj.create_user :username  => "ootestuser",
     #                                 :password  => "oonovirus",
-    #                                 :email     => "ootestuesr@trend.com.tw",
+    #                                 :email     => "ootestuesr@testdomain.tw",
     #                                 :firstname => "ootestuser",
     #                                 :lastname  => "ootestuser"
 
@@ -734,16 +694,50 @@ module CloudStack_Testing
     #  
     # end
 
-    # it "delete domain(oo)" do
-    #   @cs.domains.each do |k, v|
-    #     if v.name.eql? "oo test domain(updated)"
-    #       @domainObj = v
-    #     end
-    #   end
+    it "delete domain(oo)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1"
+          @dObj1 = v
+        end
+      end
 
-    #   resultObj = @domainObj.delete
-    #   @cs.domains["#{@domainObj.id}"].should be_nil
-    # end
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2"
+          @dObj2 = v
+        end
+      end
+
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-1"
+          @dObj3 = v
+        end
+      end
+
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2-1"
+          @dObj4 = v
+        end
+      end
+
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-1-1"
+          @dObj5 = v
+        end
+      end
+
+
+      resultObj1 = @dObj1.delete
+      resultObj2 = @dObj2.delete
+      resultObj3 = @dObj3.delete
+      resultObj4 = @dObj4.delete
+      resultObj5 = @dObj5.delete
+
+      @cs.domains["#{@dObj1.id}"].should be_nil
+      @cs.domains["#{@dObj2.id}"].should be_nil
+      @cs.domains["#{@dObj3.id}"].should be_nil
+      @cs.domains["#{@dObj4.id}"].should be_nil
+      @cs.domains["#{@dObj5.id}"].should be_nil
+    end
 
   end
 end
