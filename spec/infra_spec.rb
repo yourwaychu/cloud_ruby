@@ -13,6 +13,74 @@ module CloudStack_Testing
                                              "#{@port}",
                                              "#{@apiport}"
     end  
+    it "create zone" do
+      zoneObj = @cs.root_admin.create_zone :name => "testzone",
+                                           :dns1 => "8.8.8.8",
+                                           :internaldns1 => "8.8.8.8",
+                                           :networktype => "Basic",
+                                           :localstorageenabled => true
+      
+      @cs.zones["#{zoneObj.id}"].name.should eql("testzone")
+    end
+
+    it "create physical network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      resultObj = @cs.root_admin.create_physical_network :name   => "test physical network",
+                                                         :zoneid => "#{@zoneObj.id}"
+       
+      @zoneObj.physical_networks["#{resultObj.id}"].name.should eq("test physical network")
+    end
+
+    it "add traffic type" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @pnObj = @zoneObj.physical_networks.values[0]
+
+      resultObj = @cs.root_admin.add_traffic_type :physicalnetworkid => "#{@pnObj.id}",
+                                                  :traffictype       => "Guest"
+
+      @pnObj.traffic_types.each do |k, v|
+        if v.traffictype.eql? "Guest"
+          @tt = v
+        end
+      end
+
+      @tt.should_not be_nil
+    end
+
+    it "delete physical network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @pnObj = @zoneObj.physical_networks.values[0]
+
+      resultObj = @cs.root_admin.delete_physical_network :id => "#{@pnObj.id}"
+
+      @zoneObj.physical_networks["#{@pnObj.id}"].should be_nil
+    end
+
+    it "delete zone" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      resultObj = @cs.root_admin.delete_zone :id => "#{@zoneObj.id}"
+
+      @cs.zones["#{@zoneObj.id}"].should be_nil
+    end
 
     it "create zone (OO)" do 
       zoneObj = @cs.create_zone :name => "testzone",
@@ -43,6 +111,8 @@ module CloudStack_Testing
         end
       end
       resultObj = @zoneObj.physical_networks.values[0].add_traffic_type :traffictype => "Guest"
+      @zoneObj.physical_networks.values[0].traffic_types.values[0].should_not be_nil
+      @zoneObj.physical_networks.values[0].traffic_types.values[0].traffictype.should eql("Guest")
     end
 
     it "delete traffic type (guest)" do

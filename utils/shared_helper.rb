@@ -39,7 +39,7 @@ class SharedFunction
           end
         end
       # FIXME : For success responese (Ugly code here, need refactor)
-      elsif /(deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
+      elsif /(deleteHost|deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
           @result = CloudStack::Model.const_get("Success").new(response)
       else
         @result = CloudStack::Model.const_get(rObj_name).new(response["#{jObj_name}"], cs_helper, model_observer)
@@ -103,8 +103,8 @@ class SharedFunction
 
       @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
 
-      # For success response
-      if /(deleteAccount|deleteDomain)/i.match requestCommand
+      # For asynchronous command with success response 
+      if /(deleteNetwork|deleteTrafficType|deletePhysicalNetwork|deleteAccount|deleteDomain)/i.match requestCommand
         @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult)
       else
         @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"], cs_helper, model_observer)
@@ -175,7 +175,7 @@ class Module
                                        command,
                                        '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}');
 
-          if (/(create|update|delete|disable|enable)/i.match command);
+          if (/(create|update|delete|disable|enable|add)/i.match command);
             changed;
             notify_observers('#{arg}', params, responseObj);
           end;

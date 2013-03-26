@@ -12,10 +12,12 @@ module NetworkModelHelper
                                                    "deleteNetwork",
                                                    "Network"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::Success) &&
+         responseObj.success.eql?("true")
+
         self.p_node.networks.delete "#{self.id}"
-        changed
-        notify_observers("delete_network", params, responseObj)
       end
 
       return responseObj
@@ -34,9 +36,12 @@ module NetworkModelHelper
                                                    "deletePhysicalNetwork",
                                                    "PhysicalNetwork"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
-        changed
-        notify_observers("delete_physical_network", params, responseObj)
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::Success) &&
+         responseObj.success.eql?("true")
+
+        self.p_node.physical_networks.delete self.id
       end
 
       return responseObj
@@ -53,11 +58,12 @@ module NetworkModelHelper
                                                    "addTrafficType",
                                                    "TrafficType"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::TrafficType)
+
         responseObj.p_node = self
-        @traffic_types["#{responseObj.id}"] = responseObj
-        #changed
-        #notify_observers("add_traffic_type", params, responseObj)
+        self.traffic_types["#{responseObj.id}"] = responseObj
       end
       return responseObj
     end
@@ -74,9 +80,11 @@ module NetworkModelHelper
                                                    "PhysicalNetwork"
 
       
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
-        changed
-        notify_observers("update_physical_network", params, responseObj)
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::PhysicalNetwork)
+
+        SharedFunction.update_object self, responseObj
       end
 
       return responseObj
@@ -96,7 +104,11 @@ module NetworkModelHelper
                                                    "deleteTrafficType",
                                                    "TrafficType"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::Success) &&
+         responseObj.success.eql?("true")
+
         self.p_node.traffic_types.delete self.id
       end
       return responseObj
@@ -117,9 +129,11 @@ module NetworkModelHelper
                                                    "updateNetworkServiceProvider",
                                                    "NetworkServiceProvider"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
-        changed
-        notify_observers("enable_network_service_provider", params.merge!({:physicalnetworkid => "#{self.physicalnetworkid}"}), responseObj)
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::NetworkServiceProvider)
+        
+        SharedFunction.update_object self, responseObj
       end
       return responseObj
     end
@@ -127,7 +141,6 @@ module NetworkModelHelper
     def update(args={})
       # FIXME
       puts "FIXME : Updating network service provider"
-      
     end
   end
 
@@ -148,9 +161,11 @@ module NetworkModelHelper
                                                    "configureVirtualRouterElement",
                                                    "VirtualRouterElement"
 
-      if responseObj && (!responseObj.instance_of?(CloudStack::Model::Error))
-        changed
-        notify_observers("configure_virtual_router_element", params.merge!({:physicalnetworkid=>"#{self.physicalnetworkid}"}), responseObj)
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::VirtualRouterElement)
+
+        SharedFunction.update_object self, responseObj
       end
       return responseObj
 

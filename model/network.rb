@@ -99,9 +99,6 @@ module CloudStack
 
       @@attr_list = [:id, :traffictype, :physicalnetworkid]
 
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-      end
     end
 
     class NetworkServiceProvider < Raw

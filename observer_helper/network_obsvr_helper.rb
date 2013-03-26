@@ -1,8 +1,6 @@
 module NetworkObsvrHelper
 
 private
-  def obsvr_create_physical_network(h_para, obj)
-  end
 
   def obsvr_create_network(h_para, networkObj)
     @zones["#{networkObj.zoneid}"].networks["#{networkObj.id}"] = networkObj

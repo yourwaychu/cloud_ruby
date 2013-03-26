@@ -495,13 +495,14 @@ module CloudStack_Testing
       resultObj5 = @cs.root_admin.delete_domain :id      => "#{@domainObj5.id}",
                                                 :cleanup => true
 
+      @rs5 = []
       @cs.accounts.each do |k, v|
         if v.domainid.eql? "#{@domainObj5.id}"
           @rs5 << v
         end
       end
 
-      @rs5.should be_nil
+      @rs5.length.should eq(0)
 
       if @domainObj5.parentdomainid
         @cs.domains["#{@domainObj5.parentdomainid}"].domains["#{@domainObj5.id}"].should be_nil
@@ -511,13 +512,14 @@ module CloudStack_Testing
       resultObj4 = @cs.root_admin.delete_domain :id      => "#{@domainObj4.id}",
                                                 :cleanup => true
 
+      @rs4 = []
       @cs.accounts.each do |k, v|
         if v.domainid.eql? "#{@domainObj4.id}"
           @rs4 << v
         end
       end
 
-      @rs4.should be_nil
+      @rs4.length.should eq(0)
 
       if @domainObj4.parentdomainid
         @cs.domains["#{@domainObj4.parentdomainid}"].domains["#{@domainObj4.id}"].should be_nil
@@ -526,13 +528,14 @@ module CloudStack_Testing
       resultObj3 = @cs.root_admin.delete_domain :id      => "#{@domainObj3.id}",
                                                 :cleanup => true
 
+      @rs3 = []
       @cs.accounts.each do |k, v|
         if v.domainid.eql? "#{@domainObj3.id}"
           @rs3 << v
         end
       end
 
-      @rs3.should be_nil
+      @rs3.length.should eq(0)
 
       if @domainObj3.parentdomainid
         @cs.domains["#{@domainObj3.parentdomainid}"].domains["#{@domainObj3.id}"].should be_nil
@@ -541,13 +544,14 @@ module CloudStack_Testing
       resultObj2 = @cs.root_admin.delete_domain :id      => "#{@domainObj2.id}",
                                                 :cleanup => true
 
+      @rs2 = []
       @cs.accounts.each do |k, v|
         if v.domainid.eql? "#{@domainObj2.id}"
           @rs2 << v
         end
       end
 
-      @rs2.should be_nil
+      @rs2.length.should eq(0)
 
       if @domainObj2.parentdomainid
         @cs.domains["#{@domainObj2.parentdomainid}"].domains["#{@domainObj2.id}"].should be_nil
@@ -555,13 +559,15 @@ module CloudStack_Testing
 
       resultObj1 = @cs.root_admin.delete_domain :id      => "#{@domainObj1.id}",
                                                 :cleanup => true
+      
+      @rs1 = []
       @cs.accounts.each do |k, v|
         if v.domainid.eql? "#{@domainObj1.id}"
           @rs1 << v
         end
       end
 
-      @rs1.should be_nil
+      @rs1.length.should eq(0)
 
       if @domainObj1.parentdomainid
         @cs.domains["#{@domainObj1.parentdomainid}"].domains["#{@domainObj1.id}"].should be_nil
@@ -781,76 +787,81 @@ module CloudStack_Testing
 
 
     end
-    # it "create user (OO)" do
-    #   @cs.accounts.each do |k, v|
-    #     if v.name.eql? "ootester"
-    #       @accObj = v
-    #     end
-    #   end
 
-    #   userObj = @accObj.create_user :username  => "ootestuser",
-    #                                 :password  => "oonovirus",
-    #                                 :email     => "ootestuesr@testdomain.tw",
-    #                                 :firstname => "ootestuser",
-    #                                 :lastname  => "ootestuser"
+    it "create user (OO)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "admintester1"
+          @accObj1 = v
+        end
+      end
 
-    #   @cs.users["#{userObj.id}"].username.should eq("ootestuser")
-    #   @accObj.users["#{userObj.id}"].username.should eq("ootestuser") 
-    #   @accObj.users["#{userObj.id}"].should equal(@cs.users["#{userObj.id}"])
+      userObj1 = @accObj1.create_user :username  => "admintester1_2",
+                                      :email     => "admintester1_2@testdomain.tw",
+                                      :firstname => "admintester1_2",
+                                      :lastname  => "admintester1_2",
+                                      :password  => "novirus"
 
+      @cs.users["#{userObj1.id}"].username.should eq("admintester1_2")
+      @accObj1.users["#{userObj1.id}"].username.should eq("admintester1_2") 
+      @accObj1.users["#{userObj1.id}"].should equal(@cs.users["#{userObj1.id}"])
+    end
+    
+    it "create user without register keys(OO)" do
+      userObj = @cs.users.choose("admintester1_1")[0]
+      expect {
+        userObj.create_user :username  => "admintester1_3",
+                            :email     => "admintester1_3@testdomain.tw",
+                            :firstname => "admintester1_3",
+                            :lastname  => "admintester1_3",
+                            :password  => "oonovirus"
+      }.to raise_error
+    end
 
-    # end
-    # 
-    # it "create domain without register keys" do
-    #   userObj = @cs.users.choose("ootestuser")[0]
-    #   expect {userObj.create_domain :name => "baddomain"}.to raise_error
-    # end
+    it "disable user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "admintester1_1"
+          @userObj = v
+        end
+      end
+      @userObj.disable 
+      
+      @userObj.state.should eql("disabled")
+      @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
+    end
 
-    # it "disable user (OO)" do
-    #   @cs.users.each do |k, v|
-    #     if v.username.eql? "ootestuser"
-    #       @userObj = v
-    #     end
-    #   end
-    #   @userObj.disable 
-    #   
-    #   @userObj.state.should eql("disabled")
-    #   @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
-    # end
+    it "enable user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "admintester1_1"
+          @userObj = v
+        end
+      end
+      @userObj.enable 
+      @userObj.state.should eql("enabled")
+      @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
+    end
 
-    # it "enable user (OO)" do
-    #   @cs.users.each do |k, v|
-    #     if v.username.eql? "ootestuser"
-    #       @userObj = v
-    #     end
-    #   end
-    #   @userObj.enable 
-    #   @userObj.state.should eql("enabled")
-    #   @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
-    # end
+    it "update user (OO)" do 
+      @cs.users.each do |k, v|
+        if v.username.eql? "admintester1_1"
+          @userObj = v
+        end
+      end
+      @userObj.update :email => "admintester1_1_updated@testdomain.tw"
+      @userObj.email.should eql("admintester1_1_updated@testdomain.tw")
+      @cs.users["#{@userObj.id}"].email.should eq("admintester1_1_updated@testdomain.tw")
+    end
 
-    # it "update user (OO)" do 
-    #   @cs.users.each do |k, v|
-    #     if v.username.eql? "ootestuser"
-    #       @userObj = v
-    #     end
-    #   end
-    #   @userObj.update :username => "ootestuser(updated)"
-    #   @userObj.username.should eql("ootestuser(updated)")
-    #   @cs.users["#{@userObj.id}"].username.should eq("ootestuser(updated)")
-    # end
-
-    # it "delete user (OO)" do
-    #   @cs.users.each do |k, v|
-    #     if v.username.eql? "ootestuser(updated)"
-    #       @userObj = v
-    #     end
-    #   end
-    #   
-    #   @userObj.delete
-    #   @cs.users["#{@userObj.id}"].should be_nil
-    #   @cs.accounts["#{@userObj.accountid}"].users["#{@userObj}"].should be_nil
-    # end
+    it "delete user (OO)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "admintester1_2"
+          @userObj = v
+        end
+      end
+      
+      @userObj.delete
+      @cs.users["#{@userObj.id}"].should be_nil
+      @cs.accounts["#{@userObj.accountid}"].users["#{@userObj}"].should be_nil
+    end
 
     # it "update account (OO)" do
     #   @cs.accounts.each do |k, v|
@@ -864,15 +875,28 @@ module CloudStack_Testing
     #   @cs.accounts["#{@accObj.id}"].name.should eql("ootester(updated)")
     # end
 
-    # it "delete account (OO)" do
-    #   @cs.accounts.each do |k, v|
-    #     if v.name.eql? "ootester(updated)"
-    #       @accObj = v
-    #     end
-    #   end
-    #   resultObj = @accObj.delete
-    #   @cs.accounts["#{@accObj.id}"].should be_nil
-    # end
+    it "delete account (OO)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "admintester1"
+          @accObj1 = v
+        end
+      end
+
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "admintester2"
+          @accObj2 = v
+        end
+      end
+
+      resultObj1 = @accObj1.delete
+      @cs.accounts["#{@accObj1.id}"].should be_nil
+      @cs.domains["#{@accObj1.domainid}"].accounts["#{@accObj1.id}"].should be_nil
+
+      resultObj1 = @accObj2.delete
+      @cs.accounts["#{@accObj2.id}"].should be_nil
+      @cs.domains["#{@accObj2.domainid}"].accounts["#{@accObj2.id}"].should be_nil
+
+    end
 
     # it "update domain (OO)" do
     #   @cs.domains.each do |k, v|
@@ -920,11 +944,15 @@ module CloudStack_Testing
 
       resultObj5 = @dObj5.delete
       @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].domains["#{@dObj5.id}"].should be_nil
+
       resultObj4 = @dObj4.delete
       @cs.domains["#{@dObj2.id}"].domains["#{@dObj4.id}"].should be_nil
+
       resultObj3 = @dObj3.delete
       @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].should be_nil
+
       resultObj2 = @dObj2.delete
+
       resultObj1 = @dObj1.delete
 
       @cs.domains["#{@dObj1.id}"].should be_nil

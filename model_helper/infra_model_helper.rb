@@ -8,10 +8,12 @@ module InfraModelHelper
                                              params,
                                              "updatezoneresponse",
                                              "Zone"
+
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
-        changed
-        notify_observers("update_zone", params, response)
+        !response.instance_of?(CloudStack::Model::Error) &&
+        response.instance_of?(CloudStack::Model::Zone)
+
+        SharedFunction.update_object self, response
       end
       return response
     end
@@ -25,9 +27,11 @@ module InfraModelHelper
                                              "deletezoneresponse",
                                              "Zone"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
         changed
-        notify_observers("delete_zone", params, response)
+        notify_observers("model_delete_zone", params, response)
       end
       return response
 
@@ -45,10 +49,12 @@ module InfraModelHelper
                                                 "PhysicalNetwork"
 
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::PhysicalNetwork)
+
         response.p_node = self
         changed
-        notify_observers("create_physical_network", params, response)
+        notify_observers("model_create_physical_network", params, response)
       end
       return response
     end
@@ -56,12 +62,18 @@ module InfraModelHelper
     def create_network(args={})
       params = {:command  => "createNetwork", :zoneid => "#{self.id}"}
       params.merge! args unless args.empty?
-      response = SharedFunction.make_request @cs_agent, @model_observer, params, "createnetworkresponse", "Network"
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params,
+                                             "createnetworkresponse",
+                                             "Network"
+
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
-        changed
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Network)
+
         response.p_node = self
-        notify_observers("create_network", params, response)
+        self.networks["#{response.id}"] = response
       end
       return response
     end
@@ -75,10 +87,11 @@ module InfraModelHelper
                                              "createpodresponse",
                                              "Pod"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Pod)
+
         response.p_node = self
-        changed
-        notify_observers("create_pod", params, response)
+        self.pods["#{response.id}"] = response
       end
       return response
 
@@ -93,10 +106,12 @@ module InfraModelHelper
                                              "addsecondarystorageresponse",
                                              "SecondaryStorage"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::SecondaryStorage)
+
         response.p_node = self
-        changed
-        notify_observers("add_secondary_storage", params, response)
+        self.secondary_storages["#{response.id}"] = response
+
       end
       return response
     end
@@ -112,10 +127,11 @@ module InfraModelHelper
                                              "deletepodresponse",
                                              "Pod"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+
         self.p_node.pods.delete self.id
-        # changed
-        # notify_observers("model_delete_pod", params, response)
       end
       return response
     end
@@ -129,9 +145,11 @@ module InfraModelHelper
                                              "createvlaniprangeresponse", 
                                              "Vlan"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
-        changed
-        notify_observers("create_vlan_ip_range", params, response)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Vlan)
+
+        response.p_node = self
+        self.vlans["#{response.id}"] = response
       end
       return response
     end
@@ -145,7 +163,8 @@ module InfraModelHelper
                                              "addclusterresponse",
                                              "Cluster"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(Array)
 
         response.each do |cr|
           cr.p_node = self
@@ -169,10 +188,11 @@ module InfraModelHelper
                                              "deleteclusterresponse",
                                              "Cluster"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+
         self.p_node.clusters.delete self.id
-        # changed
-        # notify_observers("model_delete_pod", params, response)
       end
       return response
     end
@@ -190,7 +210,8 @@ module InfraModelHelper
                                              "addhostresponse",
                                              "Host"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(Array)
 
         response.each do |ht|
           ht.p_node = self
@@ -215,10 +236,11 @@ module InfraModelHelper
                                              "deletehostresponse",
                                              "Host"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+
         self.p_node.hosts.delete self.id
-        # changed
-        # notify_observers("model_delete_pod", params, response)
       end
       return response
     end
@@ -233,11 +255,13 @@ module InfraModelHelper
                                              params, 
                                              "deletehostresponse",
                                              "SecondaryStorage"
+
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+
         self.p_node.secondary_storages.delete self.id
-        # changed
-        # notify_observers("model_delete_pod", params, response)
       end
       return response
     end

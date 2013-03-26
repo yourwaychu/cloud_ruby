@@ -4,6 +4,7 @@ module AccountsObsvrHelper
   private
     def obsvr_create_domain(h_para, domainObj)
       @domains["#{domainObj.id}"] = domainObj
+
       if domainObj.parentdomainid
         @domains["#{domainObj.parentdomainid}"].domains["#{domainObj.id}"] = domainObj
       end
@@ -22,9 +23,29 @@ module AccountsObsvrHelper
 
       _tmpobj = @domains["#{h_para[:id]}"]
 
-      if respObj.success == true
+      if respObj.success.eql?("true")
         @domains.delete _tmpobj.id
 
+        if _tmpobj.parentdomainid
+          @domains["#{_tmpobj.parentdomainid}"].domains.delete _tmpobj.id
+        end
+
+        @accounts.values.each do |acc|
+          if acc.domainid.eql? _tmpobj.id
+            acc.users.values.each do |usr|
+              @users.delete usr.id
+            end
+            @accounts.delete acc.id
+          end
+        end
+      end
+    end
+    def obsvr_model_delete_domain(h_para, respObj)
+
+      _tmpobj = @domains["#{h_para[:id]}"]
+
+      if respObj.success.eql?("true")
+        @domains.delete _tmpobj.id
         if _tmpobj.parentdomainid
           @domains["#{_tmpobj.parentdomainid}"].domains.delete _tmpobj.id
         end
@@ -49,7 +70,31 @@ module AccountsObsvrHelper
       @domains["#{accObj.domainid}"].accounts["#{accObj.id}"] = accObj
 
       _user = accObj.users.values[0]
-      @users["#{_user.id}"] = _user
+
+      if _user
+        @users["#{_user.id}"] = _user
+      end
+    end
+
+    def obsvr_model_create_account(params, respObj)
+      @accounts["#{respObj.id}"] = respObj
+
+      _user = respObj.users.values[0]
+
+      if _user
+        @users["#{_user.id}"] = _user
+      end
+    end
+
+    def obsvr_model_delete_account(params, respObj)
+      if respObj.success.to_s.eql? "true"
+        @accounts.delete "#{params[:id]}"
+        @users.values.each do |usr|
+          if usr.accountid.eql? params[:id]
+            @users.delete usr.id
+          end
+        end
+      end
     end
 
     def obsvr_update_account(h_para, accObj)
@@ -58,7 +103,7 @@ module AccountsObsvrHelper
     end
 
     def obsvr_delete_account(h_para, respObj)
-      if respObj.success.to_s.eql? "true"
+      if respObj.success.eql? "true"
         @accounts.delete "#{h_para[:id]}"
         @users.values.each do |usr|
           if usr.accountid.eql? h_para[:id]
@@ -81,6 +126,10 @@ module AccountsObsvrHelper
       end
     end
 
+    def obsvr_model_create_user(params, userObj)
+      @users["#{userObj.id}"] = userObj
+    end
+
     def obsvr_update_user(h_para, userObj)
       oldObj = @users["#{userObj.id}"]
       SharedFunction.update_object(oldObj, userObj)
@@ -94,21 +143,25 @@ module AccountsObsvrHelper
     end
 
     def obsvr_disable_user(h_para, respObj)
-      # FIXME
       @users["#{respObj.id}"].state = respObj.state
-
     end
 
     def obsvr_enable_user(h_para, respObj)
-      # FIXME
       @users["#{respObj.id}"].state = respObj.state
     end
 
     def obsvr_delete_user(h_para, respObj)
-      if respObj.success.to_s.eql? "true"
+      if respObj.success.eql? "true"
         @users.delete "#{h_para[:id]}"
       end
     end
+
+    def obsvr_model_delete_user(params, respObj)
+      if respObj.success.eql? "true"
+        @users.delete "#{params[:id]}"
+      end
+    end
+
   end
 end
 

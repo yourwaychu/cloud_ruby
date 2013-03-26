@@ -9,10 +9,16 @@ module AccountsModelHelper
                                              "createdomainresponse",
                                              "Domain"
 
-      if response && (!response.instance_of?(CloudStack::Model::Error))
+      if response && 
+         (!response.instance_of?(CloudStack::Model::Error)) &&
+         response.instance_of?(CloudStack::Model::Domain)
+
+        if self.p_node
+          response.p_node = self
+        end
         self.domains["#{response.id}"] = response
         changed
-        notify_observers("model_create_domain", self, response)
+        notify_observers("model_create_domain", params, response)
       end
       return response
     end
@@ -27,16 +33,18 @@ module AccountsModelHelper
                                              "createaccountresponse",
                                              "Account"
 
-      if response && (!response.instance_of?(CloudStack::Model::Error))
+      if response && 
+         (!response.instance_of?(CloudStack::Model::Error)) &&
+         response.instance_of?(CloudStack::Model::Account)
+        response.p_node = self
         @accounts["#{response.id}"] = response
         changed
-        notify_observers("create_account", params, response)
+        notify_observers("model_create_account", params, response)
       end
       return response
     end
 
     def update(args={})
-
       params = {:command  => "updateDomain", :id => "#{self.id}"}
 
       params.merge! args unless args.empty?
@@ -47,7 +55,9 @@ module AccountsModelHelper
                                              "updatedomainresponse",
                                              "Domain"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error) # &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Domain)
+
         SharedFunction.update_object self, response
       end
       return response
@@ -66,12 +76,17 @@ module AccountsModelHelper
                                                    "deleteDomain",
                                                    "Domain"
 
-      if self.p_node
-        self.p_node.domains.delete self.id
-      end
+      if responseObj &&
+         !responseObj.instance_of?(CloudStack::Model::Error) &&
+         responseObj.instance_of?(CloudStack::Model::Success) &&
+         responseObj.success.eql?("true")
 
-      changed
-      notify_observers("delete_domain", params, responseObj)
+        if self.p_node
+          self.p_node.domains.delete self.id
+        end
+        changed
+        notify_observers("model_delete_domain", params, responseObj)
+      end
       return responseObj
     end
 
@@ -83,8 +98,8 @@ module AccountsModelHelper
       user_j_objs = j_obj['user']
 
       user_j_objs.each do |juser|
-        tmp = CloudStack::Model::User.new juser, nil, @model_observer
-        @users["#{tmp.id}"] = tmp
+        _tmp = CloudStack::Model::User.new juser, @cs_agent, @model_observer
+        @users["#{_tmp.id}"] = _tmp
       end
     end
 
@@ -97,7 +112,8 @@ module AccountsModelHelper
                                              "updateaccountresponse",
                                              "Account"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error) #&&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Account)
         SharedFunction.update_object self, response
       end
       return response
@@ -116,8 +132,16 @@ module AccountsModelHelper
                                                    "deleteAccount",
                                                    "Account"
 
-      changed
-      notify_observers("delete_account", params, responseObj)
+      if responseObj &&
+         !responseObj.instance_of?(CloudStack::Model::Error) &&
+         responseObj.instance_of?(CloudStack::Model::Success) &&
+         responseObj.success.eql?("true")
+
+        self.p_node.accounts.delete self.id
+        changed
+        notify_observers("model_delete_account", params, responseObj)
+      end
+
       return responseObj
     end
 
@@ -132,10 +156,12 @@ module AccountsModelHelper
                                              "createuserresponse",
                                              "User"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error)
-        @users["#{response.id}"] = response
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::User)
+        response.p_node = self
+        self.users["#{response.id}"] = response
         changed
-        notify_observers("create_user", params, response)
+        notify_observers("model_create_user", params, response)
       end
       return response
     end
@@ -159,9 +185,12 @@ module AccountsModelHelper
                                              "deleteuserresponse", 
                                              "User"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error) # &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+        self.p_node.users.delete self.id
         changed
-        notify_observers("delete_user", params, response)
+        notify_observers("model_delete_user", params, response)
       end
       return response
     end
@@ -175,7 +204,8 @@ module AccountsModelHelper
                                              "updateuserresponse",
                                              "User"
       if response &&
-         !response.instance_of?(CloudStack::Model::Error) # &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::User)
         SharedFunction.update_object self, response
       end
       return response
@@ -189,10 +219,10 @@ module AccountsModelHelper
                                              params, 
                                              "enableuserresponse",
                                              "User"
-      if response &&
-         !response.instance_of?(CloudStack::Model::Error) #&&
-        changed
-        notify_observers("enable_user", params, response)
+      if response && 
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::User)
+        SharedFunction.update_object self, response
       end
       return response
     end
@@ -211,8 +241,12 @@ module AccountsModelHelper
                                                    {:jobid => jJob['jobid']},
                                                    "disableUser",
                                                    "User"
-      changed
-      notify_observers("disable_user", params, responseObj)
+
+      if responseObj &&  
+         !responseObj.instance_of?(CloudStack::Model::Error) &&
+         responseObj.instance_of?(CloudStack::Model::User)
+        SharedFunction.update_object self, responseObj
+      end
       return responseObj
     end
   end
