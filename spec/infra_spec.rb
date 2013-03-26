@@ -44,8 +44,12 @@ module CloudStack_Testing
 
       @pnObj = @zoneObj.physical_networks.values[0]
 
-      resultObj = @cs.root_admin.add_traffic_type :physicalnetworkid => "#{@pnObj.id}",
-                                                  :traffictype       => "Guest"
+      resultObj1 = @cs.root_admin.add_traffic_type :physicalnetworkid => "#{@pnObj.id}",
+                                                   :traffictype       => "Guest"
+
+      resultObj2 = @cs.root_admin.add_traffic_type :physicalnetworkid => "#{@pnObj.id}",
+                                                   :traffictype       => "Management"
+
 
       @pnObj.traffic_types.each do |k, v|
         if v.traffictype.eql? "Guest"
@@ -54,6 +58,76 @@ module CloudStack_Testing
       end
 
       @tt.should_not be_nil
+      @pnObj.traffic_types.length.should eql(2)
+    end
+
+    it "update physical network" do
+       @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @pnObj = @zoneObj.physical_networks.values[0]
+      resultObj1 = @cs.root_admin.update_physical_network :id    => "#{@pnObj.id}",
+                                                          :state => "Enabled"
+      @pnObj.state.should eq("Enabled")
+    end
+
+    it "configure service provider" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @pnObj = @zoneObj.physical_networks.values[0]
+
+      @vrsp = @cs.root_admin.list_network_service_providers :name => "VirtualRouter",
+                                                            :physicalnetworkid => "#{@pnObj.id}"
+
+      @vre = @cs.root_admin.list_virtual_router_elements :nspid => "#{@vrsp.first.id}"
+
+      @cs.root_admin.configure_virtual_router_element :id      => "#{@vre.first.id}",
+                                                      :enabled => "true"
+
+      @cs.root_admin.update_network_service_provider :id    => "#{@vrsp.first.id}",
+                                                     :state => "Enabled"
+      @sgsp = @cs.root_admin.list_network_service_providers :name => "SecurityGroupProvider",
+                                                            :physicalnetworkid => "#{@pnObj.id}"
+  
+      @cs.root_admin.update_network_service_provider :id    => "#{@sgsp.first.id}",
+                                                     :state => "Enabled" 
+
+      @pnObj.network_service_providers.length.should eq(2)
+    end
+
+    it "create network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @networkoffering = @cs.network_offerings.choose("DefaultSharedNetworkOfferingWithSGService").first
+
+      @network = @cs.root_admin.create_network :displaytext => "defaultGuestNetwork",
+                                               :name        => "defaultGuestNetwork",
+                                               :networkofferingid => "#{@networkoffering.id}",
+                                               :zoneid      => "#{@zoneObj.id}" 
+
+      @zoneObj.networks.values[0].name.should eq("defaultGuestNetwork")
+    end
+
+    it "delete network" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @net = @zoneObj.networks.values[0]
+      resultObj = @cs.root_admin.delete_network :id => "#{@net.id}"
+      @zoneObj.networks.values[0].should be_nil
     end
 
     it "delete physical network" do

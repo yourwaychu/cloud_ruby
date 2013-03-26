@@ -13,6 +13,7 @@ module NetworkApiHelper
                       :add_traffic_type,
                       :update_physical_network,
                       :configure_virtual_router_element,
-                      :update_network_service_provider
+                      :update_network_service_provider,
+                      :delete_network
                       
 end

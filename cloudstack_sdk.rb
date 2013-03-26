@@ -25,7 +25,8 @@ module CloudStack
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
                 :users, :domains, :network_offerings, :disk_offerings,
                 :service_offerings, :zones, :physical_networks, :templates,
-                :pods, :clusters, :hosts, :systemvms, :cs_agent, :cs_helper
+                :pods, :clusters, :hosts, :systemvms, :cs_agent, :cs_helper,
+                :networks
   
     def initialize(ip, port, i_port)
       @logger = Logger.new('cloudstack.sdk.log')
@@ -44,6 +45,7 @@ module CloudStack
       @clusters     = {}
       @hosts        = {}
       @systemvms    = {}
+      @networks     = {}
       @physical_networks = {}
       @network_offerings = {}
       @service_offerings = {}
