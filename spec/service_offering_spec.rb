@@ -5,7 +5,7 @@ require_relative '../cloudstack'
 module CloudStack_Testing
   describe CloudStack, "Service Offerings" do
     before(:all) do
-      config = YAML.load_file("spec/config.yml")
+      config = YAML.load_file("spec/testconfig.yml")
       @host     = config["development"]["host"]
       @port     = config["development"]["port"]
       @apiport  = config["development"]["apiport"]

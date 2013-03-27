@@ -6,6 +6,7 @@ module NetworkApiHelper
                      :list_traffic_types,
                      :create_network,
                      :create_vlan_ip_range,
+                     :delete_vlan_ip_range,
                      :add_secondary_storage
       
   async_cmd_processor :create_physical_network,

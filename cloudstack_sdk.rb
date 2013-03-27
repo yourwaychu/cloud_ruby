@@ -26,7 +26,7 @@ module CloudStack
                 :users, :domains, :network_offerings, :disk_offerings,
                 :service_offerings, :zones, :physical_networks, :templates,
                 :pods, :clusters, :hosts, :systemvms, :cs_agent, :cs_helper,
-                :networks
+                :networks, :vlans, :secondary_storages
   
     def initialize(ip, port, i_port)
       @logger = Logger.new('cloudstack.sdk.log')
@@ -34,9 +34,6 @@ module CloudStack
       @model_observer    = CloudStackEnvObserver.new(self)
       @request_url       = "http://#{ip}:#{port}/client/api"
       @admin_request_url = "http://#{ip}:#{i_port}/client/api"
-
-      self.add_observer @model_observer
-
       @domains      = {}
       @accounts     = {}
       @users        = {}
@@ -46,12 +43,15 @@ module CloudStack
       @hosts        = {}
       @systemvms    = {}
       @networks     = {}
-      @physical_networks = {}
-      @network_offerings = {}
-      @service_offerings = {}
-      @disk_offerings    = {}
+      @vlans        = {}
+      @physical_networks  = {}
+      @network_offerings  = {}
+      @service_offerings  = {}
+      @secondary_storages = {}
+      @disk_offerings     = {}
 
       register_root_admin
+      self.add_observer @model_observer
       update_env
     end
   end

@@ -168,10 +168,11 @@ module InfraModelHelper
 
         response.each do |cr|
           cr.p_node = self
+          self.clusters["#{cr.id}"] = cr
         end
 
         changed
-        notify_observers("add_cluster", params, response)
+        notify_observers("model_add_cluster", params, response)
       end
       return response
     end

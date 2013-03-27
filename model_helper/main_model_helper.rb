@@ -8,7 +8,10 @@ module MainModelHelper
                                            "createdomainresponse",
                                            "Domain"
 
-    if response && (!response.instance_of?(CloudStack::Model::Error))
+    if response &&
+       (!response.instance_of?(CloudStack::Model::Error)) &&
+       response.instance_of?(CloudStack::Model::Domain)
+      response.p_node = self
       self.domains["#{response.id}"] = response
       changed
       notify_observers("model_create_domain", params, response)
@@ -25,7 +28,11 @@ module MainModelHelper
                                            "createzoneresponse",
                                            "Zone"
 
-    if response && (!response.instance_of?(CloudStack::Model::Error))
+    if response &&
+       (!response.instance_of?(CloudStack::Model::Error)) &&
+       response.instance_of?(CloudStack::Model::Zone)
+      response.p_node = self
+      self.zones["#{response.id}"] = response
       changed
       notify_observers("model_create_zone", params, response)
     end

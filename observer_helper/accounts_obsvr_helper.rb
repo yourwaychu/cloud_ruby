@@ -4,8 +4,9 @@ module AccountsObsvrHelper
   private
     def obsvr_create_domain(h_para, domainObj)
       @domains["#{domainObj.id}"] = domainObj
-
+    
       if domainObj.parentdomainid
+        domainObj.p_node = @domains["#{domainObj.parentdomainid}"]
         @domains["#{domainObj.parentdomainid}"].domains["#{domainObj.id}"] = domainObj
       end
     end
@@ -19,44 +20,30 @@ module AccountsObsvrHelper
       SharedFunction.update_object(oldObj, domainObj)
     end
 
-    def obsvr_delete_domain(h_para, respObj)
-
-      _tmpobj = @domains["#{h_para[:id]}"]
-
-      if respObj.success.eql?("true")
-        @domains.delete _tmpobj.id
-
-        if _tmpobj.parentdomainid
-          @domains["#{_tmpobj.parentdomainid}"].domains.delete _tmpobj.id
-        end
-
-        @accounts.values.each do |acc|
-          if acc.domainid.eql? _tmpobj.id
-            acc.users.values.each do |usr|
-              @users.delete usr.id
-            end
-            @accounts.delete acc.id
+    def obsvr_delete_domain(params, respObj)
+      _domain = @domains["#{params[:id]}"]
+      @accounts.values.each do |acc|
+        if acc.domainid.eql? params[:id]
+          acc.users.values.each do |usr|
+            @users.delete usr.id
           end
+          @accounts.delete acc.id
         end
       end
+      if _domain.parentdomainid
+        @domains["#{_domain.parentdomainid}"].domains.delete "#{_domain.id}"
+      end
+      @domains.delete "#{_domain.id}"
     end
-    def obsvr_model_delete_domain(h_para, respObj)
 
-      _tmpobj = @domains["#{h_para[:id]}"]
-
-      if respObj.success.eql?("true")
-        @domains.delete _tmpobj.id
-        if _tmpobj.parentdomainid
-          @domains["#{_tmpobj.parentdomainid}"].domains.delete _tmpobj.id
-        end
-
-        @accounts.values.each do |acc|
-          if acc.domainid.eql? _tmpobj.id
-            acc.users.values.each do |usr|
-              @users.delete usr.id
-            end
-            @accounts.delete acc.id
+    def obsvr_model_delete_domain(params, respObj)
+      @domains.delete "#{params[:id]}"
+      @accounts.values.each do |acc|
+        if acc.domainid.eql? params[:id]
+          acc.users.values.each do |usr|
+            @users.delete usr.id
           end
+          @accounts.delete acc.id
         end
       end
     end

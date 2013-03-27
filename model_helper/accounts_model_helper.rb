@@ -81,9 +81,7 @@ module AccountsModelHelper
          responseObj.instance_of?(CloudStack::Model::Success) &&
          responseObj.success.eql?("true")
 
-        if self.p_node
-          self.p_node.domains.delete self.id
-        end
+        self.p_node.domains.delete self.id
         changed
         notify_observers("model_delete_domain", params, responseObj)
       end

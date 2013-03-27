@@ -1,5 +1,4 @@
 cloudstack:
-#host: 10.1.228.173
   host: localhost
   port: 8080
   apiport: 8096
@@ -36,7 +35,7 @@ infrastructure:
       network:
          guest:
            - gateway:  192.168.56.1
-             netmassk:  255.255.255.0
+             netmask:  255.255.255.0
              start_ip: 192.168.56.71
              end_ip:   192.168.56.100
 

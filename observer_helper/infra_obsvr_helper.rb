@@ -25,12 +25,44 @@ private
   end
 
   def obsvr_create_pod(params, podObj)
-    #@pods["#{podObj.id}"] = podObj
-    @zones["#{podObj.zoneid}"].pods["#{podObj.id}"] = podObj
+    @pods["#{podObj.id}"] = podObj
+    _zone = @zones["#{podObj.zoneid}"]
+    podObj.p_node = _zone
+    _zone.pods["#{podObj.id}"] = podObj
+  end
+
+  def obsvr_model_create_pod(params, podObj)
+    @pods["#{podObj.id}"] = podObj
+  end
+
+  def obsvr_delete_pod(params, respObj)
+    _pod = @pods["#{params[:id]}"]
+    @pods.delete _pod.id
+    @zones["#{_pod.zoneid}"].pods.delete "#{_pod.id}"
   end
 
   def obsvr_create_vlan_ip_range(params, vlanObj)
+    @vlans["#{vlanObj.id}"] = vlanObj
+    _pod = @pods["#{vlanObj.podid}"]
+    vlanObj.p_node = _pod
     @zones["#{vlanObj.zoneid}"].pods["#{vlanObj.podid}"].vlans["#{vlanObj.id}"] = vlanObj
+  end
+
+  def obsvr_delete_vlan_ip_range(params, respObj)
+    _vlan = @vlans["#{params[:id]}"] 
+    _pod  = @pods["#{_vlan.podid}"]
+    @vlans.delete "#{_vlan.id}"
+    _pod.vlans.delete "#{_vlan.id}"
+  end
+  
+  def obsvr_model_delete_vlan_ip_range(params, respObj)
+    _vlan = @vlans["#{params[:id]}"] 
+    _pod  = @pods["#{_vlan.podid}"]
+    @vlans.delete "#{_vlan.id}"
+  end
+
+  def obsvr_model_create_vlan_ip_range(params, vlanObj)
+    @vlans["#{vlanObj.id}"] = vlanObj
   end
 
   def obsvr_model_create_physical_network(h_para, pnObj)
@@ -116,15 +148,65 @@ private
   end
 
   def obsvr_add_cluster(params, clusterList)
+    _pod = @pods["#{clusterList[0].podid}"]
     clusterList.each do |clusterObj|
+      clusterObj.p_node = _pod
+      @clusters["#{clusterObj.id}"] = clusterObj
       @zones["#{clusterObj.zoneid}"].pods["#{clusterObj.podid}"].clusters["#{clusterObj.id}"] = clusterObj
     end
   end
 
+  def obsvr_model_add_cluster(params, clusterList)
+    clusterList.each do |clusterObj|
+      @clusters["#{clusterObj.id}"] = clusterObj
+    end
+  end
+
+  def obsvr_delete_cluster(params, respObj)
+    _cluster = @clusters["#{params[:id]}"]
+    @clusters.delete "#{_cluster.id}" 
+    @pods["#{_cluster.podid}"].clusters.delete "#{_cluster.id}"
+  end
+
+  def obsvr_model_delete_cluster(params, respObj)
+    _cluster = @clusters["#{params[:id]}"]
+    @clusters.delete "#{_cluster.id}" 
+  end
+
   def obsvr_add_host(params, hostObjList)
+    _cluster = @clusters["#{hostObjList[0].clusterid}"]
     hostObjList.each do |hostObj|
+      hostObj.p_node = _cluster
+      @hosts["#{hostObj.id}"] = hostObj
       @zones["#{hostObj.zoneid}"].pods["#{hostObj.podid}"].clusters["#{hostObj.clusterid}"].hosts["#{hostObj.id}"] = hostObj
     end
+  end
+
+  def obsvr_model_add_host(params, hostLists)
+    hostLists.each do |hostObj|
+      @hosts["#{hostObj.id}"] = hostObj
+    end
+  end
+
+  def obsvr_delete_host(params, respObj)
+    _host = @hosts["#{params[:id]}"]
+    _cluster = @clusters["#{_host.clusterid}"]
+    if _cluster
+      @hosts.delete "#{_host.id}"
+      _cluster.hosts.delete "#{_host.id}"
+    end
+    
+    if @secondary_storages["#{_host.id}"]
+      @zones["#{_host.zoneid}"].secondary_storages.delete "#{_host.id}"
+      @secondary_storages.delete "#{_host.id}"
+    end
+  end
+
+
+  def obsvr_model_delete_host(params, respObj)
+    _host = @hosts["#{params[:id]}"]
+    @hosts.delete "#{_host.id}"
+    @cluster["#{_host.clusterid}"].hosts.delete "#{_host.id}"
   end
 
   def obsvr_add_traffic_type(params, response)
@@ -134,6 +216,15 @@ private
   end
 
   def obsvr_add_secondary_storage(h_params, stObj)
+    _zone = @zones["#{stObj.zoneid}"]
+    stObj.p_node = _zone
+    @secondary_storages["#{stObj.id}"] = stObj
+    @hosts["#{stObj.id}"] = stObj
     @zones["#{stObj.zoneid}"].secondary_storages["#{stObj.id}"] = stObj
+  end
+
+  def obsvr_delete_secondary_storage(params, respObj)
+    _scObj = @secondary_storages["#{params[:id]}"]
+    @secondary_storages.delete "#{_scObj.id}"
   end
 end

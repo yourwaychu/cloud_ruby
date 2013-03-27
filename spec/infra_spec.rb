@@ -5,7 +5,7 @@ require_relative '../cloudstack'
 module CloudStack_Testing
   describe CloudStack, "Infra" do
     before(:all) do
-      config = YAML.load_file("spec/config.yml")
+      config = YAML.load_file("spec/testconfig.yml")
       @host     = config["development"]["host"]
       @port     = config["development"]["port"]
       @apiport  = config["development"]["apiport"]
@@ -93,6 +93,7 @@ module CloudStack_Testing
 
       @cs.root_admin.update_network_service_provider :id    => "#{@vrsp.first.id}",
                                                      :state => "Enabled"
+
       @sgsp = @cs.root_admin.list_network_service_providers :name => "SecurityGroupProvider",
                                                             :physicalnetworkid => "#{@pnObj.id}"
   
@@ -117,6 +118,157 @@ module CloudStack_Testing
                                                :zoneid      => "#{@zoneObj.id}" 
 
       @zoneObj.networks.values[0].name.should eq("defaultGuestNetwork")
+    end
+
+    it "create pod" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @cs.root_admin.create_pod :name    => "testpod",
+                                          :startip => "192.168.56.51",
+                                          :endip   => "192.168.56.70",
+                                          :netmask => "255.255.255.0",
+                                          :gateway => "192.168.56.1",
+                                          :zoneid  => "#{@zoneObj.id}"
+
+      @zoneObj.pods.values[0].name.should eq("testpod")
+    end
+
+    it "create vlan" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @netObj = @zoneObj.networks.values[0]
+      @podObj = @zoneObj.pods.values[0]
+      
+      @vlan = @cs.root_admin.create_vlan_ip_range :podid     => "#{@podObj.id}",
+                                                  :networkid => "#{@netObj.id}",
+                                                  :forvirtualnetwork => false,
+                                                  :gateway   => "192.168.56.1",
+                                                  :netmask   => "255.255.255.0",
+                                                  :startip   => "192.168.56.71",
+                                                  :endip     => "192.168.56.100"
+
+      @podObj.vlans.values[0].should_not be_nil
+    end
+
+    it "add cluster" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @zoneObj.pods.values[0]
+
+      @cluster = @cs.root_admin.add_cluster :zoneid      => "#{@zoneObj.id}",
+                                            :podid       => "#{@podObj.id}",
+                                            :hypervisor  => "XenServer",
+                                            :clustertype => "CloudManaged",
+                                            :clustername => "testcluster"
+
+      @podObj.clusters.values[0].should_not be_nil
+    end
+
+    it "add host" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @zoneObj.pods.values[0]
+      @clusterObj = @podObj.clusters.values[0]
+
+      @host = @cs.root_admin.add_host :zoneid => "#{@zoneObj.id}",
+                                      :podid  => "#{@podObj.id}",
+                                      :clusterid => "#{@clusterObj.id}",
+                                      :hypervisor => "XenServer",
+                                      :clustertype => "CloudManaged",
+                                      :username => "root",
+                                      :password => "password",
+                                      :url => "http://192.168.56.10"
+
+      @clusterObj.hosts.values[0].should_not be_nil
+    end
+
+    it "add secondary storage" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @sc = @cs.root_admin.add_secondary_storage :zoneid => "#{@zoneObj.id}",
+                                                 :url    => "nfs://192.168.56.10/opt/storage/secondary/"
+
+      @zoneObj.secondary_storages.values[0].should_not be_nil
+    end
+
+    it "delete secondary storage" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @sc = @zoneObj.secondary_storages.values[0]
+
+      resultObj = @cs.root_admin.delete_host :id => "#{@sc.id}"
+
+      @zoneObj.secondary_storages.values[0].should be_nil
+    end
+
+    it "delete host" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @zoneObj.pods.values[0]
+      @clusterObj = @podObj.clusters.values[0]
+      @hostObj = @clusterObj.hosts.values[0]
+      resultObj = @cs.root_admin.delete_host :id => "#{@hostObj.id}"
+      @clusterObj.hosts.values[0].should be_nil
+    end
+
+    it "delete cluster" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @zoneObj.pods.values[0]
+      @clusterObj = @podObj.clusters.values[0]
+      resultObj = @cs.root_admin.delete_cluster :id => "#{@clusterObj.id}"
+      @podObj.clusters.values[0].should be_nil
+    end
+
+    it "delete vlan" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+
+      @netObj  = @zoneObj.networks.values[0]
+      @podObj  = @zoneObj.pods.values[0]
+      @vlanObj = @podObj.vlans.values[0]
+      
+      resultObj = @cs.root_admin.delete_vlan_ip_range :id => "#{@vlanObj.id}"
+      @podObj.vlans.values[0].should be_nil
+    end
+
+    it "delete pod" do
+      @cs.zones.each do |k, v|
+        if v.name.eql?"testzone"
+          @zoneObj = v
+        end
+      end
+      @podObj = @zoneObj.pods.values[0]
+      resultObj = @cs.root_admin.delete_pod :id => "#{@podObj.id}"
+      @zoneObj.pods.values[0].should be_nil
     end
 
     it "delete network" do

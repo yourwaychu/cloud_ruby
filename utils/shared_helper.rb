@@ -39,7 +39,7 @@ class SharedFunction
           end
         end
       # FIXME : For success responese (Ugly code here, need refactor)
-      elsif /(deleteHost|deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
+      elsif /(deleteVlanIpRange|deleteHost|deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
           @result = CloudStack::Model.const_get("Success").new(response)
       else
         @result = CloudStack::Model.const_get(rObj_name).new(response["#{jObj_name}"], cs_helper, model_observer)
@@ -138,11 +138,10 @@ class Module
                                     params,
                                     command.downcase+'response',
                                     _responseObj);
-          
+
           if response && 
              !response.instance_of?(CloudStack::Model::Error) &&
-             (/(create|update|delete|register)/i.match command);
-
+             (/(add|create|update|delete|register).*/i.match command);
             changed;
             notify_observers('#{arg}', params, response);
           end;
