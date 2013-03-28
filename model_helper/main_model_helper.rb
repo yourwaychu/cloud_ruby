@@ -1,5 +1,5 @@
 module MainModelHelper
-  def create_domain(args={})
+  def create_domain(args={}) #create first level domain under ROOT domain
     params = {:command  => "createDomain"}
     params.merge! args unless args.empty?
     response = SharedFunction.make_request @cs_agent,
@@ -11,7 +11,8 @@ module MainModelHelper
     if response &&
        (!response.instance_of?(CloudStack::Model::Error)) &&
        response.instance_of?(CloudStack::Model::Domain)
-      response.p_node = self
+      
+      response.p_node = self.domains["#{response.parentdomainid}"]
       self.domains["#{response.id}"] = response
       changed
       notify_observers("model_create_domain", params, response)

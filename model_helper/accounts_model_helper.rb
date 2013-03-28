@@ -13,9 +13,8 @@ module AccountsModelHelper
          (!response.instance_of?(CloudStack::Model::Error)) &&
          response.instance_of?(CloudStack::Model::Domain)
 
-        if self.p_node
-          response.p_node = self
-        end
+
+        response.p_node = self
         self.domains["#{response.id}"] = response
         changed
         notify_observers("model_create_domain", params, response)

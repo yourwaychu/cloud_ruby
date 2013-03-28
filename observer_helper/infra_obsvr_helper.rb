@@ -70,13 +70,12 @@ private
     zoneObj = @zones["#{pnObj.zoneid}"]
     zoneObj.physical_networks.merge!({"#{pnObj.id}" => pnObj})
     @vr_networkserviceproviders = @root_admin.list_network_service_providers :name => "VirtualRouter",
-                                                                          :physicalnetworkid  => "#{pnObj.id}"
+                                                                             :physicalnetworkid  => "#{pnObj.id}"
 
     @sg_networkserviceproviders = @root_admin.list_network_service_providers :name => "SecurityGroupProvider",
                                                                              :physicalnetworkid  => "#{pnObj.id}"
 
     @vr_networkserviceproviders.each do |vrsp|
-
 
       @virtualrouterelements = @root_admin.list_virtual_router_elements :nspid => "#{vrsp.id}"
 
