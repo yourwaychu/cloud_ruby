@@ -2,7 +2,7 @@ module AccountsObsvrHelper
 
   module Domain
   private
-    def obsvr_create_domain(h_para, domainObj)
+    def obsvr_create_domain(params, domainObj)
       @domains["#{domainObj.id}"] = domainObj
     
       if domainObj.parentdomainid
@@ -15,43 +15,42 @@ module AccountsObsvrHelper
       @domains["#{domainObj.id}"] = domainObj
     end
 
-    def obsvr_update_domain(h_para, domainObj)
+    def obsvr_update_domain(params, domainObj)
       oldObj = @domains["#{domainObj.id}"]
       SharedFunction.update_object(oldObj, domainObj)
     end
 
     def obsvr_delete_domain(params, respObj)
-      _domain = @domains["#{params[:id]}"]
+      recur_delete_domain @domains["#{params[:id]}"]
+    end
+    
+    def recur_delete_domain(dobj)
+      if dobj.domains.length != 0
+        dobj.domains.eacn do |subdobj|
+          recur_delete_domain subdobj
+        end
+      end
+      
       @accounts.values.each do |acc|
-        if acc.domainid.eql? params[:id]
+        if acc.domainid.eql? dobj.id
           acc.users.values.each do |usr|
             @users.delete usr.id
           end
           @accounts.delete acc.id
         end
-      end
-      if _domain.parentdomainid
-        @domains["#{_domain.parentdomainid}"].domains.delete "#{_domain.id}"
-      end
-      @domains.delete "#{_domain.id}"
+       end
+       @domains["#{dobj.parentdomainid}"].domains.delete dobj.id unless dobj.parentdomainid == nil
+       @domains.delete dobj.id    
     end
 
     def obsvr_model_delete_domain(params, respObj)
-      @domains.delete "#{params[:id]}"
-      @accounts.values.each do |acc|
-        if acc.domainid.eql? params[:id]
-          acc.users.values.each do |usr|
-            @users.delete usr.id
-          end
-          @accounts.delete acc.id
-        end
-      end
+      recur_delete_domain @domains["#{params[:id]}"]
     end
   end
 
   module Account
   private
-    def obsvr_create_account(h_para, accObj)
+    def obsvr_create_account(params, accObj)
       @accounts["#{accObj.id}"] = accObj
 
       @domains["#{accObj.domainid}"].accounts["#{accObj.id}"] = accObj
@@ -73,8 +72,13 @@ module AccountsObsvrHelper
       end
     end
 
-    def obsvr_model_delete_account(params, respObj)
-      if respObj.success.to_s.eql? "true"
+    def obsvr_update_account(params, accObj)
+      oldObj = @accounts["#{accObj.id}"]
+      SharedFunction.update_object(oldObj, accObj)
+    end
+
+    def obsvr_delete_account(params, respObj)
+      if respObj.success.eql? "true"
         @accounts.delete "#{params[:id]}"
         @users.values.each do |usr|
           if usr.accountid.eql? params[:id]
@@ -83,27 +87,21 @@ module AccountsObsvrHelper
         end
       end
     end
-
-    def obsvr_update_account(h_para, accObj)
-      oldObj = @accounts["#{accObj.id}"]
-      SharedFunction.update_object(oldObj, accObj)
-    end
-
-    def obsvr_delete_account(h_para, respObj)
-      if respObj.success.eql? "true"
-        @accounts.delete "#{h_para[:id]}"
-        @users.values.each do |usr|
-          if usr.accountid.eql? h_para[:id]
-            @users.delete usr.id
-          end
+    
+    def obsvr_model_delete_account(params, respObj)
+      @accounts.delete "#{params[:id]}"
+      @users.values.each do |usr|
+        if usr.accountid.eql? params[:id]
+          @users.delete usr.id
         end
       end
     end
+    
   end
 
   module User
   private
-    def obsvr_create_user(h_para, userObj)
+    def obsvr_create_user(params, userObj)
       @users["#{userObj.id}"] = userObj
 
       @accounts.each do |k, acc|
@@ -117,29 +115,29 @@ module AccountsObsvrHelper
       @users["#{userObj.id}"] = userObj
     end
 
-    def obsvr_update_user(h_para, userObj)
+    def obsvr_update_user(params, userObj)
       oldObj = @users["#{userObj.id}"]
       SharedFunction.update_object(oldObj, userObj)
     end
 
-    def obsvr_register_user_keys(h_para, keyObj)
-      @userObj = @users["#{h_para[:id]}"]
+    def obsvr_register_user_keys(params, keyObj)
+      @userObj = @users["#{params[:id]}"]
       @userObj.apikey = "#{keyObj.apikey}"
       @userObj.secretkey = "#{keyObj.secretkey}"
       @userObj.registerCSHelper request_url, self
     end
 
-    def obsvr_disable_user(h_para, respObj)
+    def obsvr_disable_user(params, respObj)
       @users["#{respObj.id}"].state = respObj.state
     end
 
-    def obsvr_enable_user(h_para, respObj)
+    def obsvr_enable_user(params, respObj)
       @users["#{respObj.id}"].state = respObj.state
     end
 
-    def obsvr_delete_user(h_para, respObj)
+    def obsvr_delete_user(params, respObj)
       if respObj.success.eql? "true"
-        @users.delete "#{h_para[:id]}"
+        @users.delete "#{params[:id]}"
       end
     end
 

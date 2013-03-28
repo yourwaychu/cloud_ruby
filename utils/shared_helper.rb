@@ -3,13 +3,29 @@ require 'digest/md5'
 
 
 class SharedFunction
-
+  
+  @@SYNC_SUCCESSCMDS = ["deleteVlanIpRange",
+                        "deleteHost",
+                        "deleteZone",
+                        "deleteUser",
+                        "deleteCluster",
+                        "deletePod",
+                        "deleteDiskOffering",
+                        "deleteServiceOffering",
+                        "deleteNetwork"]
+                            
+  @@ASYNC_SUCCESSCMDS = ["deleteNetwork",
+                         "deleteTrafficType",
+                         "deletePhysicalNetwork",
+                         "deleteAccount",
+                         "deleteDomain"]
+                       
   def SharedFunction.make_request(cs_helper,
                                   model_observer,
                                   params,
                                   response_name,
                                   rObj_name)
-    @command = params[:command]
+    _command = params[:command]
 
     logger = Logger.new 'cloudstack.api.log'
     logger.level = Logger::DEBUG
@@ -31,16 +47,15 @@ class SharedFunction
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
 
-      if /(list|addcluster|addhost)/i.match @command
+      if /(list|addcluster|addhost)/i.match _command
         @result = [] 
         if response["#{jObj_name}"]
           response["#{jObj_name}"].each do |obj|
             @result << CloudStack::Model.const_get(rObj_name).new(obj, cs_helper, model_observer)
           end
         end
-      # FIXME : For success responese (Ugly code here, need refactor)
-      elsif /(deleteVlanIpRange|deleteHost|deleteZone|deleteUser|deleteCluster|deletePod|deleteDiskOffering|deleteServiceOffering|deleteNetwork)/i.match @command    # for success response object
-          @result = CloudStack::Model.const_get("Success").new(response)
+      elsif @@SYNC_SUCCESSCMDS.include? _command    # for success response object
+        @result = CloudStack::Model.const_get("Success").new(response)
       else
         @result = CloudStack::Model.const_get(rObj_name).new(response["#{jObj_name}"], cs_helper, model_observer)
       end
@@ -53,7 +68,7 @@ class SharedFunction
   def SharedFunction.make_async_request(cs_helper,
                                         params,
                                         responseObjName)
-    @command = params[:command]
+    _command = params[:command]
 
     logger = Logger.new 'cloudstack.api.log'
     logger.level = Logger::DEBUG
@@ -65,7 +80,6 @@ class SharedFunction
 
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{responseObjName}"]
-
       logger.warn response
       return response
     rescue => e
@@ -73,14 +87,6 @@ class SharedFunction
     end
   end
  
-  def SharedFunction.update_object(targetObj, newObj)
-    targetObj.class.attr_list.each do |attr|
-       tmp_m1 = targetObj.method "#{attr}="    
-       tmp_m2 = newObj.method "#{attr}"
-       tmp_m1.call tmp_m2.call
-    end
-  end
-
   def SharedFunction.query_async_job(cs_helper,
                                      model_observer,
                                      params,
@@ -104,7 +110,7 @@ class SharedFunction
       @asyncjob = CloudStack::Model::AsyncJob.new(asyncjobresponse)
 
       # For asynchronous command with success response 
-      if /(deleteNetwork|deleteTrafficType|deletePhysicalNetwork|deleteAccount|deleteDomain)/i.match requestCommand
+      if  @@ASYNC_SUCCESSCMDS.include? requestCommand 
         @result = CloudStack::Model.const_get("Success").new(@asyncjob.jobresult)
       else
         @result = CloudStack::Model.const_get(requestObjName).new(@asyncjob.jobresult["#{requestObjName.downcase}"], cs_helper, model_observer)
@@ -113,6 +119,14 @@ class SharedFunction
       return @result
     rescue => e
        (e && e.response) ? (return CloudStack::Model::Error.new(JSON.parse(e.response)["#{responseObjName}"])) : (puts e)
+    end
+  end
+  
+  def SharedFunction.update_object(targetObj, newObj)
+    targetObj.class.attr_list.each do |attr|
+       tmp_m1 = targetObj.method "#{attr}="    
+       tmp_m2 = newObj.method "#{attr}"
+       tmp_m1.call tmp_m2.call
     end
   end
 end
@@ -166,7 +180,6 @@ class Module
                                                    params,
                                                    command.downcase+'response');
           
-
           responseObj = SharedFunction.query_async_job(
                                        @cs_helper,
                                        @model_observer,

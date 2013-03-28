@@ -1,6 +1,7 @@
 module CloudStack
   module Model
     class Domain < Raw
+      include AccountsModelHelper::Domain
       cattr_accessor :attr_list
 
       attr_accessor :id,
@@ -24,8 +25,6 @@ module CloudStack
         @domains  = {}
         super(args[0], args[1], args[2])
       end
-
-      include AccountsModelHelper::Domain
     end
 
     class Account < Raw

@@ -13,7 +13,6 @@ module AccountsModelHelper
          (!response.instance_of?(CloudStack::Model::Error)) &&
          response.instance_of?(CloudStack::Model::Domain)
 
-
         response.p_node = self
         self.domains["#{response.id}"] = response
         changed
