@@ -47,7 +47,7 @@
 
     - Domain :
        
-        list_domains, create_domain, update_domain, delet_domain
+        list_domains, create_domain, update_domain, delete_domain
     - Account :
     
         list_accounts, create_account, update_account, delete_account
@@ -71,11 +71,12 @@
 
     - Hosts :
         
-        add_host
+        add_host, delete_host, list_hosts
 
     - Network :
     
-        create_physical_network, add_traffic_type, update_physical_network, list_network_service_providers, list_virtual_router_elements, configure_virtual_router_element, update_network_service_provider, update_network_service_provider, create_network, create_vlan_ip_range, 
+        create_physical_network, add_traffic_type, update_physical_network, list_network_service_providers, list_virtual_router_elements, configure_virtual_router_element, update_network_service_provider, update_network_service_provider, create_network, create_vlan_ip_range,
+delete_vlan_ip_range 
 
     - Storage :
 

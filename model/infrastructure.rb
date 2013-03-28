@@ -27,7 +27,8 @@ module CloudStack
                     :physical_networks,
                     :networks,
                     :pods,
-                    :secondary_storages
+                    :secondary_storages,
+                    :system_vms
 
 
       @@attr_list = [:id,
@@ -288,6 +289,7 @@ module CloudStack
     end
 
     class SystemVm < Raw
+      include InfraModelHelper::SystemVm
       cattr_accessor :attr_list
       attr_accessor :id,
                     :systemvmtype,
@@ -334,5 +336,5 @@ module CloudStack
                      :state]
     end
 
-  end # End of module module
-end # End of cloudstack module
+  end
+end

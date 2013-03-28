@@ -148,7 +148,7 @@ private
 
         _sg_nsps.each do |sgsp|
           sgsp.p_node = pnetobj
-          pentobj.network_service_providers["#{sgsp.id}"] = sgsp
+          pnetobj.network_service_providers["#{sgsp.id}"] = sgsp
         end
         zoneobj.physical_networks["#{pnetobj.id}"] = pnetobj
       end

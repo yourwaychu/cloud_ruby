@@ -267,4 +267,74 @@ module InfraModelHelper
       return response
     end
   end
+  
+  module SystemVm
+    def restart(args={}) # asynchronous
+      params = {:command  => "rebootSystemVm", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      jJob = SharedFunction.make_async_request @cs_agent, params, "rebootsystemvmresponse"
+
+      response = SharedFunction.query_async_job @cs_agent,
+                                                @model_observer,
+                                                {:jobid => jJob['jobid']},
+                                                "rebootSystemVm",
+                                                "SystemVm"
+
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::SystemVm)
+
+        SharedFunction.update_object self, response
+        # response.p_node = self
+        # changed
+        # notify_observers("model_create_physical_network", params, response)
+      end
+      return response
+    end
+    
+    def start(args={}) # asynchronous
+      params = {:command  => "startSystemVm", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      jJob = SharedFunction.make_async_request @cs_agent, params, "startsystemvmresponse"
+
+      response = SharedFunction.query_async_job @cs_agent,
+                                                @model_observer,
+                                                {:jobid => jJob['jobid']},
+                                                "startSystemVm",
+                                                "SystemVm"
+
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::SystemVm)
+
+        SharedFunction.update_object self, response
+        # response.p_node = self
+        # changed
+        # notify_observers("model_create_physical_network", params, response)
+      end
+      return response
+    end
+    def stop(args={}) # asynchronous
+      params = {:command  => "stopSystemVm", :id => "#{self.id}"}
+      params.merge! args unless args.empty?
+      jJob = SharedFunction.make_async_request @cs_agent, params, "stopsystemvmresponse"
+
+      response = SharedFunction.query_async_job @cs_agent,
+                                                @model_observer,
+                                                {:jobid => jJob['jobid']},
+                                                "stopSystemVm",
+                                                "SystemVm"
+
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::SystemVm)
+
+        SharedFunction.update_object self, response
+        # response.p_node = self
+        # changed
+        # notify_observers("model_create_physical_network", params, response)
+      end
+      return response
+    end
+  end
 end
