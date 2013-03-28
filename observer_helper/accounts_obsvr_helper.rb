@@ -4,7 +4,6 @@ module AccountsObsvrHelper
   private
     def obsvr_create_domain(params, domainObj)
       @domains["#{domainObj.id}"] = domainObj
-    
       if domainObj.parentdomainid
         domainObj.p_node = @domains["#{domainObj.parentdomainid}"]
         @domains["#{domainObj.parentdomainid}"].domains["#{domainObj.id}"] = domainObj
@@ -21,19 +20,21 @@ module AccountsObsvrHelper
     end
 
     def obsvr_delete_domain(params, respObj)
-      recur_delete_domain @domains["#{params[:id]}"]
+      if @domains["#{params[:id]}"]
+        recur_delete_domain @domains["#{params[:id]}"]
+      end
     end
     
     def recur_delete_domain(dobj)
       if dobj.domains.length != 0
-        dobj.domains.eacn do |subdobj|
+        dobj.domains.each do |k, subdobj|
           recur_delete_domain subdobj
         end
       end
       
       @accounts.values.each do |acc|
         if acc.domainid.eql? dobj.id
-          acc.users.values.each do |usr|
+          acc.users.each do |k, usr|
             @users.delete usr.id
           end
           @accounts.delete acc.id
@@ -44,7 +45,9 @@ module AccountsObsvrHelper
     end
 
     def obsvr_model_delete_domain(params, respObj)
-      recur_delete_domain @domains["#{params[:id]}"]
+      if @domains["#{params[:id]}"]
+        recur_delete_domain @domains["#{params[:id]}"]
+      end
     end
   end
 

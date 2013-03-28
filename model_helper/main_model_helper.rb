@@ -39,4 +39,26 @@ module MainModelHelper
     end
     return response
   end
+  def create_service_offering(args={})
+    params = {:command => "createServiceOffering"}
+    params.merge! args unless args.empty?
+    response = SharedFunction.make_request @cs_agent,
+                                           @model_observer, 
+                                           params,
+                                           "createserviceofferingresponse",
+                                           "ServiceOffering"
+
+    if response &&
+       (!response.instance_of?(CloudStack::Model::Error)) &&
+       response.instance_of?(CloudStack::Model::ServiceOffering)
+      response.p_node = self
+      if response.issystem.eql?(true)
+        self.service_offerings["#{response.id}"] = response
+      else 
+        self.compute_offerings["#{response.id}"] = response
+      end
+    end
+    return response
+
+  end
 end

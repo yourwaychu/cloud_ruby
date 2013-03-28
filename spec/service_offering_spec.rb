@@ -15,8 +15,8 @@ module CloudStack_Testing
     end  
 
     it "create service offering" do
-      serviceObj = @cs.root_admin.create_service_offering :name => "testoffering",
-                                                          :displaytext => "testoffering",
+      serviceObj = @cs.root_admin.create_service_offering :name => "testserviceoffering",
+                                                          :displaytext => "testserviceoffering",
                                                           :issystem => false,
                                                           :storagerttype => "shared",
                                                           :cpunumber => 1,
@@ -29,39 +29,90 @@ module CloudStack_Testing
                                                           :limitcpuuse => true,
                                                           :isvolatile => true
 
-      @cs.service_offerings["#{serviceObj.id}"].name.should.eql? "testoffering"
+      @cs.compute_offerings["#{serviceObj.id}"].name.should.eql? "testserviceoffering"
     end
 
     it "update service offering" do
-      @cs.service_offerings.each do |k, v|
-        if v.name.eql? "testoffering"
+      @cs.compute_offerings.each do |k, v|
+        if v.name.eql? "testserviceoffering"
           @serviceObj = v
         end
       end
 
-      serviceObj = @cs.root_admin.update_service_offering :name => "updatedtestoffering",
-                                                          :displaytext => "updatedtestoffering",
+      serviceObj = @cs.root_admin.update_service_offering :name => "updatedtestserviceoffering",
+                                                          :displaytext => "updatedtestserviceoffering",
                                                           :id => "#{@serviceObj.id}"
 
-      @cs.service_offerings["#{serviceObj.id}"].name.should.eql? "updatedtestoffering"
-      @cs.service_offerings["#{serviceObj.id}"].displaytext.should.eql? "updatedtestoffering"
+      @cs.compute_offerings["#{serviceObj.id}"].name.should.eql? "updatedtestserviceoffering"
+      @cs.compute_offerings["#{serviceObj.id}"].displaytext.should.eql? "updatedtestserviceoffering"
     end
 
     it "delete service offering" do
-      @cs.service_offerings.each do |k, v|
-        if v.name.eql? "updatedtestoffering"
+      @cs.compute_offerings.each do |k, v|
+        if v.name.eql? "updatedtestserviceoffering"
           @serviceObj = v
         end
       end
 
       respObj = @cs.root_admin.delete_service_offering :id => "#{@serviceObj.id}"
-      @cs.service_offerings["#{@serviceObj.id}"].should be_nil
+      @cs.compute_offerings["#{@serviceObj.id}"].should be_nil
     end
+
+
+    it "create service offering(oo)" do
+      serviceObj = @cs.create_service_offering :name => "testserviceoffering",
+                                               :displaytext => "testserviceoffering",
+                                               :issystem => false,
+                                               :storagerttype => "shared",
+                                               :cpunumber => 1,
+                                               :cpuspeed => 512,
+                                               :memory => 240,
+                                               :networkrate => 1,
+                                               :offerha => true,
+                                               :tags => "test storage tag",
+                                               :hosttags => "test host tag",
+                                               :limitcpuuse => true,
+                                               :isvolatile => true
+
+      @cs.compute_offerings["#{serviceObj.id}"].name.should.eql? "testserviceoffering"
+    end
+
+    it "update service offering(oo)" do
+      @cs.compute_offerings.each do |k, v|
+        if v.name.eql? "testserviceoffering"
+          @serviceObj = v
+        end
+      end
+
+      serviceObj = @serviceObj.update :name => "updatedtestserviceoffering",
+                                      :displaytext => "updatedtestserviceoffering"
+
+      @cs.compute_offerings["#{@serviceObj.id}"].name.should.eql? "updatedtestserviceoffering"
+      @cs.compute_offerings["#{@serviceObj.id}"].displaytext.should.eql? "updatedtestserviceoffering"
+    end
+
+    it "delete service offering(oo)" do
+      @cs.compute_offerings.each do |k, v|
+        if v.name.eql? "updatedtestserviceoffering"
+          @serviceObj = v
+        end
+      end
+
+      respObj = @serviceObj.delete
+      @cs.compute_offerings["#{@serviceObj.id}"].should be_nil
+    end
+
+
+
+
+
+
+
 
     it "create disk offering" do
       diskObj = @cs.root_admin.create_disk_offering :ismirrored  => false,
                                                     :name        => "testdiskoffering",
-                                                    :displaytext => "testoffering",
+                                                    :displaytext => "testserviceoffering",
                                                     :storagetype => "shared",
                                                     :customized  => "false",
                                                     :disksize    => 1,

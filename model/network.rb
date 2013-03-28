@@ -133,20 +133,20 @@ module CloudStack
 
 
 
-    class NetworkOffering < Raw
-      cattr_accessor :attr_list
+    # class NetworkOffering < Raw
+    #   cattr_accessor :attr_list
 
-      attr_accessor :id, :name, :displaytext, :traffictype, :isdefault,
-                    :specifyvlan, :conservemode, :specifyipranges,
-                    :availability, :networkrate, :state, :guestiptype,
-                    :serviceofferingid
+    #   attr_accessor :id, :name, :displaytext, :traffictype, :isdefault,
+    #                 :specifyvlan, :conservemode, :specifyipranges,
+    #                 :availability, :networkrate, :state, :guestiptype,
+    #                 :serviceofferingid
 
-      @@attr_list=[:id, :name, :displaytext, :traffictype, :isdefault,
-                   :specifyvlan, :conservemode, :specifyipranges,
-                   :availability, :networkrate, :state, :guestiptype,
-                   :serviceofferingid]
+    #   @@attr_list=[:id, :name, :displaytext, :traffictype, :isdefault,
+    #                :specifyvlan, :conservemode, :specifyipranges,
+    #                :availability, :networkrate, :state, :guestiptype,
+    #                :serviceofferingid]
 
-    end
+    # end
 
     class Vlan < Raw
       cattr_accessor :attr_list

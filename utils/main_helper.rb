@@ -58,10 +58,8 @@ private
   def update_env
     update_env_accounts
     update_env_infra
-    update_env_network_offerings
+    update_env_system_vms
     update_env_service_offerings
-    update_env_disk_offerings
-    # update_env_system_vms
   end
 
   def update_env_system_vms
@@ -75,31 +73,31 @@ private
     end
   end
   
-  def update_env_disk_offerings
-    resultObjs = @root_admin.list_disk_offerings
-    resultObjs.each do |obj|
+  def update_env_service_offerings
+    resultObjs0 = @root_admin.list_service_offerings :issystem => false, :listall => true
+    resultObjs0.each do |obj|
+      obj.p_node = self
+      @compute_offerings["#{obj.id}"] = obj
+    end
+
+    resultObjs1 = @root_admin.list_service_offerings :issystem => true, :listall => true
+    resultObjs1.each do |obj|
+      obj.p_node = self
+      @system_offerings["#{obj.id}"] = obj
+    end
+
+    resultObjs2 = @root_admin.list_disk_offerings :listall => true
+    resultObjs2.each do |obj|
       obj.p_node = self
       @disk_offerings["#{obj.id}"] = obj
     end
-  end
 
-  def update_env_service_offerings
-    resultObjs = @root_admin.list_service_offerings
-    resultObjs.each do |obj|
-      obj.p_node = self
-      @service_offerings["#{obj.id}"] = obj
-    end
-  end
-
-  
-  def update_env_network_offerings
-    resultObjs = @root_admin.list_network_offerings :listall => true
-    resultObjs.each do |obj|
+    resultObjs3 = @root_admin.list_network_offerings :listall => true
+    resultObjs3.each do |obj|
       obj.p_node = self
       @network_offerings["#{obj.id}"] = obj
     end
   end
-  
 
   def update_env_accounts
     _domains = @root_admin.list_domains :listall => true
@@ -124,7 +122,6 @@ private
   def update_env_infra
     _zones = @root_admin.list_zones :listall => true
     _zones.each do |zoneobj|
-      @zones["#{zoneobj.id}"] = zoneobj
       _pnets = @root_admin.list_physical_networks :zoneid => "#{zoneobj.id}"
       _pnets.each do |pnetobj|
         _traffic_types = @root_admin.list_traffic_types :physicalnetworkid => "#{pnetobj.id}"
@@ -155,6 +152,7 @@ private
         end
         zoneobj.physical_networks["#{pnetobj.id}"] = pnetobj
       end
+      @zones["#{zoneobj.id}"] = zoneobj
     end
   end
 

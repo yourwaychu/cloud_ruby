@@ -6,6 +6,8 @@ module CloudStack
     
     class DiskOffering < Raw
       
+      include ServiceOfferingModelHelper::DiskOffering
+
       cattr_accessor :attr_list
       
       attr_accessor :id, :name, :displaytext, :disksize, :iscustomized,
@@ -17,6 +19,7 @@ module CloudStack
     end
     
     class ServiceOffering < Raw
+      include ServiceOfferingModelHelper::ServiceOffering
       cattr_accessor :attr_list
       attr_accessor :id,
                     :name,
@@ -48,6 +51,21 @@ module CloudStack
                    :hosttags]
 
     end
-    
-  end# End of module module
-end# End of cloudstack module
+
+    class NetworkOffering < Raw
+      include ServiceOfferingModelHelper::NetworkOffering
+      cattr_accessor :attr_list
+
+      attr_accessor :id, :name, :displaytext, :traffictype, :isdefault,
+                    :specifyvlan, :conservemode, :specifyipranges,
+                    :availability, :networkrate, :state, :guestiptype,
+                    :serviceofferingid
+
+      @@attr_list=[:id, :name, :displaytext, :traffictype, :isdefault,
+                   :specifyvlan, :conservemode, :specifyipranges,
+                   :availability, :networkrate, :state, :guestiptype,
+                   :serviceofferingid]
+
+    end
+  end
+end

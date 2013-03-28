@@ -22,11 +22,28 @@ module CloudStack
     include InfraObsvrHelper
     include MainModelHelper
 
-    attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
-                :users, :domains, :network_offerings, :disk_offerings,
-                :service_offerings, :zones, :physical_networks, :templates,
-                :pods, :clusters, :hosts, :system_vms, :cs_agent, :cs_helper,
-                :networks, :vlans, :secondary_storages
+    attr_reader :request_url,
+                :admin_request_url, 
+                :root_admin, 
+                :accounts,
+                :users, 
+                :domains, 
+                :network_offerings, 
+                :disk_offerings,
+                :compute_offerings,
+                :system_offerings,
+                :zones,
+                :physical_networks, 
+                :templates,
+                :pods, 
+                :clusters, 
+                :hosts, 
+                :system_vms, 
+                :networks, 
+                :vlans, 
+                :secondary_storages,
+                :cs_helper,
+                :cs_agent
   
     def initialize(ip, port, i_port)
       @logger = Logger.new('cloudstack.sdk.log')
@@ -46,7 +63,8 @@ module CloudStack
       @vlans        = {}
       @physical_networks  = {}
       @network_offerings  = {}
-      @service_offerings  = {}
+      @compute_offerings  = {}
+      @system_offerings  = {}
       @secondary_storages = {}
       @disk_offerings     = {}
 

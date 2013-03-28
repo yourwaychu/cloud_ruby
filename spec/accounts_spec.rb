@@ -403,7 +403,7 @@ module CloudStack_Testing
       @cs.accounts["#{resultObj1.accountid}"].users["#{resultObj1.id}"].should_not be_nil
       @cs.accounts["#{resultObj1.accountid}"].users["#{resultObj1.id}"].username.should eq("admintester1_2")
 
-      @cs.users["#{resultObj2.id}"].should_not be_nil
+      
       @cs.users["#{resultObj2.id}"].username.should eq("usertester1_2")
       @cs.accounts["#{resultObj2.accountid}"].users["#{resultObj2.id}"].should_not be_nil
       @cs.accounts["#{resultObj2.accountid}"].users["#{resultObj2.id}"].username.should eq("usertester1_2")
@@ -960,6 +960,41 @@ module CloudStack_Testing
       @cs.domains["#{@dObj3.id}"].should be_nil
       @cs.domains["#{@dObj4.id}"].should be_nil
       @cs.domains["#{@dObj5.id}"].should be_nil
+    end
+
+    it "create domain (combine)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "ROOT"
+          @domainObj1 = v
+        end
+      end
+      resultObj1 = @cs.root_admin.create_domain :name => "domaintesting"
+
+      @domainObj1.domains["#{resultObj1.id}"].should_not be_nil
+
+      @domainObj2 = @domainObj1.domains["#{resultObj1.id}"]
+
+      resultObj2 = @domainObj2.create_domain :name => "subdomaintesting"
+
+      @domainObj2.domains["#{resultObj2.id}"].should_not be_nil
+    end
+
+    it "delete domain(combine)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domaintesting"
+          @domainObj1 = v
+        end
+      end
+      @cs.domains.each do |k, v|
+        if v.name.eql? "subdomaintesting"
+          @domainObj2 = v
+        end
+      end
+
+      resultObj1 = @cs.root_admin.delete_domain :id => "#{@domainObj1.id}"
+      resultObj2 = @domainObj2.delete
+      @cs.domains["#{@domainObj1.id}"].should be_nil
+      @cs.domains["#{@domainObj2.id}"].should be_nil
     end
 
     after(:all) do
