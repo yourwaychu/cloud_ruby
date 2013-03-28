@@ -65,14 +65,20 @@ private
   end
 
   def update_env_system_vms
-    resultObjs = @root_admin.list_system_vms
-    resultObjs.each do |obj|
-      @systemvms["#{obj.id}"] = obj
+    @zones.each do |k, v|
+      resultObjs = @root_admin.list_system_vms :zoneid => "#{v.id}"
+      resultObjs.each do |obj|
+        obj.p_node = v
+        v.system_vms["#{obj.id}"] = obj
+        @system_vms["#{obj.id}"] = obj
+      end
     end
   end
+  
   def update_env_disk_offerings
     resultObjs = @root_admin.list_disk_offerings
     resultObjs.each do |obj|
+      obj.p_node = self
       @disk_offerings["#{obj.id}"] = obj
     end
   end
@@ -80,6 +86,7 @@ private
   def update_env_service_offerings
     resultObjs = @root_admin.list_service_offerings
     resultObjs.each do |obj|
+      obj.p_node = self
       @service_offerings["#{obj.id}"] = obj
     end
   end
@@ -88,6 +95,7 @@ private
   def update_env_network_offerings
     resultObjs = @root_admin.list_network_offerings :listall => true
     resultObjs.each do |obj|
+      obj.p_node = self
       @network_offerings["#{obj.id}"] = obj
     end
   end
@@ -100,12 +108,15 @@ private
       _accounts.each do |aobj|
         _users = @root_admin.list_users :accountid => "#{aobj.id}"
         _users.each do |uobj|
+          uobj.p_node = aobj
           aobj.users["#{uobj.id}"] = uobj
           @users["#{uobj.id}"] = uobj
         end
+        aobj.p_node = dobj
         dobj.accounts["#{aobj.id}"] = aobj
         @accounts["#{aobj.id}"] = aobj
       end
+      @domains["#{dobj.parentdomainid}"].domains["#{dobj.id}"] = dobj unless dobj.parentdomainid == nil
       @domains["#{dobj.id}"] = dobj
     end
   end
@@ -118,6 +129,7 @@ private
       _pnets.each do |pnetobj|
         _traffic_types = @root_admin.list_traffic_types :physicalnetworkid => "#{pnetobj.id}"
         _traffic_types.each do |trafobj|
+          trafobj.p_node = pnetobj
           pnetobj.traffic_types["#{trafobj.id}"] = trafobj
         end
 
@@ -130,12 +142,15 @@ private
         _vr_nsps.each do |vrsp|
           _vres = @root_admin.list_virtual_router_elements :nspid => "#{vrsp.id}"
           _vres.each do |vre|
+            vre.p_node = vrsp
             vrsp.virtual_router_elements["#{vre.id}"] = vre
           end
+          vrsp.p_node = pnetobj
           pnetobj.network_service_providers["#{vrsp.id}"] = vrsp
         end
 
         _sg_nsps.each do |sgsp|
+          sgsp.p_node = pnetobj
           pentobj.network_service_providers["#{sgsp.id}"] = sgsp
         end
         zoneobj.physical_networks["#{pnetobj.id}"] = pnetobj

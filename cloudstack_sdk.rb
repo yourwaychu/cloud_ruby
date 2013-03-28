@@ -25,7 +25,7 @@ module CloudStack
     attr_reader :request_url, :admin_request_url, :root_admin, :accounts,
                 :users, :domains, :network_offerings, :disk_offerings,
                 :service_offerings, :zones, :physical_networks, :templates,
-                :pods, :clusters, :hosts, :systemvms, :cs_agent, :cs_helper,
+                :pods, :clusters, :hosts, :system_vms, :cs_agent, :cs_helper,
                 :networks, :vlans, :secondary_storages
   
     def initialize(ip, port, i_port)
@@ -41,7 +41,7 @@ module CloudStack
       @pods         = {}
       @clusters     = {}
       @hosts        = {}
-      @systemvms    = {}
+      @system_vms    = {}
       @networks     = {}
       @vlans        = {}
       @physical_networks  = {}

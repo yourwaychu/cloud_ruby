@@ -52,6 +52,7 @@ module CloudStack
         @networks           = {}
         @pods               = {}
         @secondary_storages = {}
+        @system_vms         = {}
       end
 
     end
