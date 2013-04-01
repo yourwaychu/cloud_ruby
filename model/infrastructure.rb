@@ -113,7 +113,8 @@ module CloudStack
                     :managedstate,
                     :cpuovercommitratio,
                     :memoryovercommitratio,
-                    :hosts
+                    :hosts,
+                    :primary_storages
                     
       @@attr_list = [:id,
                      :name,
@@ -129,7 +130,8 @@ module CloudStack
                      :memoryovercommitratio]
 
       def initialize(*args)
-        @hosts = {}
+        @hosts            = {}
+        @primary_storages = {}
         super(args[0], args[1], args[2])
       end
     end
@@ -207,10 +209,41 @@ module CloudStack
                      :resourcestate,
                      :hahost,
                      :jobstatus]
+    end
 
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-      end
+    class StoragePool < Raw
+
+      include InfraModelHelper::PrimaryStorage
+
+      attr_accessor :id,
+                    :zoneid,
+                    :zonename,
+                    :podid,
+                    :podname,
+                    :name,
+                    :ipaddress,
+                    :path,
+                    :type,
+                    :clusterid,
+                    :clustername,
+                    :disksizetotal,
+                    :tags,
+                    :state
+
+      @@attr_list = [:id,
+                     :zoneid,
+                     :zonename,
+                     :podid,
+                     :podname,
+                     :name,
+                     :ipaddress,
+                     :path,
+                     :type,
+                     :clusterid,
+                     :clustername,
+                     :disksizetotal,
+                     :tags,
+                     :state]
 
     end
 

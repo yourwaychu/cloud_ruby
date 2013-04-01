@@ -223,7 +223,22 @@ module InfraModelHelper
       end
       return response
     end
+    def create_storage_pool(args={})
+      params = {:command  => "createStoragePool", :zoneid => "#{self.zoneid}", :clusterid => "#{self.id}"}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "createstoragepoolresponse",
+                                             "StoragePool"
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::StoragePool)
 
+        response.p_node = self
+      end
+      return response
+    end
   end
 
 
@@ -336,5 +351,8 @@ module InfraModelHelper
       end
       return response
     end
+  end
+  module PrimaryStorage
+
   end
 end

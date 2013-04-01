@@ -2,7 +2,10 @@ module CloudStack
   module Model
     class Raw
       include Observable
+
+      cattr_accessor :attr_list
       attr_accessor :cs_agent, :model_observer, :p_node
+
       def initialize(*args)
         @cs_agent
         @model_observer
