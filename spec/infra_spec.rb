@@ -5,14 +5,38 @@ require_relative '../cloudstack'
 module CloudStack_Testing
   describe CloudStack, "Infra" do
     before(:all) do
-      config = YAML.load_file("spec/testconfig.yml")
-      _host     = config["development"]["host"]
-      _port     = config["development"]["port"]
-      _apiport  = config["development"]["apiport"]
-      @cs       = CloudStack::CloudStack.new "#{_host}",
-                                             "#{_port}",
-                                             "#{_apiport}"
+      config   = YAML.load_file("spec/testconfig.yml")
+      _host    = config["cloudstack"]["host"]
+      _port    = config["cloudstack"]["port"]
+      _apiport = config["cloudstack"]["apiport"]
+      @infra   = config["infrastructure"]
+      @cs      = CloudStack::CloudStack.new "#{_host}",
+                                            "#{_port}",
+                                            "#{_apiport}"
     end  
+
+    it "create infrastructure" do
+      _zones = @infra["zones"]
+      
+      _zones.each do |zone|
+        zoneObj = @cs.create_zone :name => "#{zone['name']}",
+                                  :networktype => "#{zone['networktype']}",
+                                  :dns1        => "#{zone['public_dns1']}",
+                                  :internaldns1 => "#{zone['internal_dns1']}"
+
+        @cs.zones.values[0].should_not be_nil
+      end
+    end
+
+
+
+    it "destroy infrastructure" do
+      @cs.zones.each do |k, v|
+        v.delete
+      end
+      @cs.zones.values[0].should be_nil
+    end
+
     it "create zone" do
       zoneObj = @cs.root_admin.create_zone :name => "testzone",
                                            :dns1 => "8.8.8.8",

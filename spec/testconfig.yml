@@ -1,6 +1,102 @@
-development:
-    # host: 10.1.228.173
-    # host: 192.168.0.198
-    host: localhost
-    port: 8080
-    apiport: 8096
+cloudstack:
+  host: localhost
+  port: 8080
+  apiport: 8096
+
+infrastructure:
+  zones:
+    - name:          testzone
+      networktype:   Basic
+      public_dns1:   8.8.8.8
+      public_dns2:
+      internal_dns1:
+      internal_dns2: 8.8.8.8
+      hypervisor:    xen
+      public:        true
+      local_storage: true
+      enable:        true
+      pods:
+        - name:     testpod
+          gateway:  192.168.56.1
+          netmask:  255.255.255.0
+          startip: 192.168.56.51
+          endip:   192.168.56.70
+          vlan_startip: 192.168.56.71
+          vlan_endip: 192.168.56.100
+          clusters:
+            - name: testcluster
+              hypervisor: XenServer
+              clustertype: CloudManaged
+              storagepool: 
+                - name: pri
+                  scope: cluster
+                  url: nfs://192.168.56.1/exports/pri
+                  tags: pri
+              hosts:
+                - ip:       192.168.56.10
+                  username: root
+                  password: password
+                  tags:     xen
+      network:
+         guest:
+           - gateway:  192.168.56.1
+             netmask:  255.255.255.0
+             start_ip: 192.168.56.71
+             end_ip:   192.168.56.100
+
+      secondary_storage:
+        - ip:   192.168.56.1
+          path: /exports/sec
+
+accounts:
+   domains:
+     - name: ROOT
+       network_domain:
+       accounts:
+         #ROOT domain Admin account
+         - accounttype:    2
+           username:       rootadmin1
+           password:       novirus
+           email:          rootadmin1@trend.com.tw
+           first_name:     rootadmin1
+           last_name:      rootadmin1
+           time_zone:
+           network_domain:
+           users:
+             - username:   rootadmin1user1
+               password:   novirus
+               email:      rootadmin1user1@trend.com.tw
+               first_name: rootadmin1user1
+               last_name:  rootadmin1user1
+               time_zone: 
+         # ROOT domain User account
+         - accounttype:    0
+           username:       rootuser1
+           password:       novirus
+           email:          rootuser1@trend.com.tw
+           first_name:     rootuser1
+           last_name:      rootuser1
+           time_zone:
+           network_domain:
+       domains:
+         - name: TESTER
+           network_domain:
+           accounts:
+             - accounttype:    2
+               username:       testadmin1
+               password:       novirus
+               email:          testadmin1@trend.com.tw
+               first_name:     testadmin1
+               last_name:      testadmin1
+               type:           Admin
+               time_zone:
+               network_domain:
+             - accounttype:    0
+               username:       testuser1
+               password:       novirus
+               email:          testuser1@trend.com.tw
+               first_name:     testuser1
+               last_name:      testuser1
+               type:           User
+               time_zone:
+               network_domain:
