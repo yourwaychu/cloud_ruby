@@ -214,6 +214,15 @@ private
     _pnObj.traffic_types["#{response.id}"] = response
   end
 
+  def obsvr_model_create_storage_pool(params, response)
+    @storage_pools["#{resposne.id}"] = response
+  end
+
+  def obsvr_model_delete_storage_pool(params, response)
+    _sp_obj = @storage_pools["#{params[:id]}"]
+    @storage_pools.delete "#{_sp_obj.id}"
+  end
+
   def obsvr_add_secondary_storage(h_params, stObj)
     _zone = @zones["#{stObj.zoneid}"]
     stObj.p_node = _zone

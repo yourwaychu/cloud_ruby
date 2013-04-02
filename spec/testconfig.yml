@@ -5,48 +5,53 @@ cloudstack:
 
 infrastructure:
   zones:
-    - name:          testzone
-      networktype:   Basic
-      public_dns1:   8.8.8.8
+    - name:          'testzone'
+      networktype:   'Basic'
+      public_dns1:   '168.95.1.1'
       public_dns2:
       internal_dns1:
-      internal_dns2: 8.8.8.8
-      hypervisor:    xen
+      internal_dns2: '168.95.1.1'
+      hypervisor:    'xen'
       public:        true
-      local_storage: true
+      local_storage: false
       enable:        true
+      networks:
+        - name: 'DefaultGuestNetwork'
+          networkoffering: 'DefaultSharedNetworkOfferingWithSGService'
+      physicalnetworks:
+        - name: 'testphysicalnetwork1'
       pods:
-        - name:     testpod
-          gateway:  192.168.56.1
-          netmask:  255.255.255.0
-          startip: 192.168.56.51
-          endip:   192.168.56.70
-          vlan_startip: 192.168.56.71
-          vlan_endip: 192.168.56.100
+        - name:         'testpod'
+          gateway:      '192.168.56.2'
+          netmask:      '255.255.255.0'
+          startip:      '192.168.56.51'
+          endip:        '192.168.56.70'
+          vlan_startip: '192.168.56.71'
+          vlan_endip:   '192.168.56.100'
+          vlan_forvirtual: false
           clusters:
-            - name: testcluster
-              hypervisor: XenServer
-              clustertype: CloudManaged
-              storagepool: 
-                - name: pri
-                  scope: cluster
-                  url: nfs://192.168.56.1/exports/pri
-                  tags: pri
+            - name:        'testcluster'
+              hypervisor:  'XenServer'
+              clustertype: 'CloudManaged'
+              storagepools: 
+                - name:  'pri'
+                  scope: 'cluster'
+                  url:   'nfs://192.168.56.2/exports/pri'
+                  tags:  'pri'
               hosts:
-                - ip:       192.168.56.10
-                  username: root
-                  password: password
-                  tags:     xen
-      network:
-         guest:
-           - gateway:  192.168.56.1
-             netmask:  255.255.255.0
-             start_ip: 192.168.56.71
-             end_ip:   192.168.56.100
-
-      secondary_storage:
-        - ip:   192.168.56.1
-          path: /exports/sec
+                - ip:       'http://192.168.56.10'
+                  username: 'root'
+                  password: 'password'
+                  tags:     'xen'
+      # network:
+      #    guest:
+      #      - gateway:  '192.168.56.2'
+      #        netmask:  '255.255.255.0'
+      #        start_ip: '192.168.56.71'
+      #        end_ip:   '192.168.56.100'
+      secondarystorages:
+        - ip:   '192.168.56.1'
+          path: '/exports/sec'
 
 accounts:
    domains:

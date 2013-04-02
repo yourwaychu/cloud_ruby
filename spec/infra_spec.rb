@@ -19,20 +19,94 @@ module CloudStack_Testing
       _zones = @infra["zones"]
       
       _zones.each do |zone|
-        zoneObj = @cs.create_zone :name => "#{zone['name']}",
-                                  :networktype => "#{zone['networktype']}",
-                                  :dns1        => "#{zone['public_dns1']}",
-                                  :internaldns1 => "#{zone['internal_dns1']}"
+        zone_obj = @cs.create_zone :name => "#{zone['name']}",
+                                   :networktype => "#{zone['networktype']}",
+                                   :dns1        => "#{zone['public_dns1']}",
+                                   :internaldns1 => "#{zone['internal_dns1']}"
 
-        @cs.zones.values[0].should_not be_nil
+        _pn = zone["physicalnetworks"][0]
+
+        pn_obj = zone_obj.create_physical_network :name => "#{_pn["name"]}"
+        
+        traffic_obj = pn_obj.add_traffic_type :traffictype => "Guest"
+        traffic_obj = pn_obj.add_traffic_type :traffictype => "Management"
+
+        vr_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values[0].enable
+    
+        sp_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].enable
+    
+        sp_obj = pn_obj.network_service_providers.choose("SecurityGroupProvider")[0].enable
+
+        _network = zone['networks'][0]
+        
+        _no_obj = @cs.network_offerings.choose("#{_network['networkoffering']}").first
+
+        pn_obj.enable
+    
+        net_obj = zone_obj.create_network :name              => "#{_network['name']}",
+                                          :displaytext       => "#{_network['name']}" ,
+                                          :networkofferingid => "#{_no_obj.id}"
+
+        _pod = zone["pods"][0]
+
+        pod_obj = zone_obj.create_pod :name    => "#{_pod['name']}",
+                                      :netmask => "#{_pod['netmask']}",
+                                      :gateway => "#{_pod['gateway']}",
+                                      :startip => "#{_pod['startip']}",
+                                      :endip   => "#{_pod['endip']}"
+    
+        vlan_obj = pod_obj.create_vlan_ip_range :gateway           => "#{_pod['gateway']}",
+                                                :netmask           => "#{_pod['netmask']}",
+                                                :networkid         => "#{net_obj.id}",
+                                                :forvirtualnetwork => "#{_pod['vlan_forvirtual']}",
+                                                :startip           => "#{_pod['vlan_startip']}",
+                                                :endip             => "#{_pod['vlan_endip']}"
+
+        _cluster_yml = _pod["clusters"][0]
+
+        cluster_obj_list = pod_obj.add_cluster :clustername => "#{_cluster_yml['name']}",
+                                               :clustertype => "#{_cluster_yml['clustertype']}",
+                                               :hypervisor  => "#{_cluster_yml['hypervisor']}"
+
+        
+
+        _host_yml = _cluster_yml["hosts"][0]
+
+        cluster_obj = cluster_obj_list[0]
+  
+        host_obj_list = cluster_obj.add_host :hypervisor  => "#{_cluster_yml['hypervisor']}",
+                                             :clustertype => "#{_cluster_yml['clustertype']}",
+                                             :hosttags    => "#{_host_yml['tags']}",
+                                             :username    => "#{_host_yml['username']}",
+                                             :password    => "#{_host_yml['password']}",
+                                             :url         => "#{_host_yml['ip']}"
+        
+        _ps_yml = _cluster_yml['storagepools'][0]
+
+        ps_obj = cluster_obj.create_storage_pool :name  => "#{_ps_yml['name']}",
+                                                 :scope => "#{_ps_yml['scope']}",
+                                                 :url   => "#{_ps_yml['url']}",
+                                                 :tags  => "#{_ps_yml['tags']}"
+
+        _sc_yml = zone['secondarystorages'][0]
+
+        sc_obj = zone_obj.add_secondary_storage :url => "nfs://#{_sc_yml['ip']}#{_sc_yml['path']}" 
+      
       end
     end
 
 
 
     it "destroy infrastructure" do
-      @cs.zones.each do |k, v|
-        v.delete
+      @cs.zones.each do |k, z|
+        z.secondary_storages.values[0].delete
+        z.pods.values[0].clusters.values[0].hosts.values[0].delete
+        z.pods.values[0].clusters.values[0].storage_pools.values[0].delete
+        z.pods.values[0].clusters.values[0].delete
+        z.pods.values[0].delete
+        z.networks.values[0].delete
+        z.physical_networks.values[0].delete
+        z.delete
       end
       @cs.zones.values[0].should be_nil
     end

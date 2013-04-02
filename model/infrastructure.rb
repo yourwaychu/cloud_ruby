@@ -114,7 +114,7 @@ module CloudStack
                     :cpuovercommitratio,
                     :memoryovercommitratio,
                     :hosts,
-                    :primary_storages
+                    :storage_pools
                     
       @@attr_list = [:id,
                      :name,
@@ -131,7 +131,7 @@ module CloudStack
 
       def initialize(*args)
         @hosts            = {}
-        @primary_storages = {}
+        @storage_pools = {}
         super(args[0], args[1], args[2])
       end
     end
@@ -213,7 +213,7 @@ module CloudStack
 
     class StoragePool < Raw
 
-      include InfraModelHelper::PrimaryStorage
+      include InfraModelHelper::StoragePool
 
       attr_accessor :id,
                     :zoneid,

@@ -78,7 +78,6 @@ module NetworkModelHelper
                                                    {:jobid => jJob['jobid']},
                                                    "updatePhysicalNetwork",
                                                    "PhysicalNetwork"
-
       
       if responseObj &&
          (!responseObj.instance_of?(CloudStack::Model::Error)) &&
@@ -88,7 +87,26 @@ module NetworkModelHelper
       end
 
       return responseObj
+    end
 
+    def enable(args={}) # Asynchronous
+      params = {:command  => "updatePhysicalNetwork", :id => "#{self.id}", :state => "Enabled"}
+      # params.merge! args unless args.empty?
+      jJob = SharedFunction.make_async_request @cs_agent, params, "updatephysicalnetworkresponse"
+
+      responseObj = SharedFunction.query_async_job @cs_agent,
+                                                   @model_observer,
+                                                   {:jobid => jJob['jobid']},
+                                                   "updatePhysicalNetwork",
+                                                   "PhysicalNetwork"
+
+      if responseObj &&
+         (!responseObj.instance_of?(CloudStack::Model::Error)) &&
+         responseObj.instance_of?(CloudStack::Model::PhysicalNetwork)
+
+        SharedFunction.update_object self, responseObj
+      end
+      return responseObj
     end
   end
 

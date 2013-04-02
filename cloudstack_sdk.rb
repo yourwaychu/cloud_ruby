@@ -41,6 +41,7 @@ module CloudStack
                 :system_vms, 
                 :networks, 
                 :vlans, 
+                :storage_pools,
                 :secondary_storages,
                 :cs_helper,
                 :cs_agent
@@ -58,13 +59,14 @@ module CloudStack
       @pods         = {}
       @clusters     = {}
       @hosts        = {}
-      @system_vms    = {}
+      @system_vms   = {}
       @networks     = {}
       @vlans        = {}
-      @physical_networks  = {}
-      @network_offerings  = {}
-      @compute_offerings  = {}
+      @physical_networks = {}
+      @network_offerings = {}
+      @compute_offerings = {}
       @system_offerings  = {}
+      @storage_pools = {}
       @secondary_storages = {}
       @disk_offerings     = {}
 

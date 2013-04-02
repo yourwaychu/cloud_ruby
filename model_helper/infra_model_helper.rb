@@ -216,6 +216,7 @@ module InfraModelHelper
 
         response.each do |ht|
           ht.p_node = self
+          self.hosts["#{ht.id}"] = ht
         end
 
         changed
@@ -223,19 +224,29 @@ module InfraModelHelper
       end
       return response
     end
+
     def create_storage_pool(args={})
-      params = {:command  => "createStoragePool", :zoneid => "#{self.zoneid}", :clusterid => "#{self.id}"}
+      params = {:command   => "createStoragePool",
+                :zoneid    => "#{self.zoneid}",
+                :podid     => "#{self.podid}",
+                :clusterid => "#{self.id}"}
+
       params.merge! args unless args.empty?
+      p params
       response = SharedFunction.make_request @cs_agent,
                                              @model_observer,
                                              params, 
                                              "createstoragepoolresponse",
                                              "StoragePool"
+      p response
       if response &&
          !response.instance_of?(CloudStack::Model::Error) &&
          response.instance_of?(CloudStack::Model::StoragePool)
 
         response.p_node = self
+        self.storage_pools["#{response.id}"] = response
+        changed
+        notify_observers("model_create_storage_pool")
       end
       return response
     end
@@ -352,7 +363,25 @@ module InfraModelHelper
       return response
     end
   end
-  module PrimaryStorage
+  module StoragePool
+    def delete(args={})
+      params = {:command  => "deleteStoragePool", :id => "#{self.id}", :forced => true}
+      params.merge! args unless args.empty?
+      response = SharedFunction.make_request @cs_agent,
+                                             @model_observer,
+                                             params, 
+                                             "deletestoragepoolresponse",
+                                             "StoragePool"
 
+      if response &&
+         !response.instance_of?(CloudStack::Model::Error) &&
+         response.instance_of?(CloudStack::Model::Success) &&
+         response.success.eql?("true")
+
+        self.p_node.storage_pools.delete self.id
+      end
+      return response
+
+    end
   end
 end
