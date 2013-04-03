@@ -20,6 +20,13 @@ module CloudStack
     include NetworkObsvrHelper
     include ServiceOfferingObsvrHelper
     include InfraObsvrHelper
+    include InfraObsvrHelper::Zone
+    include InfraObsvrHelper::Pod
+    include InfraObsvrHelper::Cluster
+    include InfraObsvrHelper::Host
+    include InfraObsvrHelper::StoragePool
+    include InfraObsvrHelper::SecondaryStorage
+
     include MainModelHelper
 
     attr_reader :request_url,

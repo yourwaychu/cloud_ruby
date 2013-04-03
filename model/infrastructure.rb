@@ -216,6 +216,7 @@ module CloudStack
       include InfraModelHelper::StoragePool
 
       cattr_accessor :attr_list
+
       attr_accessor :id,
                     :zoneid,
                     :zonename,

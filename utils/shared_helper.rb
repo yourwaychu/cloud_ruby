@@ -12,7 +12,8 @@ class SharedFunction
                         "deletePod",
                         "deleteDiskOffering",
                         "deleteServiceOffering",
-                        "deleteNetwork"]
+                        "deleteNetwork",
+                        "deleteStoragePool"]
                             
   @@ASYNC_SUCCESSCMDS = ["deleteNetwork",
                          "deleteTrafficType",

@@ -36,4 +36,11 @@ module InfraApiHelper
                         :reboot_system_vm,
                         :destroy_system_vm
   end
+
+  module StoragePool
+    sync_cmd_processor :list_storage_pools,
+                       :create_storage_pool,
+                       :update_storage_pool,
+                       :delete_storage_pool
+  end
 end

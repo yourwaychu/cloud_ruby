@@ -53,6 +53,7 @@ module InfraModelHelper
          response.instance_of?(CloudStack::Model::PhysicalNetwork)
 
         response.p_node = self
+        self.physical_networks["#{response.id}"] = response
         changed
         notify_observers("model_create_physical_network", params, response)
       end
@@ -232,13 +233,11 @@ module InfraModelHelper
                 :clusterid => "#{self.id}"}
 
       params.merge! args unless args.empty?
-      p params
       response = SharedFunction.make_request @cs_agent,
                                              @model_observer,
                                              params, 
                                              "createstoragepoolresponse",
                                              "StoragePool"
-      p response
       if response &&
          !response.instance_of?(CloudStack::Model::Error) &&
          response.instance_of?(CloudStack::Model::StoragePool)
@@ -246,7 +245,7 @@ module InfraModelHelper
         response.p_node = self
         self.storage_pools["#{response.id}"] = response
         changed
-        notify_observers("model_create_storage_pool")
+        notify_observers("model_create_storage_pool", params, response)
       end
       return response
     end
@@ -373,15 +372,18 @@ module InfraModelHelper
                                              "deletestoragepoolresponse",
                                              "StoragePool"
 
+      p response
+
       if response &&
          !response.instance_of?(CloudStack::Model::Error) &&
          response.instance_of?(CloudStack::Model::Success) &&
          response.success.eql?("true")
 
         self.p_node.storage_pools.delete self.id
+        changed
+        notify_observers("model_delete_storage_pool", params, response)
       end
       return response
-
     end
   end
 end
