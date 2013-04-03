@@ -22,7 +22,7 @@ infrastructure:
         - name: 'testphysicalnetwork1'
       pods:
         - name:         'testpod'
-          gateway:      '192.168.56.2'
+          gateway:      '192.168.56.1'
           netmask:      '255.255.255.0'
           startip:      '192.168.56.51'
           endip:        '192.168.56.70'
@@ -36,22 +36,16 @@ infrastructure:
               storagepools: 
                 - name:  'pri'
                   scope: 'cluster'
-                  url:   'nfs://192.168.56.2/exports/pri'
+                  url:   'nfs://192.168.56.10/opt/storage/primary'
                   tags:  'pri'
               hosts:
                 - ip:       'http://192.168.56.10'
                   username: 'root'
                   password: 'password'
                   tags:     'xen'
-      # network:
-      #    guest:
-      #      - gateway:  '192.168.56.2'
-      #        netmask:  '255.255.255.0'
-      #        start_ip: '192.168.56.71'
-      #        end_ip:   '192.168.56.100'
       secondarystorages:
-        - ip:   '192.168.56.1'
-          path: '/exports/sec'
+        - ip:   '192.168.56.10'
+          path: '/opt/storage/secondary'
 
 accounts:
    domains:
