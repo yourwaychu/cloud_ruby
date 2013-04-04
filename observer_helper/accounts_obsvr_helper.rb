@@ -54,8 +54,10 @@ module AccountsObsvrHelper
   module Account
   private
     def obsvr_create_account(params, accObj)
+      accObj.p_node = @domains["#{accObj.domainid}"]
+      
       @accounts["#{accObj.id}"] = accObj
-
+    
       @domains["#{accObj.domainid}"].accounts["#{accObj.id}"] = accObj
 
       _user = accObj.users.values[0]
@@ -81,12 +83,10 @@ module AccountsObsvrHelper
     end
 
     def obsvr_delete_account(params, respObj)
-      if respObj.success.eql? "true"
-        @accounts.delete "#{params[:id]}"
-        @users.values.each do |usr|
-          if usr.accountid.eql? params[:id]
-            @users.delete usr.id
-          end
+      @accounts.delete "#{params[:id]}"
+      @users.values.each do |usr|
+        if usr.accountid.eql? params[:id]
+          @users.delete usr.id
         end
       end
     end
@@ -104,23 +104,21 @@ module AccountsObsvrHelper
 
   module User
   private
-    def obsvr_create_user(params, userObj)
-      @users["#{userObj.id}"] = userObj
+    def obsvr_create_user(params, user_obj)
+      user_obj.p_node = @accounts["#{user_obj.accountid}"]
+      
+      @users["#{user_obj.id}"] = user_obj
 
-      @accounts.each do |k, acc|
-        if acc.id.eql? userObj.accountid
-          acc.users["#{userObj.id}"] = userObj
-        end
-      end
+      @accounts["#{user_obj.accountid}"].users["#{user_obj.id}"] = user_obj
     end
 
-    def obsvr_model_create_user(params, userObj)
-      @users["#{userObj.id}"] = userObj
+    def obsvr_model_create_user(params, user_obj)
+      @users["#{user_obj.id}"] = user_obj
     end
 
-    def obsvr_update_user(params, userObj)
-      oldObj = @users["#{userObj.id}"]
-      SharedFunction.update_object(oldObj, userObj)
+    def obsvr_update_user(params, user_obj)
+      oldObj = @users["#{user_obj.id}"]
+      SharedFunction.update_object(oldObj, user_obj)
     end
 
     def obsvr_register_user_keys(params, keyObj)
@@ -139,15 +137,13 @@ module AccountsObsvrHelper
     end
 
     def obsvr_delete_user(params, respObj)
-      if respObj.success.eql? "true"
-        @users.delete "#{params[:id]}"
-      end
+      user_obj = @users["#{params[:id]}"]
+      @domains["#{user_obj.do}"].accounts["#{user_obj.accountid}"].delete "#{user_obj.id}"
+      @users.delete "#{user_obj.id}"
     end
 
     def obsvr_model_delete_user(params, respObj)
-      if respObj.success.eql? "true"
-        @users.delete "#{params[:id]}"
-      end
+      @users.delete "#{params[:id]}"
     end
 
   end

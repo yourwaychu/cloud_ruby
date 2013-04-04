@@ -94,8 +94,9 @@ module AccountsModelHelper
       user_j_objs = j_obj['user']
 
       user_j_objs.each do |juser|
-        _tmp = CloudStack::Model::User.new juser, @cs_agent, @model_observer
-        @users["#{_tmp.id}"] = _tmp
+        _user_obj = CloudStack::Model::User.new juser, @cs_agent, @model_observer
+        _user_obj.p_node = self
+        self.users["#{_user_obj.id}"] = _user_obj
       end
     end
 

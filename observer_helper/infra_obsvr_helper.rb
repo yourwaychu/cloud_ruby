@@ -2,34 +2,33 @@ module InfraObsvrHelper
 
   module Zone
   private
-    def obsvr_create_zone(h_para, zoneObj)
-      @zones["#{zoneObj.id}"] = zoneObj
+    def obsvr_create_zone(params, zone_obj)
+      zone_obj.p_node = self
+      @zones["#{zone_obj.id}"] = zone_obj
     end
 
-    def obsvr_update_zone(h_para, zoneObj)
-      oldObj = @zones["#{zoneObj.id}"]
-      SharedFunction.update_object(oldObj, zoneObj)
+    def obsvr_update_zone(params, zone_obj)
+      old_obj = @zones["#{zone_obj.id}"]
+      SharedFunction.update_object(old_obj, zone_obj)
     end
 
-    def obsvr_delete_zone(h_para, resp)
-      if resp.success.eql? "true"
-        @zones.delete h_para[:id]
-      end 
+    def obsvr_delete_zone(params, resp)
+      @zones.delete params[:id]
     end
 
-    def obsvr_model_create_zone(params, zoneObj)
-      @zones["#{zoneObj.id}"] = zoneObj
+    def obsvr_model_create_zone(params, zone_obj)
+      @zones["#{zone_obj.id}"] = zone_obj
     end
 
-    def obsvr_model_delete_zone(h_para, resp)
-      @zones.delete h_para[:id]
+    def obsvr_model_delete_zone(params, resp)
+      @zones.delete params[:id]
     end
   end
 
   module Pod
   private
     def obsvr_create_pod(params, podObj)
-      podObj.p_node = _zone
+      podObj.p_node = @zones["#{podObj.zoneid}"]
       @pods["#{podObj.id}"] = podObj
       @zones["#{podObj.zoneid}"].pods["#{podObj.id}"] = podObj
     end

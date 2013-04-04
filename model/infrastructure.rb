@@ -370,6 +370,5 @@ module CloudStack
                      :templateid,
                      :state]
     end
-
   end
 end

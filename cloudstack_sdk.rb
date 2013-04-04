@@ -17,9 +17,14 @@ module CloudStack
     include AccountsObsvrHelper::Domain
     include AccountsObsvrHelper::Account
     include AccountsObsvrHelper::User
-    include NetworkObsvrHelper
-    include ServiceOfferingObsvrHelper
-    include InfraObsvrHelper
+    include NetworkObsvrHelper::Vlan
+    include NetworkObsvrHelper::PhysicalNetwork
+    include NetworkObsvrHelper::TrafficType
+    include NetworkObsvrHelper::Network
+    include NetworkObsvrHelper::NetworkServiceProvider
+    include ServiceOfferingObsvrHelper::ServiceOffering
+    include ServiceOfferingObsvrHelper::DiskOffering
+    include ServiceOfferingObsvrHelper::NetworkOffering
     include InfraObsvrHelper::Zone
     include InfraObsvrHelper::Pod
     include InfraObsvrHelper::Cluster

@@ -47,7 +47,7 @@ class SharedFunction
 
     begin
       response = JSON.parse(cs_helper.get(params).body)["#{response_name}"]
-
+      
       if /(list|addcluster|addhost)/i.match _command
         @result = [] 
         if response["#{jObj_name}"]
