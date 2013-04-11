@@ -641,50 +641,50 @@ module CloudStack_Testing
     end
     
     it "create domain (OO)" do
-      resultObj1 = @cs.create_domain :name => "domain1"
-      resultObj2 = @cs.create_domain :name => "domain2"
-      resultObj3 = @cs.domains["#{resultObj1.id}"].create_domain :name => "domain1-1"
+      resultObj1 = @cs.create_domain :name => "oodomain1"
+      resultObj2 = @cs.create_domain :name => "oodomain2"
+      resultObj3 = @cs.domains["#{resultObj1.id}"].create_domain :name => "oodomain1-1"
     
-      resultObj4 = @cs.domains["#{resultObj2.id}"].create_domain :name => "domain2-1"
-      resultObj5 = @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].create_domain :name => "domain1-1-1"
+      resultObj4 = @cs.domains["#{resultObj2.id}"].create_domain :name => "oodomain2-1"
+      resultObj5 = @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].create_domain :name => "oodomain1-1-1"
     
-      @cs.domains["#{resultObj1.id}"].name.should eql("domain1")
-      @cs.domains["#{resultObj2.id}"].name.should eql("domain2")
-      @cs.domains["#{resultObj3.id}"].name.should eql("domain1-1")
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].name.should eql("domain1-1")
-      @cs.domains["#{resultObj4.id}"].name.should eql("domain2-1")
-      @cs.domains["#{resultObj2.id}"].domains["#{resultObj4.id}"].name.should eql("domain2-1")
-      @cs.domains["#{resultObj5.id}"].name.should eql("domain1-1-1")
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].domains["#{resultObj5.id}"].name.should eql("domain1-1-1")
+      @cs.domains["#{resultObj1.id}"].name.should eql("oodomain1")
+      @cs.domains["#{resultObj2.id}"].name.should eql("oodomain2")
+      @cs.domains["#{resultObj3.id}"].name.should eql("oodomain1-1")
+      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].name.should eql("oodomain1-1")
+      @cs.domains["#{resultObj4.id}"].name.should eql("oodomain2-1")
+      @cs.domains["#{resultObj2.id}"].domains["#{resultObj4.id}"].name.should eql("oodomain2-1")
+      @cs.domains["#{resultObj5.id}"].name.should eql("oodomain1-1-1")
+      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].domains["#{resultObj5.id}"].name.should eql("oodomain1-1-1")
     end
     
     it "create account (OO)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1"
+        if v.name.eql? "oodomain1"
           @dObj1 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain2"
+        if v.name.eql? "oodomain2"
           @dObj2 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1-1"
+        if v.name.eql? "oodomain1-1"
           @dObj3 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain2-1"
+        if v.name.eql? "oodomain2-1"
           @dObj4 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1-1-1"
+        if v.name.eql? "oodomain1-1-1"
           @dObj5 = v
         end
       end
@@ -918,7 +918,7 @@ module CloudStack_Testing
     
     it "delete user (OO)" do
       @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_2"
+        if v.username.eql? "admintester1_1"
           @userObj = v
         end
       end
@@ -930,19 +930,19 @@ module CloudStack_Testing
     
     it "update account (OO)" do
       @cs.accounts.each do |k, v|
-        if v.name.eql? "ootester"
+        if v.name.eql? "admintester1"
           @accObj = v
         end
       end
       
-      @accObj.update :newname => "ootester(updated)"
-      @accObj.name.should eq("ootester(updated)")
-      @cs.accounts["#{@accObj.id}"].name.should eql("ootester(updated)")
+      @accObj.update :newname => "admintester1(updated)"
+      @accObj.name.should eq("admintester1(updated)")
+      @cs.accounts["#{@accObj.id}"].name.should eql("admintester1(updated)")
     end
     
     it "delete account (OO)" do
       @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1"
+        if v.name.eql? "admintester1(updated)"
           @accObj1 = v
         end
       end
@@ -965,43 +965,43 @@ module CloudStack_Testing
     
     it "update domain (OO)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "oo test domain"
+        if v.name.eql? "oodomain1"
           @domainObj = v
         end
       end
-      @domainObj.update :name => "oo test domain(updated)"
-      @domainObj.name.should eql("oo test domain(updated)")
+      @domainObj.update :name => "oodomain1(updated)"
+      @domainObj.name.should eql("oodomain1(updated)")
       @cs.domains["#{@domainObj.id}"].name.should.eql? "oo test domain(updated)"
      
     end
     
     it "delete domain(oo)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1"
+        if v.name.eql? "oodomain1(updated)"
           @dObj1 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain2"
+        if v.name.eql? "oodomain2"
           @dObj2 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1-1"
+        if v.name.eql? "oodomain1-1"
           @dObj3 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain2-1"
+        if v.name.eql? "oodomain2-1"
           @dObj4 = v
         end
       end
     
       @cs.domains.each do |k, v|
-        if v.name.eql? "domain1-1-1"
+        if v.name.eql? "oodomain1-1-1"
           @dObj5 = v
         end
       end
@@ -1068,7 +1068,7 @@ module CloudStack_Testing
         if d_obj.name.eql? "ROOT"
           _accs = @cs.root_admin.list_accounts :domainid => d_obj.id 
           _accs.each do |a_obj|
-            if !name.eql? "admin"
+            if !a_obj.name.eql? "admin"
               @cs.root_admin.delete_account :id => "#{a_obj.id}"
             end
           end

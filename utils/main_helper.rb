@@ -34,7 +34,6 @@ private
                                        "command=listUsers&" +
                                        "username=admin&response=json")
 
-    puts listuserresponse
     @root_admin = CloudStack::Model::Admin.new(JSON.parse(listuserresponse)['listusersresponse']['user'][0], @cs_helper, @model_observer)
 
 
