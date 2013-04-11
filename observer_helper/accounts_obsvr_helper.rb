@@ -138,7 +138,7 @@ module AccountsObsvrHelper
 
     def obsvr_delete_user(params, respObj)
       user_obj = @users["#{params[:id]}"]
-      @domains["#{user_obj.do}"].accounts["#{user_obj.accountid}"].delete "#{user_obj.id}"
+      @domains["#{user_obj.domainid}"].accounts["#{user_obj.accountid}"].users.delete "#{user_obj.id}"
       @users.delete "#{user_obj.id}"
     end
 
