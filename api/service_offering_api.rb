@@ -22,5 +22,4 @@ module ServiceOfferingApiHelper
                        :update_network_offering,
                        :delete_network_offering
   end
-                       
 end

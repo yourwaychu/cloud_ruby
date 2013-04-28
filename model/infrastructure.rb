@@ -4,7 +4,11 @@ module CloudStack
   module Model
 
     class Zone < Raw
-
+      include NetworkApiHelper::Network
+      include NetworkApiHelper::PhysicalNetwork
+      include InfraApiHelper::Pod
+      include InfraApiHelper::Zone
+      include InfraApiHelper::Host
       include InfraModelHelper::Zone
 
       cattr_accessor :attr_list
@@ -48,7 +52,7 @@ module CloudStack
                      :securitygroupenabled]
 
       def initialize(*args)
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
         @physical_networks  = {}
         @networks           = {}
         @pods               = {}
@@ -59,7 +63,9 @@ module CloudStack
     end
     
     class Pod < Raw
-
+      include InfraApiHelper::Pod
+      include InfraApiHelper::Cluster
+      include NetworkApiHelper::Network
       include InfraModelHelper::Pod
 
       cattr_accessor :attr_list
@@ -87,7 +93,7 @@ module CloudStack
                      :allocationstate]
 
       def initialize(*args)
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
         @vlans = {}
         @clusters = {}
       end 
@@ -96,7 +102,9 @@ module CloudStack
     end
     
     class Cluster < Raw
-
+      include InfraApiHelper::Cluster
+      include InfraApiHelper::Host
+      include InfraApiHelper::StoragePool
       include InfraModelHelper::Cluster
 
       cattr_accessor :attr_list
@@ -132,7 +140,7 @@ module CloudStack
       def initialize(*args)
         @hosts            = {}
         @storage_pools = {}
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
       end
     end
     

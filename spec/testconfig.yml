@@ -14,21 +14,22 @@ infrastructure:
       hypervisor:    'xen'
       public:        true
       localstorage:  false
-      enable:        true
+      physicalnetwork:
+        name:        'defaultphysicalnetwork'
+        traffictype: 'Guest,Management'
       networks:
         - name: 'DefaultGuestNetwork'
           networkoffering: 'DefaultSharedNetworkOfferingWithSGService'
-      physicalnetworks:
-        - name: 'testphysicalnetwork1'
       pods:
         - name:         'testpod'
           gateway:      '192.168.56.254'
           netmask:      '255.255.255.0'
           startip:      '192.168.56.51'
           endip:        '192.168.56.70'
-          vlan_startip: '192.168.56.71'
-          vlan_endip:   '192.168.56.100'
-          vlan_forvirtual: false
+          vlans:
+            - startip: '192.168.56.71'
+              endip:   '192.168.56.100'
+              forvirtual: false
           clusters:
             - name:        'testcluster'
               hypervisor:  'XenServer'
@@ -36,7 +37,7 @@ infrastructure:
               storagepools: 
                 - name:  'pri'
                   scope: 'cluster'
-                  url:   'nfs://192.168.56.1/exports/pri'
+                  url:   'nfs://192.168.56.1/opt/storage/primary'
                   tags:  'pri'
               hosts:
                 - ip:       'http://192.168.56.10'
@@ -45,7 +46,7 @@ infrastructure:
                   tags:     'xen'
       secondarystorages:
         - ip:   '192.168.56.1'
-          path: '/exports/sec'
+          path: '/opt/storage/secondary'
 
 accounts:
    domains:
@@ -62,10 +63,10 @@ accounts:
            time_zone:
            network_domain:
            users:
-             - username:   'rootadmin1_1'
-               email:      'rootadmin1_1@test.com'
-               first_name: 'rootadmin1_1'
-               last_name:  'rootadmin1_1'
+             - username:   'rootadmin2'
+               email:      'rootadmin2@test.com'
+               first_name: 'rootadmin2'
+               last_name:  'rootadmin2'
                password:   'novirus'
                time_zone: 
          # ROOT domain User account
@@ -117,7 +118,7 @@ accounts:
                    time_zone:
                    network_domain:
                  - accounttype:    0
-                   email:          'domain1user1@test.com'
+                   email:          'domain1-1user1@test.com'
                    first_name:     'domain1-1user1'
                    last_name:      'domain1-1user1'
                    username:       'domain1-1user1'
@@ -150,4 +151,3 @@ accounts:
                type:           'User'
                time_zone:
                network_domain:
-           

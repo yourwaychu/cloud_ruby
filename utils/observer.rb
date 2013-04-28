@@ -1,5 +1,5 @@
 module CloudStackObserver
-  class CloudStackEnvObserver
+  class EnvObserver
       def initialize(cs_instance)
         @cs_instance = cs_instance 
       end

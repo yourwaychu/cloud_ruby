@@ -1,7 +1,10 @@
 module CloudStack
   module Model
     class Domain < Raw
+      include AccountsApiHelper::Domain
+      include AccountsApiHelper::Account
       include AccountsModelHelper::Domain
+
       cattr_accessor :attr_list
 
       attr_accessor :id,
@@ -23,12 +26,15 @@ module CloudStack
       def initialize(*args)
         @accounts = {}
         @domains  = {}
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
       end
+
     end
 
     class Account < Raw
-
+      include AccountsApiHelper::Account
+      include AccountsApiHelper::User
+      include AccountsModelHelper::Account
       cattr_accessor :attr_list
 
       attr_accessor :id, 
@@ -46,30 +52,16 @@ module CloudStack
 
       def initialize(*args)
         @users = {}
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
       end
-
-      include AccountsModelHelper::Account
     end
     
     
     class User < Raw
-
       include AccountsApiHelper::Domain
       include AccountsApiHelper::Account
       include AccountsApiHelper::User
-      include NetworkApiHelper
-      include InfraApiHelper::Zone
-      include InfraApiHelper::Pod
-      include InfraApiHelper::Cluster
-      include InfraApiHelper::Host
-      include InfraApiHelper::SystemVm
-      include ServiceOfferingApiHelper::DiskOffering
-      include ServiceOfferingApiHelper::ServiceOffering
-      include ServiceOfferingApiHelper::NetworkOffering
-      include TemplateApiHelper
-      include VMApiHelper
-
+      include AccountsModelHelper::User
       cattr_accessor :attr_list
 
       attr_accessor :id,
@@ -84,8 +76,7 @@ module CloudStack
                     :account,
                     :accountid,
                     :domain,
-                    :domainid, 
-                    :cs_helper
+                    :domainid
 
       @@attr_list = [:id,
                      :username,
@@ -100,14 +91,6 @@ module CloudStack
                      :accountid,
                      :domain,
                      :domainid]
-
-      include AccountsModelHelper::User
-
-      def initialize(*args)
-        super(args[0], args[1], args[2])
-        @cs_helper
-      end
-
     end
     
     class Admin < User

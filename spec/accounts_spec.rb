@@ -2,82 +2,34 @@
 require 'yaml'
 require_relative '../cloudstack'
 
-module CloudStack_Testing
+module CloudRubyTesting
   describe CloudStack, "Account" do
     before(:all) do
-      config    = YAML.load_file("spec/testconfig.yml")
-      _host     = config["cloudstack"]["host"]
-      _port     = config["cloudstack"]["port"]
-      _apiport  = config["cloudstack"]["apiport"]
-      _accounts = config["accounts"]
+      config      = YAML.load_file("spec/testconfig.yml")
+      _host       = config["cloudstack"]["host"]
+      _port       = config["cloudstack"]["port"]
+      _apiport    = config["cloudstack"]["apiport"]
+      _acc_config = config["accounts"]
       
-      @cs       = CloudStack::CloudStack.new "#{_host}",
-                                             "#{_port}",
-                                             "#{_apiport}"
+      @cs_rspec   = CloudStack::CloudStack.new "#{_host}",
+                                               "#{_port}",
+                                               "#{_apiport}"
+      @cs_rspec.deploy_accounts(_acc_config)
 
-      # lamda
-      create_user = lambda do |args, accname, did|
-        puts "Creating user : #{args["username"]}"
-        _user_obj = @cs.root_admin.create_user :username  => "#{args['username']}",
-                                               :email     => "#{args['email']}",
-                                               :firstname => "#{args['first_name']}",
-                                               :lastname  => "#{args['last_name']}",
-                                               :password  => "novirus",
-                                               :domainid  => "#{did}",
-                                               :account   => "#{accname}"
+      @cs         = CloudStack::CloudStack.new "#{_host}",
+                                               "#{_port}",
+                                               "#{_apiport}"
+    end
 
-      end
-
-      create_account = lambda do |args, did|
-        puts "Creating account : #{args["account"]}"
-        _acc_obj = @cs.root_admin.create_account :accounttype => "#{args['accounttype']}",
-                                                 :email       => "#{args['email']}",
-                                                 :firstname   => "#{args['first_name']}",
-                                                 :lastname    => "#{args['last_name']}",
-                                                 :username    => "#{args['username']}",
-                                                 :account     => "#{args['account']}",
-                                                 :password    => "#{args['password']}",
-                                                 :domainid    => "#{did}"
-        if args["users"]
-          args["users"].each do |user|
-            create_user.call user, _acc_obj.name, did
-          end
+    it "exists ROOT domain" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "ROOT"
+          @domObj = v
         end
       end
 
-      create_domain  = lambda do |args, pid|
-        puts "Creating domain : #{args['name']}"
-        _dom_obj = @cs.root_admin.create_domain :name => "#{args["name"]}",
-                                                :parentdomainid => "#{pid}"
-        if args["accounts"]
-          args["accounts"].each do |acc|
-            create_account.call acc, _dom_obj.id
-          end
-        end
-
-        if args["domains"]
-          args["domains"].each do |dom|
-            create_domain.call dom, _dom_obj.id
-          end
-        end
-      end
-
-
-                                             
-      _root_domain = _accounts["domains"][0]
-
-      if _root_domain["domains"]
-        _root_domain["domains"].each do |dom|
-          create_domain.call dom,@cs.domains.values[0].id
-        end
-      end
-
-      if _root_domain["accounts"]
-        _root_domain["accounts"].each do |acc|
-          create_account.call acc, @cs.domains.values[0].id
-        end
-      end
-    end  
+      @domObj.name.should.eql? "ROOT"
+    end
 
     it "exists admin account" do
       @cs.accounts.each do |k, v|
@@ -89,993 +41,385 @@ module CloudStack_Testing
       @accObj.name.should.eql? "admin"
     end
 
+    it "disable exists account" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "rootuser1"
+          @userObj = v
+        end
+      end
 
-    it "create domains" do
-      resultObj1 = @cs.root_admin.create_domain :name => "testdomain1"  
-    
-      resultObj2 = @cs.root_admin.create_domain :name => "testdomain2"  
-    
-      resultObj3 = @cs.root_admin.create_domain :name           => "testdomain1-1",
-                                                :parentdomainid => "#{resultObj1.id}"
-    
-      resultObj4 = @cs.root_admin.create_domain :name           => "testdomain2-1",
-                                                :parentdomainid => "#{resultObj2.id}"
-    
-      resultObj5 = @cs.root_admin.create_domain :name           => "testdomain1-1-1",
-                                                :parentdomainid => "#{resultObj3.id}"
-    
-    
-      @cs.domains["#{resultObj1.id}"].name.should eql("testdomain1")
-      @cs.domains["#{resultObj2.id}"].name.should eql("testdomain2")
-      @cs.domains["#{resultObj3.id}"].name.should eql("testdomain1-1")
-    
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].should_not be_nil
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].name.should eq("testdomain1-1")
+      resultObj = @userObj.disable
+
+      @cs.users["#{@userObj.id}"].state.should eql("disabled")
     end
-    
-    it "create accounts" do
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1"
-          @domainObj1 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain2"
-          @domainObj2 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1-1"
-          @domainObj3 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain2-1"
-          @domainObj4 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1-1-1"
-          @domainObj5 = v
-        end
-      end
-    
-      resultObj1 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1_1@testdomain.tw",
-                                                 :firstname   => "admintester1_1",
-                                                 :lastname    => "admintester1_1",
-                                                 :username    => "admintester1_1",
-                                                 :account     => "admintester1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj1.id}"
-    
-      resultObj2 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester1_1@testdomain.tw",
-                                                 :firstname   => "usertester1_1",
-                                                 :lastname    => "usertester1_1",
-                                                 :username    => "usertester1_1",
-                                                 :account     => "usertester1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj1.id}"
-    
-      resultObj3 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester2_1@testdomain.tw",
-                                                 :firstname   => "admintester2_1",
-                                                 :lastname    => "admintester2_1",
-                                                 :username    => "admintester2_1",
-                                                 :account     => "admintester2",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj2.id}"
-                                                                                           
-      resultObj4 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester2_1@testdomain.tw",
-                                                 :firstname   => "usertester2_1",
-                                                 :lastname    => "usertester2_1",
-                                                 :username    => "usertester2_1",
-                                                 :account     => "usertester2",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj2.id}"
-    
-      resultObj5 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1-1_1@testdomain.tw",
-                                                 :firstname   => "admintester1-1_1",
-                                                 :lastname    => "admintester1-1_1",
-                                                 :username    => "admintester1-1_1",
-                                                 :account     => "admintester1-1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj3.id}"
-                                                                                           
-      resultObj6 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester1-1_1@testdomain.tw",
-                                                 :firstname   => "usertester1-1_1",
-                                                 :lastname    => "usertester1-1_1",
-                                                 :username    => "usertester1-1_1",
-                                                 :account     => "usertester1-1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj3.id}"
-    
-      resultObj7 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester2-1_1@testdomain.tw",
-                                                 :firstname   => "admintester2-1_1",
-                                                 :lastname    => "admintester2-1_1",
-                                                 :username    => "admintester2-1_1",
-                                                 :account     => "admintester2-1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj4.id}"
-                                                                                           
-      resultObj8 = @cs.root_admin.create_account :accounttype => 0,
-                                                 :email       => "usertester2-1_1@testdomain.tw",
-                                                 :firstname   => "usertester2-1_1",
-                                                 :lastname    => "usertester2-1_1",
-                                                 :username    => "usertester2-1_1",
-                                                 :account     => "usertester2-1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj4.id}"
-    
-      resultObj9 = @cs.root_admin.create_account :accounttype => 2,
-                                                 :email       => "admintester1-1-1_1@testdomain.tw",
-                                                 :firstname   => "admintester1-1-1_1",
-                                                 :lastname    => "admintester1-1-1_1",
-                                                 :username    => "admintester1-1-1_1",
-                                                 :account     => "admintester1-1-1",
-                                                 :password    => "novirus",
-                                                 :domainid    => "#{@domainObj5.id}"
-                                                                                           
-      resultObj10 = @cs.root_admin.create_account :accounttype => 0,
-                                                  :email       => "usertester1-1-1_1@testdomain.tw",
-                                                  :firstname   => "usertester1-1-1_1",
-                                                  :lastname    => "usertester1-1-1_1",
-                                                  :username    => "usertester1-1-1_1",
-                                                  :account     => "usertester1-1-1",
-                                                  :password    => "novirus",
-                                                  :domainid    => "#{@domainObj5.id}"
-    
-      @cs.accounts["#{resultObj1.id}"].should_not be_nil
-      @cs.accounts["#{resultObj1.id}"].name.should eq("admintester1")
-      @cs.accounts["#{resultObj1.id}"].domainid.should eq("#{@domainObj1.id}")
-      @cs.accounts["#{resultObj1.id}"].accounttype.should eq(2)
-      @cs.users["#{resultObj1.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj1.users.values[0].id}"].username.should eq("admintester1_1")
-      @domainObj1.accounts["#{resultObj1.id}"].should_not be_nil
-      @domainObj1.accounts["#{resultObj1.id}"].name.should eq("admintester1")
-      @domainObj1.accounts["#{resultObj1.id}"].accounttype.should eq(2)
-    
-      @cs.accounts["#{resultObj2.id}"].should_not be_nil
-      @cs.accounts["#{resultObj2.id}"].name.should eq("usertester1")
-      @cs.accounts["#{resultObj2.id}"].domainid.should eq("#{@domainObj1.id}")
-      @cs.accounts["#{resultObj2.id}"].accounttype.should eq(0)
-      @cs.users["#{resultObj2.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj2.users.values[0].id}"].username.should eq("usertester1_1")
-      @domainObj1.accounts["#{resultObj2.id}"].should_not be_nil
-      @domainObj1.accounts["#{resultObj2.id}"].name.should eq("usertester1")
-      @domainObj1.accounts["#{resultObj2.id}"].accounttype.should eq(0)
-    
-    
-      @cs.accounts["#{resultObj3.id}"].should_not be_nil
-      @cs.accounts["#{resultObj3.id}"].name.should eq("admintester2")
-      @cs.accounts["#{resultObj3.id}"].domainid.should eq("#{@domainObj2.id}")
-      @cs.accounts["#{resultObj3.id}"].accounttype.should eq(2)
-      @cs.users["#{resultObj3.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj3.users.values[0].id}"].username.should eq("admintester2_1")
-      @domainObj2.accounts["#{resultObj3.id}"].should_not be_nil
-      @domainObj2.accounts["#{resultObj3.id}"].name.should eq("admintester2")
-      @domainObj2.accounts["#{resultObj3.id}"].accounttype.should eq(2)
-    
-      @cs.accounts["#{resultObj4.id}"].should_not be_nil
-      @cs.accounts["#{resultObj4.id}"].name.should eq("usertester2")
-      @cs.accounts["#{resultObj4.id}"].domainid.should eq("#{@domainObj2.id}")
-      @cs.accounts["#{resultObj4.id}"].accounttype.should eq(0)
-      @cs.users["#{resultObj4.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj4.users.values[0].id}"].username.should eq("usertester2_1")
-      @domainObj2.accounts["#{resultObj4.id}"].should_not be_nil
-      @domainObj2.accounts["#{resultObj4.id}"].name.should eq("usertester2")
-      @domainObj2.accounts["#{resultObj4.id}"].accounttype.should eq(0)
-    
-      @cs.accounts["#{resultObj5.id}"].should_not be_nil
-      @cs.accounts["#{resultObj5.id}"].name.should eq("admintester1-1")
-      @cs.accounts["#{resultObj5.id}"].domainid.should eq("#{@domainObj3.id}")
-      @cs.accounts["#{resultObj5.id}"].accounttype.should eq(2)
-      @cs.users["#{resultObj5.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj5.users.values[0].id}"].username.should eq("admintester1-1_1")
-      @domainObj3.accounts["#{resultObj5.id}"].should_not be_nil
-      @domainObj3.accounts["#{resultObj5.id}"].name.should eq("admintester1-1")
-      @domainObj3.accounts["#{resultObj5.id}"].accounttype.should eq(2)
-    
-      @cs.accounts["#{resultObj6.id}"].should_not be_nil
-      @cs.accounts["#{resultObj6.id}"].name.should eq("usertester1-1")
-      @cs.accounts["#{resultObj6.id}"].domainid.should eq("#{@domainObj3.id}")
-      @cs.accounts["#{resultObj6.id}"].accounttype.should eq(0)
-      @domainObj3.accounts["#{resultObj6.id}"].should_not be_nil
-      @domainObj3.accounts["#{resultObj6.id}"].name.should eq("usertester1-1")
-      @domainObj3.accounts["#{resultObj6.id}"].accounttype.should eq(0)
-    
-      @cs.accounts["#{resultObj7.id}"].should_not be_nil
-      @cs.accounts["#{resultObj7.id}"].name.should eq("admintester2-1")
-      @cs.accounts["#{resultObj7.id}"].domainid.should eq("#{@domainObj4.id}")
-      @cs.accounts["#{resultObj7.id}"].accounttype.should eq(2)
-      @cs.users["#{resultObj7.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj7.users.values[0].id}"].username.should eq("admintester2-1_1")
-      @domainObj4.accounts["#{resultObj7.id}"].should_not be_nil
-      @domainObj4.accounts["#{resultObj7.id}"].name.should eq("admintester2-1")
-      @domainObj4.accounts["#{resultObj7.id}"].accounttype.should eq(2)
-    
-      @cs.accounts["#{resultObj8.id}"].should_not be_nil
-      @cs.accounts["#{resultObj8.id}"].name.should eq("usertester2-1")
-      @cs.accounts["#{resultObj8.id}"].domainid.should eq("#{@domainObj4.id}")
-      @cs.accounts["#{resultObj8.id}"].accounttype.should eq(0)
-      @cs.users["#{resultObj8.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj8.users.values[0].id}"].username.should eq("usertester2-1_1")
-      @domainObj4.accounts["#{resultObj8.id}"].should_not be_nil
-      @domainObj4.accounts["#{resultObj8.id}"].name.should eq("usertester2-1")
-      @domainObj4.accounts["#{resultObj8.id}"].accounttype.should eq(0)
-    
-      @cs.accounts["#{resultObj9.id}"].should_not be_nil
-      @cs.accounts["#{resultObj9.id}"].name.should eq("admintester1-1-1")
-      @cs.accounts["#{resultObj9.id}"].domainid.should eq("#{@domainObj5.id}")
-      @cs.accounts["#{resultObj9.id}"].accounttype.should eq(2)
-      @cs.users["#{resultObj9.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj9.users.values[0].id}"].username.should eq("admintester1-1-1_1")
-      @domainObj5.accounts["#{resultObj9.id}"].should_not be_nil
-      @domainObj5.accounts["#{resultObj9.id}"].name.should eq("admintester1-1-1")
-      @domainObj5.accounts["#{resultObj9.id}"].accounttype.should eq(2)
-    
-      @cs.accounts["#{resultObj10.id}"].should_not be_nil
-      @cs.accounts["#{resultObj10.id}"].name.should eq("usertester1-1-1")
-      @cs.accounts["#{resultObj10.id}"].domainid.should eq("#{@domainObj5.id}")
-      @cs.accounts["#{resultObj10.id}"].accounttype.should eq(0)
-      @cs.users["#{resultObj10.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj10.users.values[0].id}"].username.should eq("usertester1-1-1_1")
-      @domainObj5.accounts["#{resultObj10.id}"].should_not be_nil
-      @domainObj5.accounts["#{resultObj10.id}"].name.should eq("usertester1-1-1")
-      @domainObj5.accounts["#{resultObj10.id}"].accounttype.should eq(0)
-    
-    end
-    
-    it "create users" do
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1"
-          @acc1 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "usertester1"
-          @acc2 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester2"
-          @acc3 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "usertester2"
-          @acc4 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1-1"
-          @acc5 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "usertester1-1"
-          @acc6 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester2-1"
-          @acc7 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "usertester2-1"
-          @acc8 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1-1-1"
-          @acc9 = v
-        end
-      end
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "usertester1-1-1"
-          @acc10 = v
-        end
-      end
-    
-      resultObj1 = @cs.root_admin.create_user :username  => "admintester1_2",
-                                              :email     => "admintester1_2@testdomain.tw",
-                                              :firstname => "admintester1_2",
-                                              :lastname  => "admintester1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc1.domainid}",
-                                              :account   => "#{@acc1.name}"
-    
-      resultObj2 = @cs.root_admin.create_user :username  => "usertester1_2",
-                                              :email     => "usertester1_2@testdomain.tw",
-                                              :firstname => "usertester1_2",
-                                              :lastname  => "usertester1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc2.domainid}",
-                                              :account   => "#{@acc2.name}"
-    
-      resultObj3 = @cs.root_admin.create_user :username  => "admintester2_2",
-                                              :email     => "admintester2_2@testdomain.tw",
-                                              :firstname => "admintester2_2",
-                                              :lastname  => "admintester2_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc3.domainid}",
-                                              :account   => "#{@acc3.name}"
-    
-      resultObj4 = @cs.root_admin.create_user :username  => "usertester2_2",
-                                              :email     => "usertester2_2@testdomain.tw",
-                                              :firstname => "usertester2_2",
-                                              :lastname  => "usertester2_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc4.domainid}",
-                                              :account   => "#{@acc4.name}"
-    
-      resultObj5 = @cs.root_admin.create_user :username  => "admintester1-1_2",
-                                              :email     => "admintester1-1_2@testdomain.tw",
-                                              :firstname => "admintester1-1_2",
-                                              :lastname  => "admintester1-1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc5.domainid}",
-                                              :account   => "#{@acc5.name}"
-    
-      resultObj6 = @cs.root_admin.create_user :username  => "usertester1-1_2",
-                                              :email     => "usertester1-1_2@testdomain.tw",
-                                              :firstname => "usertester1-1_2",
-                                              :lastname  => "usertester1-1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc6.domainid}",
-                                              :account   => "#{@acc6.name}"
-    
-      resultObj7 = @cs.root_admin.create_user :username  => "admintester2-1_2",
-                                              :email     => "admintester2-1_2@testdomain.tw",
-                                              :firstname => "admintester2-1_2",
-                                              :lastname  => "admintester2-1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc7.domainid}",
-                                              :account   => "#{@acc7.name}"
-    
-      resultObj8 = @cs.root_admin.create_user :username  => "usertester2-1_2",
-                                              :email     => "usertester2-1_2@testdomain.tw",
-                                              :firstname => "usertester2-1_2",
-                                              :lastname  => "usertester2-1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc8.domainid}",
-                                              :account   => "#{@acc8.name}"
-    
-      resultObj9 = @cs.root_admin.create_user :username  => "admintester1-1-1_2",
-                                              :email     => "admintester1-1-1_2@testdomain.tw",
-                                              :firstname => "admintester1-1-1_2",
-                                              :lastname  => "admintester1-1-1_2",
-                                              :password  => "novirus",
-                                              :domainid  => "#{@acc9.domainid}",
-                                              :account   => "#{@acc9.name}"
-    
-      resultObj10 = @cs.root_admin.create_user :username  => "usertester1-1-1_2",
-                                               :email     => "usertester1-1-1_2@testdomain.tw",
-                                               :firstname => "usertester1-1-1_2",
-                                               :lastname  => "usertester1-1-1_2",
-                                               :password  => "novirus",
-                                               :domainid  => "#{@acc10.domainid}",
-                                               :account   => "#{@acc10.name}"
-    
-      @cs.users["#{resultObj1.id}"].should_not be_nil
-      @cs.users["#{resultObj1.id}"].username.should eq("admintester1_2")
-      @cs.accounts["#{resultObj1.accountid}"].users["#{resultObj1.id}"].should_not be_nil
-      @cs.accounts["#{resultObj1.accountid}"].users["#{resultObj1.id}"].username.should eq("admintester1_2")
-    
-      
-      @cs.users["#{resultObj2.id}"].username.should eq("usertester1_2")
-      @cs.accounts["#{resultObj2.accountid}"].users["#{resultObj2.id}"].should_not be_nil
-      @cs.accounts["#{resultObj2.accountid}"].users["#{resultObj2.id}"].username.should eq("usertester1_2")
-    
-      @cs.users["#{resultObj3.id}"].should_not be_nil
-      @cs.users["#{resultObj3.id}"].username.should eq("admintester2_2")
-      @cs.accounts["#{resultObj3.accountid}"].users["#{resultObj3.id}"].should_not be_nil
-      @cs.accounts["#{resultObj3.accountid}"].users["#{resultObj3.id}"].username.should eq("admintester2_2")
-    
-      @cs.users["#{resultObj4.id}"].should_not be_nil
-      @cs.users["#{resultObj4.id}"].username.should eq("usertester2_2")
-      @cs.accounts["#{resultObj4.accountid}"].users["#{resultObj4.id}"].should_not be_nil
-      @cs.accounts["#{resultObj4.accountid}"].users["#{resultObj4.id}"].username.should eq("usertester2_2")
-    
-      @cs.users["#{resultObj5.id}"].should_not be_nil
-      @cs.users["#{resultObj5.id}"].username.should eq("admintester1-1_2")
-      @cs.accounts["#{resultObj5.accountid}"].users["#{resultObj5.id}"].should_not be_nil
-      @cs.accounts["#{resultObj5.accountid}"].users["#{resultObj5.id}"].username.should eq("admintester1-1_2")
-    
-      @cs.users["#{resultObj6.id}"].should_not be_nil
-      @cs.users["#{resultObj6.id}"].username.should eq("usertester1-1_2")
-      @cs.accounts["#{resultObj6.accountid}"].users["#{resultObj6.id}"].should_not be_nil
-      @cs.accounts["#{resultObj6.accountid}"].users["#{resultObj6.id}"].username.should eq("usertester1-1_2")
-    
-      @cs.users["#{resultObj7.id}"].should_not be_nil
-      @cs.users["#{resultObj7.id}"].username.should eq("admintester2-1_2")
-      @cs.accounts["#{resultObj7.accountid}"].users["#{resultObj7.id}"].should_not be_nil
-      @cs.accounts["#{resultObj7.accountid}"].users["#{resultObj7.id}"].username.should eq("admintester2-1_2")
-    
-      @cs.users["#{resultObj8.id}"].should_not be_nil
-      @cs.users["#{resultObj8.id}"].username.should eq("usertester2-1_2")
-      @cs.accounts["#{resultObj8.accountid}"].users["#{resultObj8.id}"].should_not be_nil
-      @cs.accounts["#{resultObj8.accountid}"].users["#{resultObj8.id}"].username.should eq("usertester2-1_2")
-    
-      @cs.users["#{resultObj9.id}"].should_not be_nil
-      @cs.users["#{resultObj9.id}"].username.should eq("admintester1-1-1_2")
-      @cs.accounts["#{resultObj9.accountid}"].users["#{resultObj9.id}"].should_not be_nil
-      @cs.accounts["#{resultObj9.accountid}"].users["#{resultObj9.id}"].username.should eq("admintester1-1-1_2")
-    
-      @cs.users["#{resultObj10.id}"].should_not be_nil
-      @cs.users["#{resultObj10.id}"].username.should eq("usertester1-1-1_2")
-      @cs.accounts["#{resultObj10.accountid}"].users["#{resultObj10.id}"].should_not be_nil
-      @cs.accounts["#{resultObj10.accountid}"].users["#{resultObj10.id}"].username.should eq("usertester1-1-1_2")
-      
-    end
-    
-    it "update user" do
+
+    it "enable exists account" do
       @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_1"
-          @user1 = v
-        end
-      end
-    
-      user_obj1 = @cs.root_admin.update_user :id    => "#{@user1.id}",
-                                             :email => "update.#{@user1.email}"
-    
-      @user1.email.should eq("update.admintester1_1@testdomain.tw")
-      @cs.users["#{@user1.id}"].email.should eq("update.admintester1_1@testdomain.tw")
-      @cs.accounts["#{@user1.accountid}"].users["#{@user1.id}"].email.should eq("update.admintester1_1@testdomain.tw")
-    end
-    
-    it "delete domain" do
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1"
-          @domainObj1 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain2"
-          @domainObj2 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1-1"
-          @domainObj3 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain2-1"
-          @domainObj4 = v
-        end
-      end
-      @cs.domains.each do |k, v|
-        if v.name.eql? "testdomain1-1-1"
-          @domainObj5 = v
-        end
-      end
-    
-      resultObj5 = @cs.root_admin.delete_domain :id      => "#{@domainObj5.id}",
-                                                :cleanup => true
-    
-      @rs5 = []
-      @cs.accounts.each do |k, v|
-        if v.domainid.eql? "#{@domainObj5.id}"
-          @rs5 << v
-        end
-      end
-    
-      @rs5.length.should eq(0)
-    
-      if @domainObj5.parentdomainid
-        @cs.domains["#{@domainObj5.parentdomainid}"].domains["#{@domainObj5.id}"].should be_nil
-      end
-    
-    
-      resultObj4 = @cs.root_admin.delete_domain :id      => "#{@domainObj4.id}",
-                                                :cleanup => true
-    
-      @rs4 = []
-      @cs.accounts.each do |k, v|
-        if v.domainid.eql? "#{@domainObj4.id}"
-          @rs4 << v
-        end
-      end
-    
-      @rs4.length.should eq(0)
-    
-      if @domainObj4.parentdomainid
-        @cs.domains["#{@domainObj4.parentdomainid}"].domains["#{@domainObj4.id}"].should be_nil
-      end
-    
-      resultObj3 = @cs.root_admin.delete_domain :id      => "#{@domainObj3.id}",
-                                                :cleanup => true
-    
-      @rs3 = []
-      @cs.accounts.each do |k, v|
-        if v.domainid.eql? "#{@domainObj3.id}"
-          @rs3 << v
-        end
-      end
-    
-      @rs3.length.should eq(0)
-    
-      if @domainObj3.parentdomainid
-        @cs.domains["#{@domainObj3.parentdomainid}"].domains["#{@domainObj3.id}"].should be_nil
-      end
-    
-      resultObj2 = @cs.root_admin.delete_domain :id      => "#{@domainObj2.id}",
-                                                :cleanup => true
-    
-      @rs2 = []
-      @cs.accounts.each do |k, v|
-        if v.domainid.eql? "#{@domainObj2.id}"
-          @rs2 << v
-        end
-      end
-    
-      @rs2.length.should eq(0)
-    
-      if @domainObj2.parentdomainid
-        @cs.domains["#{@domainObj2.parentdomainid}"].domains["#{@domainObj2.id}"].should be_nil
-      end
-    
-      resultObj1 = @cs.root_admin.delete_domain :id      => "#{@domainObj1.id}",
-                                                :cleanup => true
-      
-      @rs1 = []
-      @cs.accounts.each do |k, v|
-        if v.domainid.eql? "#{@domainObj1.id}"
-          @rs1 << v
-        end
-      end
-    
-      @rs1.length.should eq(0)
-    
-      if @domainObj1.parentdomainid
-        @cs.domains["#{@domainObj1.parentdomainid}"].domains["#{@domainObj1.id}"].should be_nil
-      end
-    
-    end
-    
-    it "create domain (OO)" do
-      resultObj1 = @cs.create_domain :name => "oodomain1"
-      resultObj2 = @cs.create_domain :name => "oodomain2"
-      resultObj3 = @cs.domains["#{resultObj1.id}"].create_domain :name => "oodomain1-1"
-    
-      resultObj4 = @cs.domains["#{resultObj2.id}"].create_domain :name => "oodomain2-1"
-      resultObj5 = @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].create_domain :name => "oodomain1-1-1"
-    
-      @cs.domains["#{resultObj1.id}"].name.should eql("oodomain1")
-      @cs.domains["#{resultObj2.id}"].name.should eql("oodomain2")
-      @cs.domains["#{resultObj3.id}"].name.should eql("oodomain1-1")
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].name.should eql("oodomain1-1")
-      @cs.domains["#{resultObj4.id}"].name.should eql("oodomain2-1")
-      @cs.domains["#{resultObj2.id}"].domains["#{resultObj4.id}"].name.should eql("oodomain2-1")
-      @cs.domains["#{resultObj5.id}"].name.should eql("oodomain1-1-1")
-      @cs.domains["#{resultObj1.id}"].domains["#{resultObj3.id}"].domains["#{resultObj5.id}"].name.should eql("oodomain1-1-1")
-    end
-    
-    it "create account (OO)" do
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1"
-          @dObj1 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain2"
-          @dObj2 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1-1"
-          @dObj3 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain2-1"
-          @dObj4 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1-1-1"
-          @dObj5 = v
-        end
-      end
-    
-      resultObj1 = @dObj1.create_account :accounttype => 2,
-                                         :email       => "admintester1_1@testdomain.tw",
-                                         :firstname   => "admintester1_1",
-                                         :lastname    => "admintester1_1",
-                                         :username    => "admintester1_1",
-                                         :account     => "admintester1",
-                                         :password    => "novirus"
-    
-      resultObj2 = @dObj1.create_account :accounttype => 0,
-                                         :email       => "usertester1_1@testdomain.tw",
-                                         :firstname   => "usertester1_1",
-                                         :lastname    => "usertester1_1",
-                                         :username    => "usertester1_1",
-                                         :account     => "usertester1",
-                                         :password    => "novirus"
-    
-      resultObj3 = @dObj2.create_account :accounttype => 0,
-                                         :email       => "admintester2_1@testdomain.tw",
-                                         :firstname   => "admintester2_1",
-                                         :lastname    => "admintester2_1",
-                                         :username    => "admintester2_1",
-                                         :account     => "admintester2",
-                                         :password    => "novirus"
-    
-      resultObj4 = @dObj2.create_account :accounttype => 0,
-                                         :email       => "usertester2_1@testdomain.tw",
-                                         :firstname   => "usertester2_1",
-                                         :lastname    => "usertester2_1",
-                                         :username    => "usertester2_1",
-                                         :account     => "usertester2",
-                                         :password    => "novirus"
-    
-    
-      resultObj5 = @dObj3.create_account :accounttype => 0,
-                                         :email       => "admintester1-1_1@testdomain.tw",
-                                         :firstname   => "admintester1-1_1",
-                                         :lastname    => "admintester1-1_1",
-                                         :username    => "admintester1-1_1",
-                                         :account     => "admintester1-1",
-                                         :password    => "novirus"
-    
-      resultObj6 = @dObj3.create_account :accounttype => 0,
-                                         :email       => "usertester1-1_1@testdomain.tw",
-                                         :firstname   => "usertester1-1_1",
-                                         :lastname    => "usertester1-1_1",
-                                         :username    => "usertester1-1_1",
-                                         :account     => "usertester1-1",
-                                         :password    => "novirus"
-    
-      resultObj7 = @dObj4.create_account :accounttype => 0,
-                                         :email       => "admintester2-1_1@testdomain.tw",
-                                         :firstname   => "admintester2-1_1",
-                                         :lastname    => "admintester2-1_1",
-                                         :username    => "admintester2-1_1",
-                                         :account     => "admintester2-1",
-                                         :password    => "novirus"
-    
-      resultObj8 = @dObj4.create_account :accounttype => 0,
-                                         :email       => "usertester2-1_1@testdomain.tw",
-                                         :firstname   => "usertester2-1_1",
-                                         :lastname    => "usertester2-1_1",
-                                         :username    => "usertester2-1_1",
-                                         :account     => "usertester2-1",
-                                         :password    => "novirus"
-    
-      resultObj9 = @dObj5.create_account :accounttype => 0,
-                                         :email       => "admintester1-1-1_1@testdomain.tw",
-                                         :firstname   => "admintester1-1-1_1",
-                                         :lastname    => "admintester1-1-1_1",
-                                         :username    => "admintester1-1-1_1",
-                                         :account     => "admintester1-1-1",
-                                         :password    => "novirus"
-    
-      resultObj10 = @dObj5.create_account :accounttype => 0,
-                                          :email       => "usertester1-1-1_1@testdomain.tw",
-                                          :firstname   => "usertester1-1-1_1",
-                                          :lastname    => "usertester1-1-1_1",
-                                          :username    => "usertester1-1-1_1",
-                                          :account     => "usertester1-1-1",
-                                          :password    => "novirus"
-    
-      # 1
-      @cs.accounts["#{resultObj1.id}"].name.should eql("admintester1")
-      @cs.accounts["#{resultObj1.id}"].domainid.should eql("#{@dObj1.id}")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].name.should eql("admintester1")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj1.id}"].should equal(@cs.accounts["#{resultObj1.id}"])
-      @cs.users["#{resultObj1.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj1.users.values[0].id}"].username.should eql("admintester1_1")
-    
-      # 2
-      @cs.accounts["#{resultObj2.id}"].name.should eql("usertester1")
-      @cs.accounts["#{resultObj2.id}"].domainid.should eql("#{@dObj1.id}")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj2.id}"].name.should eql("usertester1")
-      @cs.domains["#{@dObj1.id}"].accounts["#{resultObj2.id}"].should equal(@cs.accounts["#{resultObj2.id}"])
-      @cs.users["#{resultObj2.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj2.users.values[0].id}"].username.should eql("usertester1_1")
-    
-      # 3
-      @cs.accounts["#{resultObj3.id}"].name.should eql("admintester2")
-      @cs.accounts["#{resultObj3.id}"].domainid.should eql("#{@dObj2.id}")
-      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj3.id}"].name.should eql("admintester2")
-      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj3.id}"].should equal(@cs.accounts["#{resultObj3.id}"])
-      @cs.users["#{resultObj3.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj3.users.values[0].id}"].username.should eql("admintester2_1")
-    
-      # 4
-      @cs.accounts["#{resultObj4.id}"].name.should eql("usertester2")
-      @cs.accounts["#{resultObj4.id}"].domainid.should eql("#{@dObj2.id}")
-      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj4.id}"].name.should eql("usertester2")
-      @cs.domains["#{@dObj2.id}"].accounts["#{resultObj4.id}"].should equal(@cs.accounts["#{resultObj4.id}"])
-      @cs.users["#{resultObj4.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj4.users.values[0].id}"].username.should eql("usertester2_1")
-    
-      # 5
-      @cs.accounts["#{resultObj5.id}"].name.should eql("admintester1-1")
-      @cs.accounts["#{resultObj5.id}"].domainid.should eql("#{@dObj3.id}")
-      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj5.id}"].name.should eql("admintester1-1")
-      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj5.id}"].should equal(@cs.accounts["#{resultObj5.id}"])
-      @cs.users["#{resultObj5.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj5.users.values[0].id}"].username.should eql("admintester1-1_1")
-    
-      # 6
-      @cs.accounts["#{resultObj6.id}"].name.should eql("usertester1-1")
-      @cs.accounts["#{resultObj6.id}"].domainid.should eql("#{@dObj3.id}")
-      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj6.id}"].name.should eql("usertester1-1")
-      @cs.domains["#{@dObj3.id}"].accounts["#{resultObj6.id}"].should equal(@cs.accounts["#{resultObj6.id}"])
-      @cs.users["#{resultObj6.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj6.users.values[0].id}"].username.should eql("usertester1-1_1")
-    
-      # 7
-      @cs.accounts["#{resultObj7.id}"].name.should eql("admintester2-1")
-      @cs.accounts["#{resultObj7.id}"].domainid.should eql("#{@dObj4.id}")
-      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj7.id}"].name.should eql("admintester2-1")
-      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj7.id}"].should equal(@cs.accounts["#{resultObj7.id}"])
-      @cs.users["#{resultObj7.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj7.users.values[0].id}"].username.should eql("admintester2-1_1")
-    
-      # 8
-      @cs.accounts["#{resultObj8.id}"].name.should eql("usertester2-1")
-      @cs.accounts["#{resultObj8.id}"].domainid.should eql("#{@dObj4.id}")
-      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj8.id}"].name.should eql("usertester2-1")
-      @cs.domains["#{@dObj4.id}"].accounts["#{resultObj8.id}"].should equal(@cs.accounts["#{resultObj8.id}"])
-      @cs.users["#{resultObj8.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj8.users.values[0].id}"].username.should eql("usertester2-1_1")
-    
-      # 9
-      @cs.accounts["#{resultObj9.id}"].name.should eql("admintester1-1-1")
-      @cs.accounts["#{resultObj9.id}"].domainid.should eql("#{@dObj5.id}")
-      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj9.id}"].name.should eql("admintester1-1-1")
-      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj9.id}"].should equal(@cs.accounts["#{resultObj9.id}"])
-      @cs.users["#{resultObj9.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj9.users.values[0].id}"].username.should eql("admintester1-1-1_1")
-    
-      # 10
-      @cs.accounts["#{resultObj10.id}"].name.should eql("usertester1-1-1")
-      @cs.accounts["#{resultObj10.id}"].domainid.should eql("#{@dObj5.id}")
-      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj10.id}"].name.should eql("usertester1-1-1")
-      @cs.domains["#{@dObj5.id}"].accounts["#{resultObj10.id}"].should equal(@cs.accounts["#{resultObj10.id}"])
-      @cs.users["#{resultObj10.users.values[0].id}"].should_not be_nil
-      @cs.users["#{resultObj10.users.values[0].id}"].username.should eql("usertester1-1-1_1")
-    
-    
-    end
-    
-    it "create user (OO)" do
-      @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1"
-          @accObj1 = v
-        end
-      end
-    
-      userObj1 = @accObj1.create_user :username  => "admintester1_2",
-                                      :email     => "admintester1_2@testdomain.tw",
-                                      :firstname => "admintester1_2",
-                                      :lastname  => "admintester1_2",
-                                      :password  => "novirus"
-    
-      @cs.users["#{userObj1.id}"].username.should eq("admintester1_2")
-      @accObj1.users["#{userObj1.id}"].username.should eq("admintester1_2") 
-      @accObj1.users["#{userObj1.id}"].should equal(@cs.users["#{userObj1.id}"])
-    end
-    
-    it "create user without register keys(OO)" do
-      userObj = @cs.users.choose("admintester1_1")[0]
-      expect {
-        userObj.create_user :username  => "admintester1_3",
-                            :email     => "admintester1_3@testdomain.tw",
-                            :firstname => "admintester1_3",
-                            :lastname  => "admintester1_3",
-                            :password  => "oonovirus"
-      }.to raise_error
-    end
-    
-    it "disable user (OO)" do
-      @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_1"
+        if v.username.eql? "rootuser1"
           @userObj = v
         end
       end
-      @userObj.disable 
-      
-      @userObj.state.should eql("disabled")
-      @cs.users["#{@userObj.id}"].state.should.eql? "disabled"
+
+      resultObj = @userObj.enable
+
+      @cs.users["#{@userObj.id}"].state.should eql("enabled")
     end
-    
-    it "enable user (OO)" do
-      @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_1"
-          @userObj = v
+
+    it "exists domain1 domain" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1"
+          @domObj = v
         end
       end
-      @userObj.enable 
-      @userObj.state.should eql("enabled")
-      @cs.users["#{@userObj.id}"].state.should.eql? "enabled"
+
+      @domObj.name.should eql("domain1")
     end
-    
-    it "update user (OO)" do 
-      @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_1"
-          @userObj = v
+
+    it "exists domain2 domain" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2"
+          @domObj = v
         end
       end
-      @userObj.update :email => "admintester1_1_updated@testdomain.tw"
-      @userObj.email.should eql("admintester1_1_updated@testdomain.tw")
-      @cs.users["#{@userObj.id}"].email.should eq("admintester1_1_updated@testdomain.tw")
+
+      @domObj.name.should eql("domain2")
     end
-    
-    it "delete user (OO)" do
-      @cs.users.each do |k, v|
-        if v.username.eql? "admintester1_1"
-          @userObj = v
+
+    it "exists domain1-1 domain" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-1"
+          @domObj = v
         end
       end
-      
-      @userObj.delete
-      @cs.users["#{@userObj.id}"].should be_nil
-      @cs.accounts["#{@userObj.accountid}"].users["#{@userObj}"].should be_nil
+
+      @domObj.name.should eql("domain1-1")
+      @cs.domains["#{@domObj.parentdomainid}"].domains["#{@domObj.id}"].name.should eql("domain1-1")
     end
-    
-    it "update account (OO)" do
+
+    it "create new domain" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2"
+          @domObj = v
+        end
+      end
+      resultObj = @cs.root_admin.create_domain :name => "domain2-1", :parentdomainid => "#{@domObj.id}"
+
+      @cs.domains["#{resultObj.id}"].name.should eql("domain2-1")
+      @cs.domains["#{resultObj.parentdomainid}"].domains["#{resultObj.id}"].name.should eql("domain2-1")
+    end
+
+    it "create new account" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain2-1"
+          @domObj = v
+        end
+      end
+
+      resultObj = @cs.root_admin.create_account :accounttype => 2,
+                                                :email       => "domain2-1admin1@test.com",
+                                                :firstname   => "domain2-1admin1",
+                                                :lastname    => "domain2-1admin1", 
+                                                :username    => "domain2-1admin1", 
+                                                :account     => "domain2-1admin", 
+                                                :password    => "novirus", 
+                                                :domainid    => "#{@domObj.id}" 
+
+      @cs.domains["#{@domObj.id}"].accounts["#{resultObj.id}"].name.should eql("domain2-1admin")
+      @cs.accounts["#{resultObj.id}"].name.should eql("domain2-1admin")
+    end
+
+    it "create new user" do
       @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1"
+        if v.name.eql? "domain2-1admin"
           @accObj = v
         end
       end
+
+      resultObj = @cs.root_admin.create_user :username  => "domain2-1admin2", 
+                                             :email     => "domain2-1admin2@test.com", 
+                                             :firstname => "domain2-1admin2", 
+                                             :lastname  => "domain2-1admin2", 
+                                             :password  => "novirus", 
+                                             :domainid  => "#{@accObj.domainid}", 
+                                             :account   => "#{@accObj.name}"
       
-      @accObj.update :newname => "admintester1(updated)"
-      @accObj.name.should eq("admintester1(updated)")
-      @cs.accounts["#{@accObj.id}"].name.should eql("admintester1(updated)")
+      @cs.users["#{resultObj.id}"].username.should eql("domain2-1admin2")
+      @cs.users["#{resultObj.id}"].should eq(@cs.accounts["#{@accObj.id}"].users["#{resultObj.id}"])
     end
-    
-    it "delete account (OO)" do
+
+    it "update user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+
+      resultObj = @cs.root_admin.update_user :id    => "#{@userObj.id}",
+                                             :email => "domain2-1admin2updated@test.com"
+
+      @cs.users["#{resultObj.id}"].email.should eql("domain2-1admin2updated@test.com")
+      @cs.users["#{resultObj.id}"].should eq(@cs.accounts["#{@userObj.accountid}"].users["#{resultObj.id}"])
+    end
+
+    it "request user with no keys" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+      expect {
+        resultObj = @userObj.list_domains
+      }.to raise_error
+    end
+
+    it "register user keys" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @cs.root_admin.register_user_keys :id => "#{@userObj.id}"
+
+      @cs.users["#{@userObj.id}"].apikey.should eql(resultObj.apikey)
+    end
+
+    it "request user with keys" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+
+      resultObj = @userObj.list_domains
+
+      resultObj.length.should eql(1) # show it's own domain
+      resultObj[0].name.should eql("domain2-1")
+    end
+
+    it "disable user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @cs.root_admin.disable_user :id => "#{@userObj.id}"
+      @userObj.state.should eql("disabled")
+    end
+
+    it "enable user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @cs.root_admin.enable_user :id => "#{@userObj.id}"
+      @userObj.state.should eql("enabled")
+    end
+
+    it "delete user" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain2-1admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @cs.root_admin.delete_user :id => "#{@userObj.id}"
+      
+      @cs.users["#{@userObj.id}"].should be_nil
+      @cs.accounts["#{@userObj.accountid}"].users["#{@userObj.id}"].should be_nil
+    end
+
+    it "update account" do
       @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester1(updated)"
-          @accObj1 = v
+        if v.name.eql? "domain2-1admin"
+          @accObj = v
         end
       end
-    
+
+      resultObj = @cs.root_admin.update_account :id      => "#{@accObj.id}",
+                                                :newname => "domain2-1admin(updated)"
+      @cs.domains["#{@accObj.domainid}"].accounts["#{resultObj.id}"].name.should eql("domain2-1admin(updated)")
+      @cs.accounts["#{resultObj.id}"].name.should eql("domain2-1admin(updated)")
+    end
+
+    it "delete account" do
       @cs.accounts.each do |k, v|
-        if v.name.eql? "admintester2"
-          @accObj2 = v
+        if v.name.eql? "domain2-1admin(updated)"
+          @accObj = v
         end
       end
-    
-      resultObj1 = @accObj1.delete
-      @cs.accounts["#{@accObj1.id}"].should be_nil
-      @cs.domains["#{@accObj1.domainid}"].accounts["#{@accObj1.id}"].should be_nil
-    
-      resultObj1 = @accObj2.delete
-      @cs.accounts["#{@accObj2.id}"].should be_nil
-      @cs.domains["#{@accObj2.domainid}"].accounts["#{@accObj2.id}"].should be_nil
-    
+      resultObj = @cs.root_admin.delete_account :id => "#{@accObj.id}"
+      @cs.domains["#{@accObj.domainid}"].accounts["#{@accObj.id}"].should be_nil
+      @cs.accounts["#{@accObj.id}"].should be_nil
     end
-    
-    it "update domain (OO)" do
+
+    it "update domain" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1"
-          @domainObj = v
+        if v.name.eql? "domain2"
+          @domObj = v
         end
       end
-      @domainObj.update :name => "oodomain1(updated)"
-      @domainObj.name.should eql("oodomain1(updated)")
-      @cs.domains["#{@domainObj.id}"].name.should.eql? "oo test domain(updated)"
-     
+      resultObj = @cs.root_admin.update_domain :id => "#{@domObj.id}",
+                                               :name => "domain2-1(updated)"
+
+      @cs.domains["#{resultObj.id}"].name.should eql("domain2-1(updated)")
+      @cs.domains["#{resultObj.parentdomainid}"].domains["#{resultObj.id}"].name.should eql("domain2-1(updated)")
     end
-    
-    it "delete domain(oo)" do
+
+    it "delete new domain" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1(updated)"
-          @dObj1 = v
+        if v.name.eql? "domain2-1(updated)"
+          @domObj = v
         end
       end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain2"
-          @dObj2 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1-1"
-          @dObj3 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain2-1"
-          @dObj4 = v
-        end
-      end
-    
-      @cs.domains.each do |k, v|
-        if v.name.eql? "oodomain1-1-1"
-          @dObj5 = v
-        end
-      end
-    
-    
-      resultObj5 = @dObj5.delete
-      @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].domains["#{@dObj5.id}"].should be_nil
-    
-      resultObj4 = @dObj4.delete
-      @cs.domains["#{@dObj2.id}"].domains["#{@dObj4.id}"].should be_nil
-    
-      resultObj3 = @dObj3.delete
-      @cs.domains["#{@dObj1.id}"].domains["#{@dObj3.id}"].should be_nil
-    
-      resultObj2 = @dObj2.delete
-    
-      resultObj1 = @dObj1.delete
-    
-      @cs.domains["#{@dObj1.id}"].should be_nil
-      @cs.domains["#{@dObj2.id}"].should be_nil
-      @cs.domains["#{@dObj3.id}"].should be_nil
-      @cs.domains["#{@dObj4.id}"].should be_nil
-      @cs.domains["#{@dObj5.id}"].should be_nil
+      resultObj = @cs.root_admin.delete_domain :id => "#{@domObj.id}", :cleanup => true
+
+      @cs.domains["#{@domObj.id}"].should be_nil
+      @cs.domains["#{@domObj.parentdomainid}"].domains["#{@domObj.id}"].should be_nil
     end
-    
-    it "create domain (combine)" do
+
+    it "create domain(object-oriented)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "ROOT"
-          @domainObj1 = v
+        if v.name.eql? "domain1"
+          @domObj = v
         end
       end
-      resultObj1 = @cs.root_admin.create_domain :name => "domaintesting"
-    
-      @domainObj1.domains["#{resultObj1.id}"].should_not be_nil
-    
-      @domainObj2 = @domainObj1.domains["#{resultObj1.id}"]
-    
-      resultObj2 = @domainObj2.create_domain :name => "subdomaintesting"
-    
-      @domainObj2.domains["#{resultObj2.id}"].should_not be_nil
+
+      resultObj = @domObj.create_domain :name => "domain1-2"
+      @cs.domains["#{resultObj.id}"].name.should eql("domain1-2")
+      @cs.domains["#{resultObj.id}"].should eq(@cs.domains["#{resultObj.parentdomainid}"].domains["#{resultObj.id}"])
     end
-    
-    it "delete domain(combine)" do
+
+    it "udpate domain (object-oriented)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "domaintesting"
-          @domainObj1 = v
+        if v.name.eql? "domain1-2"
+          @domObj = v
         end
       end
+
+      resultObj = @domObj.update :name => "domain1-2(updated)"
+      @cs.domains["#{resultObj.id}"].name.should eql("domain1-2(updated)")
+    end
+
+    it "create account (object-oriented)" do
       @cs.domains.each do |k, v|
-        if v.name.eql? "subdomaintesting"
-          @domainObj2 = v
+        if v.name.eql? "domain1-2(updated)"
+          @domObj = v
         end
       end
-    
-      resultObj1 = @cs.root_admin.delete_domain :id => "#{@domainObj1.id}"
-      resultObj2 = @domainObj2.delete
-      @cs.domains["#{@domainObj1.id}"].should be_nil
-      @cs.domains["#{@domainObj2.id}"].should be_nil
+      resultObj = @domObj.create_account :accounttype => 2,
+                                         :email       => "domain1-2admin1@test.com",
+                                         :firstname   => "domain1-2admin1",
+                                         :lastname    => "domain1-2admin1", 
+                                         :username    => "domain1-2admin1", 
+                                         :account     => "domain1-2admin", 
+                                         :password    => "novirus"
+
+      @domObj.accounts["#{resultObj.id}"].name.should eql("domain1-2admin")
+    end
+
+    it "create user (object-oriented)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "domain1-2admin"
+          @accObj = v
+        end
+      end
+      resultObj = @accObj.create_user :username  => "domain1-2admin2", 
+                                      :email     => "domain1-2admin2@test.com", 
+                                      :firstname => "domain1-2admin2", 
+                                      :lastname  => "domain1-2admin2", 
+                                      :password  => "novirus"
+
+      @cs.users["#{resultObj.id}"].username.should eql("domain1-2admin2")
+    end
+
+    it "update user (object-oriented)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain1-2admin2"
+          @userObj = v
+        end
+      end
+
+      resultObj = @userObj.update :email => "domain1-2admin2updated@test.com"
+      @cs.users["#{resultObj.id}"].email.should eql("domain1-2admin2updated@test.com")
+    end
+
+    it "diable user (object-oriented)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain1-2admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @userObj.disable
+      @cs.users["#{resultObj.id}"].state.should eql("disabled")
+    end
+
+    it "enable user (object-oriented)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain1-2admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @userObj.enable
+      @cs.users["#{resultObj.id}"].state.should eql("enabled")
+    end
+
+    it "delete user (object-oriented)" do
+      @cs.users.each do |k, v|
+        if v.username.eql? "domain1-2admin2"
+          @userObj = v
+        end
+      end
+      resultObj = @userObj.delete
+      @cs.users["#{@userObj.id}"].should be_nil
+    end
+
+    it "update account (object-oriented)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "domain1-2admin"
+          @accObj = v
+        end
+      end
+
+      resultObj = @accObj.update :newname => "domain1-2admin(updated)"
+
+      @cs.accounts["#{resultObj.id}"].name.should eql("domain1-2admin(updated)")
+    end
+
+
+    it "delete account (object-oriented)" do
+      @cs.accounts.each do |k, v|
+        if v.name.eql? "domain1-2admin(updated)"
+          @accObj = v
+        end
+      end
+      resultObj = @accObj.delete
+
+      @cs.accounts["#{@accObj.id}"].should be_nil
+    end
+
+    it "delete domain (object-oriented)" do
+      @cs.domains.each do |k, v|
+        if v.name.eql? "domain1-2(updated)"
+          @domObj = v
+        end
+      end
+      resultObj = @domObj.delete
+      @cs.domains["#{@domObj.id}"].should be_nil
+      @cs.domains["#{@domObj.parentdomainid}"].domains["#{@domObj.id}"].should be_nil
     end
 
     after(:all) do
-      _dobjs = @cs.root_admin.list_domains :listall => true
-      _dobjs.each do |d_obj|
-        if d_obj.name.eql? "ROOT"
-          _accs = @cs.root_admin.list_accounts :domainid => d_obj.id 
-          _accs.each do |a_obj|
-            if !a_obj.name.eql? "admin"
-              @cs.root_admin.delete_account :id => "#{a_obj.id}"
-            end
-          end
-        else
-          @cs.root_admin.delete_domain :id => "#{d_obj.id}", :cleanup => true
-        end
-      end
+      print "\n"
+      config      = YAML.load_file("spec/testconfig.yml")
+      _host       = config["cloudstack"]["host"]
+      _port       = config["cloudstack"]["port"]
+      _apiport    = config["cloudstack"]["apiport"]
+      _acc_config = config["accounts"]
+      
+      @cs_rspec   = CloudStack::CloudStack.new "#{_host}",
+                                               "#{_port}",
+                                               "#{_apiport}"
+      @cs_rspec.undeploy_accounts(_acc_config)
     end
   end
 end

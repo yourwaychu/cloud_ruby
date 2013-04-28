@@ -2,7 +2,7 @@ module CloudStack
   module Model
 
     class Network < Raw
-
+      include NetworkApiHelper::Network
       include NetworkModelHelper::Network
 
       cattr_accessor :attr_list
@@ -22,6 +22,7 @@ module CloudStack
                     :state,
                     :related,
                     :dns1,
+                       :list_traffic_types,
                     :type,
                     :acltype,
                     :subdomainaccess,
@@ -69,14 +70,15 @@ module CloudStack
     end
 
     class PhysicalNetwork < Raw
-
+      include NetworkApiHelper::TrafficType
+      include NetworkApiHelper::PhysicalNetwork
       include NetworkModelHelper::PhysicalNetwork
 
       cattr_accessor :attr_list
 
       attr_accessor :id, :broadcastdomainrange, :domainid, :isolationmethods,
                     :name, :networkspeed, :state, :tags, :vlan, :zoneid, :network_service_providers,
-                    :traffic_types
+                    :traffic_types, :vlans
 
       @@attr_list=[:id, :broadcastdomainrange, :domainid, :isolationmethods,
                     :name, :networkspeed, :state, :tags, :vlan, :zoneid]
@@ -84,25 +86,35 @@ module CloudStack
 
       def initialize(*args)
         @network_service_providers = {}
-        @traffic_types = {}
-        super(args[0], args[1], args[2])
+        @traffic_types = []
+        @vlans = {}
+        super(args[0], args[1])
       end
     end
     
     class TrafficType < Raw
-      
+      include NetworkApiHelper::TrafficType  
       include NetworkModelHelper::TrafficType
 
       cattr_accessor :attr_list
 
-      attr_accessor :id, :traffictype, :physicalnetworkid
+      attr_accessor :id,
+                    :traffictype,
+                    :physicalnetworkid,
+                    :kvmnetworklabel,
+                    :vmwarenetworklabel,
+                    :xennetworklabel
 
-      @@attr_list = [:id, :traffictype, :physicalnetworkid]
-
+      @@attr_list = [:id,
+                     :traffictype,
+                     :physicalnetworkid,
+                     :kvmnetworklabel,
+                     :vmwarenetworklabel,
+                     :xennetworklabel]
     end
 
     class NetworkServiceProvider < Raw
-
+      include NetworkApiHelper::Network
       include NetworkModelHelper::NetworkServiceProvider
 
       cattr_accessor :attr_list
@@ -113,13 +125,13 @@ module CloudStack
 
       def initialize(*args)
         @virtual_router_elements = {}
-        super(args[0], args[1], args[2])
+        super(args[0], args[1])
       end
     end
 
 
     class VirtualRouterElement < Raw
-
+      include NetworkApiHelper::Network
       include NetworkModelHelper::VirtualRouterElement
 
       cattr_accessor :attr_list

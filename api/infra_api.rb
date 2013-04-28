@@ -26,11 +26,14 @@ module InfraApiHelper
   module Host
     sync_cmd_processor :list_hosts,
                        :add_host,
-                       :delete_host
+                       :delete_host,
+                       :add_secondary_storage
+
+    async_cmd_processor :reconnect_host
   end
 
   module SystemVm
-    sync_cmd_processor :list_system_vms
+    sync_cmd_processor  :list_system_vms
     async_cmd_processor :start_system_vm,
                         :stop_system_vm,
                         :reboot_system_vm,

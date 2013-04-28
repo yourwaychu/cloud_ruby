@@ -1,4 +1,4 @@
-require_relative 'main_helper'
-require_relative 'observer_helper'
-require_relative 'shared_helper'
-require_relative 'utility_helper'
+require_relative 'agent'
+require_relative 'observer'
+require_relative 'share_utils'
+require_relative 'main_utils'
