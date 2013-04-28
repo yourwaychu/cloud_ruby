@@ -34,10 +34,12 @@
 
 - Example-5 : Infratructure deployer (A sample deployment  yaml file is in  spec/scripts/ )
 
-        $cd to project path
-        $./cloudstack_deployer.rb spec/scripts/testdeployement1.yml
+        require 'cloudstack'
+        cs = CloudStack::CloudStack.new "192.168.56.10", "8080", "8096"
+        cs.deploy_account(put_your_yaml_file_here)
+        cs.deploy_infra(put_your_yaml_file_here)
 
-  - note : The deployer supports only Basic Zone for now
+  - note : Refer to spec file for more example 
 
 ## Currently Supported API commands
 
