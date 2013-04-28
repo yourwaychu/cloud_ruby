@@ -1,6 +1,5 @@
-## Environment :
+## Installation :
  - Ruby 2.0.0
- - CloudStack API commands
  - gem install rest-client
 
 ## Usage:
