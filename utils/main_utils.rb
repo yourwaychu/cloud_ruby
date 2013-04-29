@@ -120,7 +120,6 @@ module CloudStackMainHelper
 
         puts (zone_obj ? "done" : "failed")
 
-
         physical_network = zone["physicalnetwork"]
 
         if physical_network
@@ -141,9 +140,15 @@ module CloudStackMainHelper
           
           # configure physical network
           print "%-85s" % "Configuring physical network : #{physical_network['name']}"  
-          vr_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values[0].enable
-          vrsp_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].enable
-          sgsp_obj = pn_obj.network_service_providers.choose("SecurityGroupProvider")[0].enable
+
+          vr_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0]\
+                                       .virtual_router_elements.values[0].enable
+
+          vrsp_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0]\
+                                                                         .enable
+          sgsp_obj = pn_obj.network_service_providers\
+                                      .choose("SecurityGroupProvider")[0].enable
+
           puts ( vr_obj && vrsp_obj && sgsp_obj ? "done" : "failed")
 
           # enable physical network

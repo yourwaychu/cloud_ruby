@@ -167,14 +167,20 @@ module CloudStack
                     :startip,
                     :endip,
                     :gateway,
-                    :netmask
+                    :netmask,
+                    :podid,
+                    :networkid,
+                    :zoneid
                     
       @@attr_list = [:id,
                      :vlan,
                      :startip,
                      :endip,
                      :gateway,
-                     :netmask]
+                     :netmask,
+                     :podid,
+                     :networkid,
+                     :zoneid]
     end
 
     class Vlan < Raw

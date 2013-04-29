@@ -40,11 +40,14 @@ module InfraObsvrHelper
     def obsvr_add_cluster(params, clusterList)
       clusterList.each do |cluster|
         @clusters["#{cluster.id}"] = cluster
+        @pods["#{cluster.podid}"].clusters["#{cluster.id}"] = cluster
       end
     end
 
     def obsvr_delete_cluster(params, successObj)
-      @clusters.delete "#{params[:id]}"
+      _tmp = @cluster["#{params[:id]}"]
+      @pods["#{_tmp.podid}"].cluster.delete _tmp.id
+      @clusters.delete _tmp.id
     end
 
     def obsvr_update_cluster(params, clusterObj)
@@ -52,8 +55,15 @@ module InfraObsvrHelper
       SharedFunction.update_object oldObj, clusterObj
     end
 
-    def obsvr_create_storage_pool(paramd, storageObj)
+    def obsvr_create_storage_pool(params, storageObj)
       @storage_pools["#{storageObj.id}"] = storageObj
+      @clusters["#{storageObj.clusterid}"].storage_pools["#{storageObj.id}"] = storageObj
+    end
+
+    def obsvr_delete_storage_pool(params, successObj)
+      _tmp = @stoarge_pools["#{params[:id]}"]
+      @clusters["#{_tmp.clusterid}"].storage_pools.delete _tmp.id
+      @storage_pools.delete _tmp.id
     end
   end
 
@@ -83,12 +93,14 @@ module InfraObsvrHelper
   module Network
   private
     def obsvr_create_physical_network(params, pnObj)
-      virtual_routers = list_network_service_providers :name => "VirtualRouter",
-                                                       :physicalnetworkid => "#{pnObj.id}"
+      virtual_routers = list_network_service_providers \
+                                             :name => "VirtualRouter",
+                                             :physicalnetworkid => "#{pnObj.id}"
 
 
-      security_groups = list_network_service_providers :name => "SecurityGroupProvider",
-                                                       :physicalnetworkid => "#{pnObj.id}"
+      security_groups = list_network_service_providers \
+                                             :name => "SecurityGroupProvider",
+                                             :physicalnetworkid => "#{pnObj.id}"
 
       virtual_routers.each do |vr|
         vr_elements = list_virtual_router_elements :nspid => "#{vr.id}"
@@ -120,7 +132,9 @@ module InfraObsvrHelper
     end
 
     def obsvr_delete_physical_network(params, successObj)
-      @physical_networks.delete "#{params[:id]}"
+      _tmp = @physical_networks["#{params[:id]}"]
+      @physical_networks.delete _tmp.id
+      @zones["#{_tmp.zoneid}"].physical_networks.delete _tmp.id
     end
 
     def obsvr_add_traffic_type(params, trafficObj)
@@ -130,10 +144,13 @@ module InfraObsvrHelper
 
     def obsvr_create_network(params, netObj)
       @networks["#{netObj.id}"] = netObj
+      @zones["#{netObj.zoneid}"].networks["#{netObj.id}"] = netObj
     end
 
     def obsvr_delete_network(params, successObj)
+      _tmp = @networks["#{params[:id]}"]
       @networks.delete "#{params[:id]}"
+      @zones["#{_tmp.zoneid}"].networks.delete _tmp.id
     end
 
     def obsvr_update_network_service_provider(params, nspObj)
@@ -144,20 +161,26 @@ module InfraObsvrHelper
     def obsvr_create_vlan_ip_range(params, vlanObj)
       @vlans["#{vlanObj.id}"] = vlanObj
       @physical_networks["#{vlanObj.physicalnetworkid}"].vlans["#{vlanObj.id}"] = vlanObj
+      @pods["#{vlanObj.podid}"].vlans["#{vlanObj.id}"] = vlanObj
     end
 
     def obsvr_delete_vlan_ip_range(params, successObj)
       _tmp = @vlans["#{params[:id]}"]
       @physical_networks["#{_tmp.physicalnetworkid}"].delete "#{_tmp.id}"
+      @pods["#{_tmp.podid}"].vlans.delete _tmp.id
       @vlans.delete params[:id]
     end
 
     def obsvr_create_storage_network_ip_range(params, storageVlanObj)
+      storageVlanObj.podid = params[:podid]
       @storage_vlans["#{storageVlanObj.id}"] = storageVlanObj
+      @pods["#{storageVlanObj.podid}"].storage_vlans["#{storageVlanObj.id}"]\
+                                                                = storageVlanObj
     end
 
     def obsvr_delete_storage_network_ip_range(params, successObj)
       _tmp = @storage_vlans["#{params[:id]}"]
+      @pods["#{_tmp.podid}"].storage_vlans.delete _tmp.id
       @storage_vlans.delete _tmp.id
     end
   end

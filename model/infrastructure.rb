@@ -80,7 +80,8 @@ module CloudStack
                     :endip,
                     :allocationstate,
                     :vlans,
-                    :clusters
+                    :clusters,
+                    :storage_vlans
 
       @@attr_list = [:id,                  
                      :name,
@@ -93,9 +94,10 @@ module CloudStack
                      :allocationstate]
 
       def initialize(*args)
-        super(args[0], args[1])
         @vlans = {}
         @clusters = {}
+        @storage_vlans = {}
+        super(args[0], args[1])
       end 
 
 
