@@ -99,6 +99,11 @@ delete_vlan_ip_range
         deploy_virtual_machine, destroy_virtual_machine, reboot_virtual_machine, start_virtual_machine, stop_virtual_machine
 
 ## History
-- 4-29-2013 : Fix createStoragePool command issue when deployment
-- 4-28-2013 : Huge refactor, remove cloudstack_helper due to json issue and ready for basic zone deployment
+- 4-28-2013 : 
+
+     - Big refactor
+     - Remove cloudstack_helper due to json issue for ruby 2.0.0
+     - Now it's for basic zone deployment
+     
+     
 - 3-22-2013 : Not done yet; don't expect it to work. It's really close though.
