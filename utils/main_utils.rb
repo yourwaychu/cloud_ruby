@@ -123,31 +123,31 @@ module CloudStackMainHelper
 
         physical_network = zone["physicalnetwork"]
 
-        if physical_network     #create physical network
+        if physical_network
+          #create physical network
           print "%-85s" % "Creating physical network : #{physical_network['name']}"
           pn_obj = zone_obj.create_physical_network :name => "#{physical_network['name']}"
           puts (pn_obj ? "done" : "failed")
 
           traffic_types = []
 
-          physical_network['traffictype'].split(',').each do |tt|   # add traffic type
-
+          physical_network['traffictype'].split(',').each do |tt|   
+            # add traffic type
             print "%-85s" % "Adding #{tt} traffic types to physical network"
-
             traffic_obj = pn_obj.add_traffic_type :traffictype => "#{tt}"
             puts (traffic_obj ? "done" : "failed")
             traffic_types << traffic_obj
           end
           
-          print "%-85s" % "Configuring physical network : #{physical_network['name']}"  # configure physical network
-
+          # configure physical network
+          print "%-85s" % "Configuring physical network : #{physical_network['name']}"  
           vr_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].virtual_router_elements.values[0].enable
           vrsp_obj = pn_obj.network_service_providers.choose("VirtualRouter")[0].enable
           sgsp_obj = pn_obj.network_service_providers.choose("SecurityGroupProvider")[0].enable
           puts ( vr_obj && vrsp_obj && sgsp_obj ? "done" : "failed")
 
-          print "%-85s" % "Enabling physical network : #{physical_network['name']}"     # enable physical network
-
+          # enable physical network
+          print "%-85s" % "Enabling physical network : #{physical_network['name']}"
           result = pn_obj.enable
           puts (pn_obj.state == "Enabled" ? "done" : "failed")
 
@@ -155,8 +155,9 @@ module CloudStackMainHelper
         
         network = zone['networks'][0]
         if network
-          network_offering_obj = @network_offerings.choose("#{network['networkoffering']}").first   # create network
-    
+          network_offering_obj = @network_offerings.choose("#{network['networkoffering']}").first
+
+          # create network
           print "%-85s" % "Creating network : #{network['name']}"
           net_obj = zone_obj.create_network :name              => "#{network['name']}",
                                             :displaytext       => "#{network['name']}" ,
@@ -169,7 +170,9 @@ module CloudStackMainHelper
 
         if pods
           pods.each do |pod|
-            print "%-85s" % "Creating pod : #{pod['name']}"   # create pod
+            print "%-85s" % "Creating pod : #{pod['name']}"
+
+            # create pod
             pod_obj = zone_obj.create_pod :name    => "#{pod['name']}",
                                           :netmask => "#{pod['netmask']}",
                                           :gateway => "#{pod['gateway']}",
@@ -178,10 +181,28 @@ module CloudStackMainHelper
 
             puts (pod_obj ? "done" : "failed")
 
+            storagevlans = pod["storagevlans"]
+
+            if storagevlans
+              storagevlans.each do |svlan|
+                # create storage vlan
+                print "%-85s" % "Creating storage vlan for pod : #{pod['name']}"
+                svlan_obj = pod_obj.create_storage_network_ip_range \
+                                                        :gateway => "#{svlan['gateway']}",
+                                                        :netmask => "#{svlan['netmask']}",
+                                                        :startip => "#{svlan['startip']}",
+                                                        :endip   => "#{svlan['endip']}",
+                                                        :vlan    => "#{svlan['vlan']}"
+
+                puts (svlan_obj ? "done" : "failed")
+              end
+            end
+
             vlans = pod["vlans"]
 
             if vlans
               vlans.each do |vlan|
+                # create vlans for pod
                 print "%-85s" % "Creating vlan for pod : #{pod['name']}"
                 vlan_obj = pod_obj.create_vlan_ip_range :gateway           => "#{pod['gateway']}",
                                                         :netmask           => "#{pod['netmask']}",
@@ -198,6 +219,7 @@ module CloudStackMainHelper
             clusters = pod["clusters"]
             
             if clusters
+               # create clusters
               clusters.each do |cluster|
                 print "%-85s" % "Creating cluster  for pod : #{pod['name']}"  # create cluster
                 cluster_obj_list = pod_obj.add_cluster :clustername => "#{cluster['name']}",
@@ -205,20 +227,6 @@ module CloudStackMainHelper
                                                        :hypervisor  => "#{cluster['hypervisor']}"
 
                 puts (cluster_obj_list ? "done" : "failed")
-
-                storage_pools = cluster['storagepools']
-
-                if storage_pools
-                  storage_pools.each do |storage_pool|
-                    print "%-85s" % "Adding host to cluster : #{cluster['name']}"  # create cluster
-                    sp_obj = cluster_obj_list[0].create_storage_pool \
-                                                        :name  => "#{storage_pool['name']}",
-                                                        :url   => "#{storage_pool['url']}",
-                                                        :scope => "#{storage_pool['scope']}",
-                                                        :tags  => "#{storage_pool['tags']}"
-                    puts (sp_obj ? "done" : "failed")
-                  end
-                end
 
                 hosts = cluster['hosts']
 
@@ -233,8 +241,25 @@ module CloudStackMainHelper
                                                        :password    => "#{host['password']}",
                                                        :url         => "#{host['ip']}"
 
+                  puts (host_obj_list.length == 1 ? "done" : "failed")
                   end
                 end
+
+                storage_pools = cluster['storagepools']
+
+                if storage_pools
+                  storage_pools.each do |storage_pool|
+                    # create storage pool
+                    print "%-85s" % "Adding storage pool"  
+                    sp_obj = cluster_obj_list[0].create_storage_pool \
+                                                        :name  => "#{storage_pool['name']}",
+                                                        :url   => "#{storage_pool['url']}",
+                                                        :scope => "#{storage_pool['scope']}",
+                                                        :tags  => "#{storage_pool['tags']}"
+                    puts (sp_obj ? "done" : "failed")
+                  end
+                end
+
               end
             end
           end
@@ -244,19 +269,13 @@ module CloudStackMainHelper
 
         if secondary_storages
           secondary_storages.each do |secondary_storage|
-            print "%-85s" % "Adding secondary to host : #{zone['name']}"  # add secondary storage
+            # add secondary storage
+            print "%-85s" % "Adding secondary to host : #{zone['name']}"
             sc_obj = zone_obj.add_secondary_storage \
                                 :url => "nfs://#{secondary_storage['ip']}#{secondary_storage['path']}" 
           end
         end
       end
-
-      # _ps_yml = _cluster_yml['storagepools'][0]
-      # 
-      # ps_obj = cluster_obj.create_storage_pool :name  => "#{_ps_yml['name']}",
-      #                                          :scope => "#{_ps_yml['scope']}",
-      #                                          :url   => "#{_ps_yml['url']}",
-      #                                          :tags  => "#{_ps_yml['tags']}"
     end
   end
 

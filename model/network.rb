@@ -160,6 +160,23 @@ module CloudStack
 
     # end
 
+    class StorageNetworkIpRange < Raw
+      cattr_accessor :attr_list
+      attr_accessor :id,
+                    :vlan,
+                    :startip,
+                    :endip,
+                    :gateway,
+                    :netmask
+                    
+      @@attr_list = [:id,
+                     :vlan,
+                     :startip,
+                     :endip,
+                     :gateway,
+                     :netmask]
+    end
+
     class Vlan < Raw
       cattr_accessor :attr_list
       attr_accessor :id,

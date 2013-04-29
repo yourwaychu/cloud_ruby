@@ -96,15 +96,16 @@ module CloudStack
       @hosts        = {}
       @system_vms   = {}
       @networks     = {}
-      @network_service_providers = {}
       @vlans        = {}
-      @physical_networks = {}
-      @network_offerings = {}
-      @compute_offerings = {}
-      @system_offerings  = {}
-      @storage_pools = {}
+      @physical_networks  = {}
+      @network_offerings  = {}
+      @compute_offerings  = {}
+      @system_offerings   = {}
+      @storage_pools      = {}
       @secondary_storages = {}
       @disk_offerings     = {}
+      @storage_vlans      = {}
+      @network_service_providers = {}
 
       register_root_admin
 

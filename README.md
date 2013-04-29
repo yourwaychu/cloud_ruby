@@ -39,7 +39,8 @@
         cs.deploy_account(put_your_yaml_file_here)
         cs.deploy_infra(put_your_yaml_file_here)
 
-  - note : Refer to spec file for more example 
+  - note1 : Please refer to spec/testconfig.yml file
+  - note2 : Undeployer is not ready now, please do not use it.
 
 ## Currently Supported API commands
 
@@ -98,5 +99,6 @@ delete_vlan_ip_range
         deploy_virtual_machine, destroy_virtual_machine, reboot_virtual_machine, start_virtual_machine, stop_virtual_machine
 
 ## History
+- 4-29-2013 : Fix createStoragePool command issue when deployment
 - 4-28-2013 : Huge refactor, remove cloudstack_helper due to json issue and ready for basic zone deployment
 - 3-22-2013 : Not done yet; don't expect it to work. It's really close though.

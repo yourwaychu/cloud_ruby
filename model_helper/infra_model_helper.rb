@@ -48,6 +48,17 @@ module InfraModelHelper
       args[:zoneid] = "#{self.zoneid}"
       super(args)
     end
+
+    def create_storage_network_ip_range(args={})
+      args[:podid] = "#{self.id}"
+      super(args)
+    end
+
+    def create_vlan_ip_range(args={})
+      args[:podid]  = "#{self.id}"
+      args[:zoneid] = "#{self.zoneid}"
+      super(args)
+    end
   end
 
   module Cluster

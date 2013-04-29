@@ -16,7 +16,7 @@ infrastructure:
       localstorage:  false
       physicalnetwork:
         name:        'defaultphysicalnetwork'
-        traffictype: 'Guest,Management'
+        traffictype: 'Guest,Management,Storage'
       networks:
         - name: 'DefaultGuestNetwork'
           networkoffering: 'DefaultSharedNetworkOfferingWithSGService'
@@ -26,6 +26,12 @@ infrastructure:
           netmask:      '255.255.255.0'
           startip:      '192.168.56.51'
           endip:        '192.168.56.70'
+          storagevlans:
+            - gateway: '192.168.56.1'
+              startip: '192.168.56.101'
+              endip:   '192.168.56.120'
+              netmask: '255.255.255.0'
+              vlan:    '800'
           vlans:
             - startip: '192.168.56.71'
               endip:   '192.168.56.100'
@@ -37,7 +43,7 @@ infrastructure:
               storagepools: 
                 - name:  'pri'
                   scope: 'cluster'
-                  url:   'nfs://192.168.56.1/opt/storage/primary'
+                  url:   'nfs://192.168.56.10/opt/storage/primary'
                   tags:  'pri'
               hosts:
                 - ip:       'http://192.168.56.10'
@@ -45,7 +51,7 @@ infrastructure:
                   password: 'password'
                   tags:     'xen'
       secondarystorages:
-        - ip:   '192.168.56.1'
+        - ip:   '192.168.56.10'
           path: '/opt/storage/secondary'
 
 accounts:

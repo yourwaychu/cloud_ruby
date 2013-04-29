@@ -42,7 +42,7 @@ class Module
       arga = arg.to_s.split('_')
 
       meta_method = %Q{
-        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}(args={}, isRoot=false);
+        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}#{('_'+arga[4]) unless arga[4].nil?}(args={}, isRoot=false);
           success_cmds = ["deleteVlanIpRange",
                           "deleteHost",
                           "deleteZone",
@@ -54,11 +54,12 @@ class Module
                           "deleteNetwork",
                           "deleteStoragePool"];
 
-          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}";
+          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}#{arga[4].capitalize unless arga[4].nil?}";
+
           params = {:command => command};
           params.merge! args unless args.empty?;
 
-          _responseObj = '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}'
+          _responseObj = '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}#{arga[4].capitalize unless arga[4].nil?}'
 
           if /vlan/i =~ command
             _responseObj = 'Vlan'
@@ -119,19 +120,21 @@ class Module
       arga = arg.to_s.split('_')
 
       meta_method = %Q{
-        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}(args={}, isRoot=false);
+        def #{arga[0]+"_"+arga[1]}#{('_'+arga[2]) unless arga[2].nil?}#{('_'+arga[3]) unless arga[3].nil?}#{('_'+arga[4]) unless arga[4].nil?}(args={}, isRoot=false);
+
           success_cmds = ["deleteNetwork",
                           "deleteTrafficType",
                           "deletePhysicalNetwork",
                           "deleteAccount",
                           "deleteDomain"];
 
-          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}";
+          command = "#{arga[0]}#{arga[1].capitalize}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}#{arga[4].capitalize unless arga[4].nil?}";
+
           params = {:command => command};
 
           params.merge! args unless args.empty?;
 
-          _responseObj = '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}';
+          _responseObj = '#{arga[1].capitalize unless arga[1].nil?}#{arga[2].capitalize unless arga[2].nil?}#{arga[3].capitalize unless arga[3].nil?}#{arga[4].capitalize unless arga[4].nil?}';
 
           api_caller = self unless !(self.kind_of?(CloudStack::Model::User)) || isRoot == true
 

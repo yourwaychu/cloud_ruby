@@ -151,5 +151,14 @@ module InfraObsvrHelper
       @physical_networks["#{_tmp.physicalnetworkid}"].delete "#{_tmp.id}"
       @vlans.delete params[:id]
     end
+
+    def obsvr_create_storage_network_ip_range(params, storageVlanObj)
+      @storage_vlans["#{storageVlanObj.id}"] = storageVlanObj
+    end
+
+    def obsvr_delete_storage_network_ip_range(params, successObj)
+      _tmp = @storage_vlans["#{params[:id]}"]
+      @storage_vlans.delete _tmp.id
+    end
   end
 end

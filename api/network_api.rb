@@ -10,7 +10,9 @@ module NetworkApiHelper
         
     async_cmd_processor :configure_virtual_router_element,
                         :update_network_service_provider,
-                        :delete_network
+                        :delete_network,
+                        :create_storage_network_ip_range,
+                        :delete_storage_network_ip_range
   end
 
   module TrafficType
